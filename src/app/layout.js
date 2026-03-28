@@ -6,6 +6,7 @@ import "@/styles/modal.css";
 import "@/styles/pages.css";
 import "@/styles/home.css";
 import "@/styles/metadata.css";
+import "@/styles/debug.css";
 import ClientLayout from "@/components/ClientLayout";
 
 const inter = Inter({

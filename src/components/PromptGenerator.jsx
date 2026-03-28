@@ -9,6 +9,8 @@ import { copyToClipboard, downloadPromptsCsv, parseNumberedPrompts } from "@/lib
 import { mapApiError } from "@/lib/apiErrors";
 import { PROVIDERS_UI } from "@/config/models";
 import { PROMPT_TEMPLATES } from "@/config/templates";
+import DebugPanel from "@/components/DebugPanel";
+import { buildSystemPrompt, getRequestInfo } from "@/lib/promptBuilder";
 
 function formatModelName(raw) {
   if (!raw) return "";
@@ -151,6 +153,7 @@ export default function PromptGenerator({
   const [negativePrompt, setNegativePrompt] = useState("");
   const [marketResearch, setMarketResearch] = useState(false);
   const [selected, setSelected] = useState(new Set());
+  const [debugData, setDebugData] = useState(null);
 
   const displayTitle = titleKey ? t(titleKey) : title;
   const displayDesc = descKey ? t(descKey) : description;
@@ -247,6 +250,33 @@ export default function PromptGenerator({
       if (negativePrompt.trim()) payload.negativePrompt = negativePrompt.trim();
       if (marketResearch) payload.marketResearch = true;
 
+      const sysPrompt = marketResearch
+        ? "(Market Research mode — the system prompt includes Google Search results and is built server-side)"
+        : buildSystemPrompt(type, quantity, payload.customInstructions || "", {
+            style: payload.style, mood: payload.mood, lighting: payload.lighting,
+            camera: payload.camera, shot: payload.shot, speed: payload.speed,
+            negativePrompt: payload.negativePrompt,
+          });
+      setDebugData({
+        hasData: true,
+        userInput: {
+          concept: concept.trim(), quantity, provider: model, model: actualModelKey, type,
+          ...(payload.style && { style: payload.style }),
+          ...(payload.mood && { mood: payload.mood }),
+          ...(payload.lighting && { lighting: payload.lighting }),
+          ...(payload.camera && { camera: payload.camera }),
+          ...(payload.shot && { shot: payload.shot }),
+          ...(payload.speed && { speed: payload.speed }),
+          ...(payload.negativePrompt && { negativePrompt: payload.negativePrompt }),
+          ...(payload.customInstructions && { customInstructions: payload.customInstructions }),
+          ...(marketResearch && { marketResearch: true }),
+        },
+        systemPrompt: sysPrompt,
+        requestInfo: null,
+        rawResponse: null,
+        parsedOutput: null,
+      });
+
       await new Promise(r => setTimeout(r, 400));
       setGenStep(2);
 
@@ -270,6 +300,7 @@ export default function PromptGenerator({
       setGenStep(3);
       const usedModel = res.headers.get("x-model-used") || model;
       setModelUsed(usedModel);
+      setDebugData(prev => prev ? { ...prev, requestInfo: getRequestInfo(usedModel) } : prev);
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buf = "", lastParsed = [];
@@ -290,6 +321,14 @@ export default function PromptGenerator({
       if (final.length) {
         setPrompts([...final]);
       }
+
+      setDebugData(prev => prev ? {
+        ...prev,
+        rawResponse: buf,
+        parsedOutput: final.length > 0
+          ? `${final.length} ${t("debug.promptCount")}:\n\n${final.map((p, i) => `${i + 1}. ${p}`).join("\n\n")}`
+          : "(empty — check the raw response above)",
+      } : prev);
 
       setGenStep(4);
       resetTimer.current = setTimeout(() => setGenStep(0), 5000);
@@ -579,6 +618,8 @@ export default function PromptGenerator({
           <p className="empty-state-desc">{advancedTitle}</p>
         </div>
       )}
+
+      {debugData && <DebugPanel debugData={debugData} />}
 
       {copied >= 0 && <div className="toast"><Check size={16} />{t("prompt.copied")}</div>}
       {copiedAll && <div className="toast"><Check size={16} />{t("prompt.copied")}</div>}

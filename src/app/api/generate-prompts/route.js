@@ -1,4 +1,5 @@
 import { MODEL_IDS, PROVIDER_KEY_MAP, ALLOWED_MODELS, ALLOWED_TYPES } from "@/config/models";
+import { buildSystemPrompt } from "@/lib/promptBuilder";
 
 const MAX_PROMPT_CHARS = 4000;
 const MAX_API_KEYS = 10;
@@ -98,76 +99,6 @@ function validateRequest(body) {
   return { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch };
 }
 
-function buildSystemPrompt(type, quantity, customInstructions, { style, mood, lighting, camera, shot, speed, negativePrompt } = {}) {
-  const typeLabel = type === "vector" ? "vector" : type === "video" ? "video" : "image";
-
-  let modifierBlock = "";
-  if (type === "video") {
-    const mods = [];
-    if (camera) mods.push(`Camera movement: ${camera}`);
-    if (shot) mods.push(`Shot type: ${shot}`);
-    if (speed) mods.push(`Pacing/speed: ${speed}`);
-    if (mood) mods.push(`Mood/atmosphere: ${mood}`);
-    modifierBlock = mods.length > 0 ? `\nApply these cinematic attributes to every prompt:\n${mods.map(m => `- ${m}`).join("\n")}` : "";
-  } else {
-    const mods = [];
-    if (style) mods.push(`Style: ${style}`);
-    if (mood) mods.push(`Mood/atmosphere: ${mood}`);
-    if (lighting) mods.push(`Lighting: ${lighting}`);
-    modifierBlock = mods.length > 0 ? `\nApply these visual attributes to every prompt:\n${mods.map(m => `- ${m}`).join("\n")}` : "";
-  }
-  const negativeBlock = negativePrompt ? `\nExclude from all prompts: ${negativePrompt}` : "";
-
-  const qualityBlock = type === "video"
-    ? `QUALITY RULE: Each prompt MUST be highly detailed (minimum 2-3 sentences). Every prompt must include: specific subject/action, detailed scene/setting, camera movement (pan, dolly, tracking, crane, etc.), lighting description (golden hour, neon, dramatic shadows, etc.), mood/atmosphere, and visual style. Write each prompt as if a professional cinematographer will use it directly. If the user concept is vague or says "random", YOU must invent creative, diverse, cinematic scenarios with rich detail — never generate short or generic prompts.`
-    : type === "vector"
-    ? `QUALITY RULE: Each prompt MUST be highly detailed (minimum 2-3 sentences). Every prompt must include: specific subject matter, art style (flat, line art, geometric, isometric, hand-drawn, etc.), color palette description, composition details, intended use case (web, print, app, social media), and design elements. Write each prompt as if a professional illustrator will use it to create a sellable vector. If the user concept is vague or says "random", YOU must invent creative, diverse illustration concepts with rich visual detail — never generate short or generic prompts.`
-    : `QUALITY RULE: Each prompt MUST be highly detailed (minimum 2-3 sentences). Every prompt must include: specific subject, scene composition, lighting (natural, studio, dramatic, soft, golden hour, etc.), color palette or mood, camera angle/perspective, background/environment details, and artistic style if relevant. Write each prompt as if a professional photographer or AI artist will use it to create a stunning, sellable image. If the user concept is vague or says "random", YOU must invent creative, diverse, visually rich scenarios — never generate short or generic prompts.`;
-
-  if (customInstructions) {
-    const filledInstructions = customInstructions
-      .replace(/\{count\}/gi, quantity)
-      .replace(/\{quantity\}/gi, quantity)
-      .replace(/\{n\}/gi, quantity);
-
-    return `You are a world-class professional ${typeLabel} prompt engineer. Your prompts are used by professionals to generate high-quality commercial content.
-
-ABSOLUTE RULE: Generate EXACTLY ${quantity} ${typeLabel} prompts — not more, not less.
-BASELINE QUALITY: ${qualityBlock}
-${modifierBlock}${negativeBlock}
-
-YOUR MASTER INSTRUCTIONS (follow these with absolute precision — they override everything else including output format):
-${filledInstructions}
-
-CRITICAL: The master instructions above are your PRIMARY guide. Follow their output format, their rules, their style, and their requirements EXACTLY as written. Do not add your own format. Do not simplify. Do not shorten. Execute them faithfully.`;
-  }
-
-  if (type === "video") {
-    return `You are a world-class cinematic video prompt engineer for AI video generators (Sora, Runway, Kling, Pika, Veo).
-Your prompts will be used directly to generate professional video content.
-
-STRICT RULES:
-1. Generate EXACTLY ${quantity} video prompts — not more, not less.
-2. Output ONLY numbered prompts. No introductions, explanations, or extra text.
-3. ${qualityBlock}
-4. DIVERSITY: Vary subjects, genres, settings, camera techniques, and moods across prompts. No two prompts should feel similar.
-${modifierBlock}${negativeBlock}
-
-Begin generating ${quantity} detailed, cinematic video prompts now:`;
-  }
-
-  return `You are a world-class professional ${typeLabel} prompt engineer for AI image generators (Midjourney, DALL-E, Stable Diffusion, Flux, Ideogram).
-Your prompts will be used directly to generate stunning, commercial-quality ${typeLabel}s.
-
-STRICT RULES:
-1. Generate EXACTLY ${quantity} ${typeLabel} prompts — not more, not less.
-2. Output ONLY numbered prompts. No introductions, explanations, or extra text.
-3. ${qualityBlock}
-4. DIVERSITY: Vary subjects, styles, compositions, lighting, and moods across prompts. No two prompts should feel similar.
-${modifierBlock}${negativeBlock}
-
-Begin generating ${quantity} detailed, professional ${typeLabel} prompts now:`;
-}
 
 async function fetchWithTimeout(url, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) {
   const controller = new AbortController();

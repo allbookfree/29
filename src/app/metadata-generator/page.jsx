@@ -11,6 +11,8 @@ import {
 import { useApiKeys } from "@/context/ApiKeyContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { mapApiError } from "@/lib/apiErrors";
+import DebugPanel from "@/components/DebugPanel";
+import { getRequestInfo } from "@/lib/promptBuilder";
 
 const MAX_FILES = 500;
 
@@ -192,6 +194,7 @@ export default function MetadataGeneratorPage() {
   const hfKeys   = mounted ? getAllKeys("huggingface").filter(k => k.trim()) : [];
   const hasApiKey = apiKeys.length > 0 || groqKeys.length > 0 || orKeys.length > 0 || hfKeys.length > 0;
   const [preferredProvider, setPreferredProvider] = useState("auto");
+  const [debugData, setDebugData] = useState(null);
 
   const doneResults = results.filter(r => r.status === "done");
   const completedCount = results.filter(r => ["done","error","skipped"].includes(r.status)).length;
@@ -294,6 +297,19 @@ export default function MetadataGeneratorPage() {
             keywordCount: meta.keywordCount,
             provider: meta.provider || "gemini-2.5-flash",
           });
+          setDebugData({
+            hasData: true,
+            userInput: {
+              concept: entry.file.name,
+              contentType,
+              imageCount: files.length,
+              preferredProvider,
+            },
+            systemPrompt: "(System prompt built server-side — it instructs the AI to analyze your image and generate SEO-optimized title, description, and keywords for microstock platforms)",
+            requestInfo: getRequestInfo(meta.provider || "gemini-2.5-flash"),
+            rawResponse: JSON.stringify(meta, null, 2),
+            parsedOutput: `Title: ${meta.title || "-"}\n\nDescription: ${meta.description || "-"}\n\nKeywords (${meta.keywordCount || 0}): ${Array.isArray(meta.keywords) ? meta.keywords.join(", ") : meta.keywords || "-"}`,
+          });
         }
       } catch (err) {
         updateResult(entry.id, { status: "error", error: err.message || "Network error." });
@@ -363,6 +379,14 @@ export default function MetadataGeneratorPage() {
             status: "done", title: meta.title, description: meta.description,
             keywords: meta.keywords, keywordCount: meta.keywordCount,
             provider: meta.provider || "gemini-2.5-flash",
+          });
+          setDebugData({
+            hasData: true,
+            userInput: { concept: entry.file.name, contentType, imageCount: failedFiles.length, preferredProvider },
+            systemPrompt: "(System prompt built server-side — it instructs the AI to analyze your image and generate SEO-optimized title, description, and keywords for microstock platforms)",
+            requestInfo: getRequestInfo(meta.provider || "gemini-2.5-flash"),
+            rawResponse: JSON.stringify(meta, null, 2),
+            parsedOutput: `Title: ${meta.title || "-"}\n\nDescription: ${meta.description || "-"}\n\nKeywords (${meta.keywordCount || 0}): ${Array.isArray(meta.keywords) ? meta.keywords.join(", ") : meta.keywords || "-"}`,
           });
         }
       } catch (err) {
@@ -557,6 +581,8 @@ export default function MetadataGeneratorPage() {
           })}
         </div>
       )}
+
+      {debugData && <DebugPanel debugData={debugData} />}
     </div>
   );
 }
