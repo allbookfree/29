@@ -70,23 +70,137 @@ Begin generating ${quantity} detailed, professional ${typeLabel} prompts now:`;
 }
 
 export const MODEL_REQUEST_INFO = {
-  "gemini": { endpoint: "generativelanguage.googleapis.com", modelId: "gemini-2.5-flash", temperature: 0.9, maxTokens: 8192 },
-  "gemini-2.5-flash": { endpoint: "generativelanguage.googleapis.com", modelId: "gemini-2.5-flash", temperature: 0.9, maxTokens: 8192 },
-  "gemini-lite": { endpoint: "generativelanguage.googleapis.com", modelId: "gemini-2.5-flash-lite", temperature: 0.9, maxTokens: 8192 },
-  "gemini-2.5-flash-lite": { endpoint: "generativelanguage.googleapis.com", modelId: "gemini-2.5-flash-lite", temperature: 0.9, maxTokens: 8192 },
-  "groq": { endpoint: "api.groq.com/openai/v1/chat/completions", modelId: "llama-3.3-70b-versatile", temperature: 0.9, maxTokens: 8192 },
-  "llama-3.3-70b-versatile": { endpoint: "api.groq.com/openai/v1/chat/completions", modelId: "llama-3.3-70b-versatile", temperature: 0.9, maxTokens: 8192 },
-  "groq-scout": { endpoint: "api.groq.com/openai/v1/chat/completions", modelId: "meta-llama/llama-4-scout-17b-16e-instruct", temperature: 0.9, maxTokens: 8192 },
-  "mistral": { endpoint: "api.mistral.ai/v1/chat/completions", modelId: "open-mixtral-8x22b", temperature: 0.9, maxTokens: 8192 },
-  "openrouter": { endpoint: "openrouter.ai/api/v1/chat/completions", modelId: "auto-selected (best free model)", temperature: 0.9, maxTokens: 8192 },
-  "huggingface": { endpoint: "router.huggingface.co/v1/chat/completions", modelId: "meta-llama/Llama-3.3-70B-Instruct", temperature: 0.9, maxTokens: 8192 },
+  "gemini":              { providerName: "Google Gemini", endpoint: "generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse", modelId: "gemini-2.5-flash", temperature: 1.0, maxTokens: 8192, requestFormat: "Gemini API (system_instruction + contents)", extra: "topP: 0.95 · thinkingBudget: 0 (Gemini 2.5)" },
+  "gemini-2.5-flash":   { providerName: "Google Gemini", endpoint: "generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse", modelId: "gemini-2.5-flash", temperature: 1.0, maxTokens: 8192, requestFormat: "Gemini API (system_instruction + contents)", extra: "topP: 0.95 · thinkingBudget: 0 (Gemini 2.5)" },
+  "gemini-lite":        { providerName: "Google Gemini", endpoint: "generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:streamGenerateContent?alt=sse", modelId: "gemini-2.5-flash-lite", temperature: 1.0, maxTokens: 8192, requestFormat: "Gemini API (system_instruction + contents)", extra: "topP: 0.95" },
+  "gemini-2.5-flash-lite": { providerName: "Google Gemini", endpoint: "generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:streamGenerateContent?alt=sse", modelId: "gemini-2.5-flash-lite", temperature: 1.0, maxTokens: 8192, requestFormat: "Gemini API (system_instruction + contents)", extra: "topP: 0.95" },
+  "groq":               { providerName: "Groq", endpoint: "api.groq.com/openai/v1/chat/completions", modelId: "llama-3.3-70b-versatile", temperature: 0.9, maxTokens: 8192, requestFormat: "OpenAI-compatible (messages array)" },
+  "llama-3.3-70b-versatile": { providerName: "Groq", endpoint: "api.groq.com/openai/v1/chat/completions", modelId: "llama-3.3-70b-versatile", temperature: 0.9, maxTokens: 8192, requestFormat: "OpenAI-compatible (messages array)" },
+  "groq-scout":         { providerName: "Groq", endpoint: "api.groq.com/openai/v1/chat/completions", modelId: "meta-llama/llama-4-scout-17b-16e-instruct", temperature: 0.9, maxTokens: 8192, requestFormat: "OpenAI-compatible (messages array)" },
+  "mistral":            { providerName: "Mistral AI", endpoint: "api.mistral.ai/v1/chat/completions", modelId: "open-mixtral-8x22b", temperature: 0.9, maxTokens: 8192, requestFormat: "OpenAI-compatible (messages array)" },
+  "openrouter":         { providerName: "OpenRouter", endpoint: "openrouter.ai/api/v1/chat/completions", modelId: "auto-selected (best free model)", temperature: 0.9, maxTokens: 8192, requestFormat: "OpenAI-compatible (messages array)", extra: "Auto-selects best free model · Headers: HTTP-Referer, X-Title" },
+  "huggingface":        { providerName: "HuggingFace Inference", endpoint: "router.huggingface.co/v1/chat/completions", modelId: "meta-llama/Llama-3.3-70B-Instruct", temperature: 0.9, maxTokens: 8192, requestFormat: "OpenAI-compatible (messages array)", extra: "Falls back through: Qwen2.5-72B → Mistral-Small → DeepSeek-V3" },
 };
 
 export function getRequestInfo(modelKey) {
   if (!modelKey) return null;
-  const base = modelKey.replace("+search", "");
-  const info = MODEL_REQUEST_INFO[base] || MODEL_REQUEST_INFO[modelKey];
-  if (!info) return { endpoint: "ai provider API", modelId: modelKey, temperature: 0.9, maxTokens: 8192 };
-  const extra = modelKey.endsWith("+search") ? "Google Search grounding enabled" : null;
-  return { ...info, extra };
+
+  const key = modelKey.replace("+search", "");
+  const isSearch = modelKey.endsWith("+search");
+
+  if (key.startsWith("or:")) {
+    const actualModel = key.replace("or:", "");
+    return {
+      providerName: "OpenRouter",
+      endpoint: "openrouter.ai/api/v1/chat/completions",
+      modelId: actualModel,
+      temperature: 0.9,
+      maxTokens: 8192,
+      requestFormat: "OpenAI-compatible (messages array)",
+      extra: "HTTP-Referer: ai-prompt-studio.replit.app · X-Title: AI Prompt Studio",
+    };
+  }
+
+  if (key.startsWith("hf:")) {
+    const actualModel = key.replace("hf:", "");
+    return {
+      providerName: "HuggingFace Inference",
+      endpoint: "router.huggingface.co/v1/chat/completions",
+      modelId: actualModel,
+      temperature: 0.9,
+      maxTokens: 8192,
+      requestFormat: "OpenAI-compatible (messages array)",
+    };
+  }
+
+  const info = MODEL_REQUEST_INFO[key];
+  if (!info) {
+    return {
+      providerName: key,
+      endpoint: "AI provider API",
+      modelId: key,
+      temperature: 0.9,
+      maxTokens: 8192,
+      requestFormat: "Unknown",
+    };
+  }
+
+  const result = { ...info };
+  if (isSearch) {
+    result.extra = "Google Search grounding enabled (tools: google_search)";
+    result.endpoint = "generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+    result.requestFormat = "Gemini API with Google Search tool";
+  }
+  return result;
+}
+
+export function buildRequestBodyPreview(usedModel, systemPrompt, userMessage) {
+  if (!usedModel || !systemPrompt || !userMessage) return null;
+
+  const key = usedModel.replace("+search", "");
+  const isSearch = usedModel.endsWith("+search");
+
+  if (isSearch) {
+    return JSON.stringify({
+      contents: [{
+        role: "user",
+        parts: [{ text: "(Combined market-research + generation prompt — built server-side. Includes real-time Google Search grounding instructions.)" }]
+      }],
+      tools: [{ google_search: {} }],
+      generationConfig: { temperature: 0.9, topP: 0.95, maxOutputTokens: 8192, thinkingConfig: { thinkingBudget: 0 } }
+    }, null, 2);
+  }
+
+  const isGemini = key.startsWith("gemini") || key === "gemini-2.5-flash" || key === "gemini-2.5-flash-lite";
+  if (isGemini) {
+    const isFlashLite = key === "gemini-lite" || key === "gemini-2.5-flash-lite";
+    return JSON.stringify({
+      system_instruction: { parts: [{ text: systemPrompt }] },
+      contents: [{ role: "user", parts: [{ text: userMessage }] }],
+      generationConfig: {
+        temperature: 1.0,
+        topP: 0.95,
+        maxOutputTokens: 8192,
+        ...(!isFlashLite ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+      }
+    }, null, 2);
+  }
+
+  if (key.startsWith("or:")) {
+    const modelId = key.replace("or:", "");
+    return JSON.stringify({
+      model: modelId,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userMessage }
+      ],
+      temperature: 0.9,
+      max_tokens: 8192
+    }, null, 2);
+  }
+
+  if (key.startsWith("hf:")) {
+    const modelId = key.replace("hf:", "");
+    return JSON.stringify({
+      model: modelId,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userMessage }
+      ],
+      temperature: 0.9,
+      max_tokens: 8192
+    }, null, 2);
+  }
+
+  const info = MODEL_REQUEST_INFO[key];
+  const modelId = info?.modelId || key;
+  return JSON.stringify({
+    model: modelId,
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userMessage }
+    ],
+    temperature: 0.9,
+    max_tokens: 8192
+  }, null, 2);
 }

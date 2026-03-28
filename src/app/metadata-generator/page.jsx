@@ -13,6 +13,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { mapApiError } from "@/lib/apiErrors";
 import DebugPanel from "@/components/DebugPanel";
 import { getRequestInfo } from "@/lib/promptBuilder";
+import { METADATA_PROMPTS } from "@/lib/metadataPrompts";
 
 const MAX_FILES = 500;
 
@@ -297,6 +298,8 @@ export default function MetadataGeneratorPage() {
             keywordCount: meta.keywordCount,
             provider: meta.provider || "gemini-2.5-flash",
           });
+          const metaProvider = meta.provider || "gemini-2.5-flash";
+          const metaReqInfo = getRequestInfo(metaProvider);
           setDebugData({
             hasData: true,
             userInput: {
@@ -305,8 +308,19 @@ export default function MetadataGeneratorPage() {
               imageCount: files.length,
               preferredProvider,
             },
-            systemPrompt: "(System prompt built server-side — it instructs the AI to analyze your image and generate SEO-optimized title, description, and keywords for microstock platforms)",
-            requestInfo: getRequestInfo(meta.provider || "gemini-2.5-flash"),
+            systemPrompt: METADATA_PROMPTS[contentType] || METADATA_PROMPTS.image,
+            userMessage: `[Base64 image: ${entry.file.name} (${(entry.file.size / 1024).toFixed(1)} KB, ${entry.file.type})] + contentType: ${contentType}`,
+            requestBody: JSON.stringify({
+              image: "(base64-encoded image data — omitted for display, sent as inlineData.data)",
+              mimeType: entry.file.type,
+              contentType,
+              preferredProvider: preferredProvider === "auto" ? undefined : preferredProvider,
+            }, null, 2),
+            requestInfo: {
+              ...metaReqInfo,
+              responseStatus: "200 OK",
+              responseModel: metaProvider,
+            },
             rawResponse: JSON.stringify(meta, null, 2),
             parsedOutput: `Title: ${meta.title || "-"}\n\nDescription: ${meta.description || "-"}\n\nKeywords (${meta.keywordCount || 0}): ${Array.isArray(meta.keywords) ? meta.keywords.join(", ") : meta.keywords || "-"}`,
           });
@@ -380,11 +394,24 @@ export default function MetadataGeneratorPage() {
             keywords: meta.keywords, keywordCount: meta.keywordCount,
             provider: meta.provider || "gemini-2.5-flash",
           });
+          const retryProvider = meta.provider || "gemini-2.5-flash";
+          const retryReqInfo = getRequestInfo(retryProvider);
           setDebugData({
             hasData: true,
             userInput: { concept: entry.file.name, contentType, imageCount: failedFiles.length, preferredProvider },
-            systemPrompt: "(System prompt built server-side — it instructs the AI to analyze your image and generate SEO-optimized title, description, and keywords for microstock platforms)",
-            requestInfo: getRequestInfo(meta.provider || "gemini-2.5-flash"),
+            systemPrompt: METADATA_PROMPTS[contentType] || METADATA_PROMPTS.image,
+            userMessage: `[Base64 image: ${entry.file.name} (${(entry.file.size / 1024).toFixed(1)} KB, ${entry.file.type})] + contentType: ${contentType}`,
+            requestBody: JSON.stringify({
+              image: "(base64-encoded image data — omitted for display, sent as inlineData.data)",
+              mimeType: entry.file.type,
+              contentType,
+              preferredProvider: preferredProvider === "auto" ? undefined : preferredProvider,
+            }, null, 2),
+            requestInfo: {
+              ...retryReqInfo,
+              responseStatus: "200 OK",
+              responseModel: retryProvider,
+            },
             rawResponse: JSON.stringify(meta, null, 2),
             parsedOutput: `Title: ${meta.title || "-"}\n\nDescription: ${meta.description || "-"}\n\nKeywords (${meta.keywordCount || 0}): ${Array.isArray(meta.keywords) ? meta.keywords.join(", ") : meta.keywords || "-"}`,
           });

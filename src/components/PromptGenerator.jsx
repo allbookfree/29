@@ -10,7 +10,7 @@ import { mapApiError } from "@/lib/apiErrors";
 import { PROVIDERS_UI } from "@/config/models";
 import { PROMPT_TEMPLATES } from "@/config/templates";
 import DebugPanel from "@/components/DebugPanel";
-import { buildSystemPrompt, getRequestInfo } from "@/lib/promptBuilder";
+import { buildSystemPrompt, getRequestInfo, buildRequestBodyPreview } from "@/lib/promptBuilder";
 
 function formatModelName(raw) {
   if (!raw) return "";
@@ -272,7 +272,9 @@ export default function PromptGenerator({
           ...(marketResearch && { marketResearch: true }),
         },
         systemPrompt: sysPrompt,
+        userMessage: concept.trim(),
         requestInfo: null,
+        requestBody: null,
         rawResponse: null,
         parsedOutput: null,
       });
@@ -300,7 +302,19 @@ export default function PromptGenerator({
       setGenStep(3);
       const usedModel = res.headers.get("x-model-used") || model;
       setModelUsed(usedModel);
-      setDebugData(prev => prev ? { ...prev, requestInfo: getRequestInfo(usedModel) } : prev);
+      const responseStatus = `${res.status} ${res.ok ? "OK" : "Error"}`;
+      setDebugData(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          requestInfo: {
+            ...getRequestInfo(usedModel),
+            responseStatus,
+            responseModel: usedModel,
+          },
+          requestBody: buildRequestBodyPreview(usedModel, prev.systemPrompt, prev.userMessage),
+        };
+      });
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buf = "", lastParsed = [];

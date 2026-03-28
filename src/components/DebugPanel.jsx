@@ -33,7 +33,7 @@ function DebugStep({ number, label, color, children, defaultOpen = false }) {
 }
 
 function DebugEntry({ label, value }) {
-  if (!value && value !== 0) return null;
+  if (value === null || value === undefined || value === "") return null;
   const display = typeof value === "object" ? JSON.stringify(value, null, 2) : String(value);
   const isLong = display.length > 120;
   return (
@@ -49,6 +49,17 @@ function DebugEntry({ label, value }) {
   );
 }
 
+function DebugBlock({ label, value, className = "" }) {
+  if (!value) return null;
+  return (
+    <div className="dbg-entry">
+      <span className="dbg-entry-label">{label}</span>
+      <pre className={`dbg-entry-value dbg-pre ${className}`}>{value}</pre>
+      <CopyBtn text={value} />
+    </div>
+  );
+}
+
 export default function DebugPanel({ debugData }) {
   const [visible, setVisible] = useState(false);
   const { t } = useLanguage();
@@ -58,6 +69,8 @@ export default function DebugPanel({ debugData }) {
   const {
     userInput,
     systemPrompt,
+    userMessage,
+    requestBody,
     requestInfo,
     rawResponse,
     parsedOutput,
@@ -73,76 +86,79 @@ export default function DebugPanel({ debugData }) {
 
       {visible && (
         <div className="dbg-content">
+
           {userInput && (
             <DebugStep number="1" label={t("debug.step1")} color="blue" defaultOpen={true}>
-              {userInput.concept && <DebugEntry label={t("debug.concept")} value={userInput.concept} />}
-              {userInput.quantity && <DebugEntry label={t("debug.quantity")} value={userInput.quantity} />}
-              {userInput.provider && <DebugEntry label={t("debug.provider")} value={userInput.provider} />}
-              {userInput.model && <DebugEntry label={t("debug.model")} value={userInput.model} />}
-              {userInput.type && <DebugEntry label={t("debug.type")} value={userInput.type} />}
-              {userInput.style && <DebugEntry label={t("debug.style")} value={userInput.style} />}
-              {userInput.mood && <DebugEntry label={t("debug.mood")} value={userInput.mood} />}
-              {userInput.lighting && <DebugEntry label={t("debug.lighting")} value={userInput.lighting} />}
-              {userInput.camera && <DebugEntry label={t("debug.camera")} value={userInput.camera} />}
-              {userInput.shot && <DebugEntry label={t("debug.shot")} value={userInput.shot} />}
-              {userInput.speed && <DebugEntry label={t("debug.speed")} value={userInput.speed} />}
-              {userInput.negativePrompt && <DebugEntry label={t("debug.negative")} value={userInput.negativePrompt} />}
-              {userInput.customInstructions && <DebugEntry label={t("debug.advanced")} value={userInput.customInstructions} />}
-              {userInput.marketResearch && <DebugEntry label={t("debug.marketResearch")} value="✓" />}
-              {userInput.contentType && <DebugEntry label={t("debug.contentType")} value={userInput.contentType} />}
-              {userInput.imageCount && <DebugEntry label={t("debug.imageCount")} value={userInput.imageCount} />}
-              {userInput.preferredProvider && <DebugEntry label={t("debug.preferredProvider")} value={userInput.preferredProvider} />}
+              <DebugEntry label={t("debug.concept")}          value={userInput.concept} />
+              <DebugEntry label={t("debug.quantity")}         value={userInput.quantity} />
+              <DebugEntry label={t("debug.provider")}         value={userInput.provider} />
+              <DebugEntry label={t("debug.model")}            value={userInput.model} />
+              <DebugEntry label={t("debug.type")}             value={userInput.type} />
+              <DebugEntry label={t("debug.style")}            value={userInput.style} />
+              <DebugEntry label={t("debug.mood")}             value={userInput.mood} />
+              <DebugEntry label={t("debug.lighting")}         value={userInput.lighting} />
+              <DebugEntry label={t("debug.camera")}           value={userInput.camera} />
+              <DebugEntry label={t("debug.shot")}             value={userInput.shot} />
+              <DebugEntry label={t("debug.speed")}            value={userInput.speed} />
+              <DebugEntry label={t("debug.negative")}         value={userInput.negativePrompt} />
+              <DebugEntry label={t("debug.advanced")}         value={userInput.customInstructions} />
+              {userInput.marketResearch && <DebugEntry label={t("debug.marketResearch")} value="✓ ON" />}
+              <DebugEntry label={t("debug.contentType")}      value={userInput.contentType} />
+              <DebugEntry label={t("debug.imageCount")}       value={userInput.imageCount} />
+              <DebugEntry label={t("debug.preferredProvider")} value={userInput.preferredProvider} />
             </DebugStep>
           )}
 
           {systemPrompt && (
-            <DebugStep number="2" label={t("debug.step2")} color="purple">
-              <div className="dbg-entry">
-                <span className="dbg-entry-label">{t("debug.systemPrompt")}</span>
-                <pre className="dbg-entry-value dbg-pre dbg-system">{systemPrompt}</pre>
-                <CopyBtn text={systemPrompt} />
-              </div>
+            <DebugStep number="2" label={t("debug.step2")} color="purple" defaultOpen={false}>
+              <DebugBlock label={t("debug.systemPrompt")} value={systemPrompt} className="dbg-system" />
             </DebugStep>
           )}
 
-          {requestInfo && (
-            <DebugStep number="3" label={t("debug.step3")} color="green">
-              {requestInfo.endpoint && <DebugEntry label={t("debug.endpoint")} value={requestInfo.endpoint} />}
-              {requestInfo.modelId && <DebugEntry label={t("debug.modelId")} value={requestInfo.modelId} />}
-              {requestInfo.temperature && <DebugEntry label={t("debug.temperature")} value={requestInfo.temperature} />}
-              {requestInfo.maxTokens && <DebugEntry label={t("debug.maxTokens")} value={requestInfo.maxTokens} />}
-              {requestInfo.provider && <DebugEntry label={t("debug.providerUsed")} value={requestInfo.provider} />}
-              {requestInfo.extra && <DebugEntry label={t("debug.extra")} value={requestInfo.extra} />}
+          {(requestInfo || userMessage || requestBody) && (
+            <DebugStep number="3" label={t("debug.step3")} color="green" defaultOpen={false}>
+              {requestInfo && (
+                <>
+                  <DebugEntry label={t("debug.providerName")}   value={requestInfo.providerName} />
+                  <DebugEntry label={t("debug.httpMethod")}     value="POST" />
+                  <DebugEntry label={t("debug.endpoint")}       value={requestInfo.endpoint ? `https://${requestInfo.endpoint}` : undefined} />
+                  <DebugEntry label={t("debug.requestFormat")}  value={requestInfo.requestFormat} />
+                  <DebugEntry label={t("debug.modelId")}        value={requestInfo.modelId} />
+                  <DebugEntry label={t("debug.temperature")}    value={requestInfo.temperature} />
+                  <DebugEntry label={t("debug.maxTokens")}      value={requestInfo.maxTokens} />
+                  <DebugEntry label={t("debug.extra")}          value={requestInfo.extra} />
+                </>
+              )}
+              {userMessage && (
+                <DebugBlock label={t("debug.userMessage")} value={userMessage} />
+              )}
+              {requestBody && (
+                <DebugBlock label={t("debug.requestBody")} value={requestBody} />
+              )}
             </DebugStep>
           )}
 
           {rawResponse && (
-            <DebugStep number="4" label={t("debug.step4")} color="orange">
-              <div className="dbg-entry">
-                <span className="dbg-entry-label">{t("debug.rawText")}</span>
-                <pre className="dbg-entry-value dbg-pre dbg-raw">{rawResponse}</pre>
-                <CopyBtn text={rawResponse} />
-              </div>
+            <DebugStep number="4" label={t("debug.step4")} color="orange" defaultOpen={false}>
+              {requestInfo?.responseStatus && (
+                <DebugEntry label={t("debug.responseStatus")} value={requestInfo.responseStatus} />
+              )}
+              {requestInfo?.responseModel && (
+                <DebugEntry label={t("debug.responseModel")} value={requestInfo.responseModel} />
+              )}
+              <DebugBlock label={t("debug.rawText")} value={rawResponse} className="dbg-raw" />
             </DebugStep>
           )}
 
           {parsedOutput && (
-            <DebugStep number="5" label={t("debug.step5")} color="teal">
-              {typeof parsedOutput === "string" ? (
-                <div className="dbg-entry">
-                  <span className="dbg-entry-label">{t("debug.result")}</span>
-                  <pre className="dbg-entry-value dbg-pre">{parsedOutput}</pre>
-                  <CopyBtn text={parsedOutput} />
-                </div>
-              ) : (
-                <div className="dbg-entry">
-                  <span className="dbg-entry-label">{t("debug.result")}</span>
-                  <pre className="dbg-entry-value dbg-pre">{JSON.stringify(parsedOutput, null, 2)}</pre>
-                  <CopyBtn text={JSON.stringify(parsedOutput, null, 2)} />
-                </div>
-              )}
+            <DebugStep number="5" label={t("debug.step5")} color="teal" defaultOpen={false}>
+              <DebugBlock
+                label={t("debug.result")}
+                value={typeof parsedOutput === "string" ? parsedOutput : JSON.stringify(parsedOutput, null, 2)}
+              />
             </DebugStep>
           )}
+
         </div>
       )}
     </div>
