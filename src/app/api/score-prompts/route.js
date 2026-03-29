@@ -1,0 +1,192 @@
+import { MODEL_IDS, OR_MODEL_MAP, PROVIDER_KEY_MAP } from "@/config/models";
+
+const REQUEST_TIMEOUT_MS = 60000;
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort("timeout"), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function buildScoringPrompt(type) {
+  const typeLabel = type === "vector" ? "vector illustration" : type === "video" ? "stock video" : "stock photo";
+  return `You are a microstock commercial viability analyst. Score each ${typeLabel} prompt for its sales potential on platforms like Shutterstock, Adobe Stock, and Dreamstime.
+
+For each prompt, provide a score from 1-10 based on these criteria:
+- Commercial demand (will buyers search for and license this?)
+- Visual clarity (is the prompt specific enough to produce a clear, usable result?)
+- SEO potential (does it contain searchable, trending terms?)
+- Uniqueness (does it stand out from generic stock content?)
+- Platform suitability (is it appropriate and marketable on stock platforms?)
+
+Return ONLY a valid JSON array of numbers, one score per prompt. Example for 3 prompts: [8, 6, 9]
+No explanations, no markdown, no text — ONLY the JSON array.`;
+}
+
+function parseScores(text, count) {
+  try {
+    const cleaned = text.replace(/```[\s\S]*?```/g, "").replace(/```/g, "").trim();
+    const match = cleaned.match(/\[[\s\S]*?\]/);
+    if (match) {
+      const arr = JSON.parse(match[0]);
+      if (Array.isArray(arr)) {
+        return arr.slice(0, count).map(n => {
+          const num = Number(n);
+          return Number.isFinite(num) ? Math.max(1, Math.min(10, Math.round(num))) : 5;
+        });
+      }
+    }
+  } catch {}
+  return Array(count).fill(5);
+}
+
+async function callGeminiScore(apiKey, systemPrompt, userPrompt) {
+  const res = await fetchWithTimeout(
+    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_IDS.gemini}:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ parts: [{ text: userPrompt }] }],
+        generationConfig: { temperature: 0.3, maxOutputTokens: 1024 },
+      }),
+    }
+  );
+  if (!res.ok) throw new Error(`Gemini ${res.status}`);
+  const data = await res.json();
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+}
+
+async function callGroqScore(apiKey, systemPrompt, userPrompt) {
+  const res = await fetchWithTimeout("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: MODEL_IDS.groq,
+      messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+      temperature: 0.3,
+      max_tokens: 1024,
+    }),
+  });
+  if (!res.ok) throw new Error(`Groq ${res.status}`);
+  const data = await res.json();
+  return data?.choices?.[0]?.message?.content || "";
+}
+
+async function callMistralScore(apiKey, systemPrompt, userPrompt) {
+  const res = await fetchWithTimeout("https://api.mistral.ai/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: MODEL_IDS.mistral,
+      messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+      temperature: 0.3,
+      max_tokens: 1024,
+    }),
+  });
+  if (!res.ok) throw new Error(`Mistral ${res.status}`);
+  const data = await res.json();
+  return data?.choices?.[0]?.message?.content || "";
+}
+
+async function callOpenRouterScore(apiKey, systemPrompt, userPrompt, specificModel) {
+  let modelId = specificModel;
+  if (!modelId) {
+    modelId = "google/gemini-2.5-flash-preview:free";
+  }
+  const res = await fetchWithTimeout("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      "HTTP-Referer": "https://promptstudio.app",
+    },
+    body: JSON.stringify({
+      model: modelId,
+      messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+      temperature: 0.3,
+      max_tokens: 1024,
+    }),
+  });
+  if (!res.ok) throw new Error(`OpenRouter ${res.status}`);
+  const data = await res.json();
+  return data?.choices?.[0]?.message?.content || "";
+}
+
+async function callHuggingFaceScore(apiKey, systemPrompt, userPrompt) {
+  const res = await fetchWithTimeout(
+    `https://router.huggingface.co/novita/v3/openai/chat/completions`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: MODEL_IDS["hf-llama"] || "meta-llama/Llama-3.3-70B-Instruct",
+        messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+        temperature: 0.3,
+        max_tokens: 1024,
+      }),
+    }
+  );
+  if (!res.ok) throw new Error(`HuggingFace ${res.status}`);
+  const data = await res.json();
+  return data?.choices?.[0]?.message?.content || "";
+}
+
+export async function POST(request) {
+  try {
+    const body = await request.json();
+    const { prompts, type = "image", model = "gemini", apiKeys = {}, selectedModel } = body;
+
+    if (!Array.isArray(prompts) || prompts.length === 0) {
+      return Response.json({ error: "No prompts to score" }, { status: 400 });
+    }
+    if (prompts.length > 100) {
+      return Response.json({ error: "Too many prompts (max 100)" }, { status: 400 });
+    }
+
+    const systemPrompt = buildScoringPrompt(type);
+    const userPrompt = `Score these ${prompts.length} ${type} prompts:\n\n${prompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`;
+
+    const providers = ["gemini", "groq", "mistral", "openrouter", "huggingface"];
+    const providerKey = PROVIDER_KEY_MAP[model] || model;
+    const ordered = [providerKey, ...providers.filter(p => p !== providerKey)];
+
+    for (const provider of ordered) {
+      const keys = Array.isArray(apiKeys[provider]) ? apiKeys[provider].filter(k => k?.trim()) : [];
+      if (keys.length === 0) continue;
+
+      for (const key of keys) {
+        try {
+          let result = "";
+          if (provider === "gemini") {
+            result = await callGeminiScore(key, systemPrompt, userPrompt);
+          } else if (provider === "groq") {
+            result = await callGroqScore(key, systemPrompt, userPrompt);
+          } else if (provider === "mistral") {
+            result = await callMistralScore(key, systemPrompt, userPrompt);
+          } else if (provider === "openrouter") {
+            const orModel = OR_MODEL_MAP[selectedModel] || null;
+            result = await callOpenRouterScore(key, systemPrompt, userPrompt, orModel);
+          } else if (provider === "huggingface") {
+            result = await callHuggingFaceScore(key, systemPrompt, userPrompt);
+          }
+
+          const scores = parseScores(result, prompts.length);
+          while (scores.length < prompts.length) scores.push(5);
+          return Response.json({ scores });
+        } catch {
+          continue;
+        }
+      }
+    }
+
+    return Response.json({ error: "All providers failed" }, { status: 502 });
+  } catch {
+    return Response.json({ error: "Scoring failed" }, { status: 500 });
+  }
+}

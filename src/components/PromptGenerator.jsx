@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Sparkles, Download, Hash, Type, Cpu, AlertCircle, FileText, Copy, Check, Settings, Lightbulb, Lock, Save, Edit3, ChevronDown, ChevronUp, Zap, ClipboardList, SlidersHorizontal, Ban, CheckSquare, Square, Search, Globe, Wand2 } from "lucide-react";
+import { Sparkles, Download, Hash, Type, Cpu, AlertCircle, FileText, Copy, Check, Settings, Lightbulb, Lock, Save, Edit3, ChevronDown, ChevronUp, Zap, ClipboardList, SlidersHorizontal, Ban, CheckSquare, Square, Search, Globe, Wand2, Star } from "lucide-react";
 
 import { useApiKeys } from "@/context/ApiKeyContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -158,6 +158,10 @@ export default function PromptGenerator({
   const [selected, setSelected] = useState(new Set());
   const [debugData, setDebugData] = useState(null);
   const [mounted, setMounted] = useState(false);
+  const [qualityScoring, setQualityScoring] = useState(false);
+  const [scores, setScores] = useState([]);
+  const [scoring, setScoring] = useState(false);
+  const scoringAbortRef = useRef(null);
 
   const displayTitle = titleKey ? t(titleKey) : title;
   const displayDesc = descKey ? t(descKey) : description;
@@ -190,6 +194,8 @@ export default function PromptGenerator({
       if (savedText) { setCustomInstructions(savedText); setShowEditor(false); }
       else { setShowEditor(true); }
     }
+    const savedScoring = localStorage.getItem(`${storagePrefix}_quality_scoring`);
+    if (savedScoring === "true") setQualityScoring(true);
   }, [storagePrefix]);
 
   useEffect(() => () => { if (resetTimer.current) clearTimeout(resetTimer.current); }, []);
@@ -221,6 +227,47 @@ export default function PromptGenerator({
     }
   };
 
+  const toggleQualityScoring = () => {
+    const next = !qualityScoring;
+    setQualityScoring(next);
+    localStorage.setItem(`${storagePrefix}_quality_scoring`, next ? "true" : "false");
+    if (!next) {
+      setScores([]);
+      setScoring(false);
+      if (scoringAbortRef.current) scoringAbortRef.current.abort();
+    }
+  };
+
+  const runScoring = async (promptList) => {
+    if (!qualityScoring || promptList.length === 0) return;
+    if (scoringAbortRef.current) scoringAbortRef.current.abort();
+    const controller = new AbortController();
+    scoringAbortRef.current = controller;
+    setScoring(true);
+    try {
+      const res = await fetch("/api/score-prompts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompts: promptList,
+          type,
+          model: actualModelKey,
+          selectedModel: selectedModels?.openrouter || "or-auto",
+          apiKeys: apiKeysByModel,
+        }),
+        signal: controller.signal,
+      });
+      if (controller.signal.aborted) return;
+      if (res.ok) {
+        const data = await res.json();
+        if (data.scores && !controller.signal.aborted) setScores(data.scores);
+      }
+    } catch (e) {
+      if (e.name === "AbortError") return;
+    }
+    if (!controller.signal.aborted) setScoring(false);
+  };
+
   const generate = async () => {
     if (!concept.trim()) return setError(t("errors.invalidInput"));
     if (marketResearch) {
@@ -233,6 +280,7 @@ export default function PromptGenerator({
     setPrompts([]);
     setModelUsed("");
     setSelected(new Set());
+    setScores([]);
     if (resetTimer.current) clearTimeout(resetTimer.current);
 
     setGenStep(1);
@@ -338,6 +386,7 @@ export default function PromptGenerator({
       if (final.length) {
         setPrompts([...final]);
         saveToPromptHistory(type, final);
+        if (qualityScoring) runScoring(final);
       }
 
       setDebugData(prev => prev ? {
@@ -367,6 +416,7 @@ export default function PromptGenerator({
     setPrompts([]);
     setModelUsed("");
     setSelected(new Set());
+    setScores([]);
     if (resetTimer.current) clearTimeout(resetTimer.current);
     setGenStep(1);
 
@@ -489,6 +539,7 @@ export default function PromptGenerator({
         setPrompts(final);
         saveToPromptHistory(type, final);
         recordMultipleCategoryUsage(type, [autoCategory]);
+        if (qualityScoring) runScoring(final);
         setDebugData(prev => prev ? { ...prev, rawResponse: buf.slice(0, 3000), parsedOutput: final } : prev);
       }
       setGenStep(4);
@@ -581,6 +632,15 @@ export default function PromptGenerator({
                 {marketResearch && <Check size={13} />}
               </button>
             )}
+            <button
+              className={`toolbar-btn${qualityScoring ? " toolbar-btn-active toolbar-btn-scoring" : ""}`}
+              onClick={toggleQualityScoring}
+              title={t("prompt.qualityScoreTip")}
+            >
+              <Star size={13} />
+              <span>{t("prompt.qualityScore")}</span>
+              {qualityScoring && <Check size={13} />}
+            </button>
           </div>
 
           {showTemplates && (
@@ -745,12 +805,20 @@ export default function PromptGenerator({
         <div className="card">
           <div className="card-top card-top-flex">
             <span className="field-label" style={{ margin: 0 }}><Sparkles size={15} />{t("prompt.generatedPrompts")}</span>
-            {loading && (
-              <div className="card-top-loading">
-                <span className="spinner spinner-sm" />
-                <span>{t("prompt.creating")}</span>
-              </div>
-            )}
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              {qualityScoring && scoring && (
+                <div className="card-top-loading">
+                  <span className="spinner spinner-sm" />
+                  <span>{t("prompt.scoring")}</span>
+                </div>
+              )}
+              {loading && (
+                <div className="card-top-loading">
+                  <span className="spinner spinner-sm" />
+                  <span>{t("prompt.creating")}</span>
+                </div>
+              )}
+            </div>
           </div>
           <div className="card-body">
             {loading && prompts.length === 0 && (
@@ -770,6 +838,12 @@ export default function PromptGenerator({
                   </button>
                   <span className="prompt-num">{i + 1}</span>
                   <span className="prompt-text">{p}</span>
+                  {qualityScoring && scores[i] !== undefined && (
+                    <span className={`score-badge ${scores[i] >= 8 ? "score-high" : scores[i] >= 5 ? "score-mid" : "score-low"}`} title={t("prompt.qualityScore")}>
+                      <Star size={11} />
+                      {scores[i]}
+                    </span>
+                  )}
                   <button className="btn-icon prompt-copy" onClick={() => copyOne(p, i)} title={t("prompt.copyCount")}>
                     {copied === i ? <Check size={15} style={{ color: "var(--success)" }} /> : <Copy size={15} />}
                   </button>
