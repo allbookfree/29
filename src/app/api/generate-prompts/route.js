@@ -44,8 +44,9 @@ ${previousPrompts.slice(0, 12).map((p, i) => `${i + 1}. ${String(p).slice(0, 150
   return `[Session seed: ${seed}]
 
 Topic: ${concept}
+${antiRepeatBlock}
 
-${diversityHint}${antiRepeatBlock}
+${diversityHint}
 
 Generate prompts that feel completely fresh and unexpected. Each prompt must explore a DIFFERENT combination of the inspiration angles above — and must be nothing like the previously generated prompts.`;
 }

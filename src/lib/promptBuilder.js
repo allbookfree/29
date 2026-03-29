@@ -30,16 +30,21 @@ export function buildSystemPrompt(type, quantity, customInstructions, { style, m
       .replace(/\{quantity\}/gi, quantity)
       .replace(/\{n\}/gi, quantity);
 
+    const customDiversityRule = type === "video"
+      ? `ANTI-REPETITION RULE (mandatory — cannot be overridden): Every single prompt MUST feel like it comes from a completely different creative universe. Vary time period/era, geographic region/culture, cinematic genre, camera technique, mood/tone, and color palette across ALL prompts. If one prompt is modern urban, the next must be ancient or futuristic. The user message contains previously generated prompts — study them carefully and create something completely different. Repetition of setting, mood, or style is a failure.`
+      : `ANTI-REPETITION RULE (mandatory — cannot be overridden): Every single prompt MUST feel like it comes from a completely different creative universe. Vary time period/era, geographic region/culture, artistic style or medium, lighting condition, mood/emotion, and color palette across ALL prompts. If one prompt is modern urban, the next must be ancient, futuristic, or natural. The user message contains previously generated prompts — study them carefully and create something completely different. Repetition of setting, mood, or visual style is a failure.`;
+
     return `You are a world-class professional ${typeLabel} prompt engineer. Your prompts are used by professionals to generate high-quality commercial content.
 
 ABSOLUTE RULE: Generate EXACTLY ${quantity} ${typeLabel} prompts — not more, not less.
 BASELINE QUALITY: ${qualityBlock}
+${customDiversityRule}
 ${modifierBlock}${negativeBlock}
 
-YOUR MASTER INSTRUCTIONS (follow these with absolute precision — they override everything else including output format):
+YOUR MASTER INSTRUCTIONS (follow these with absolute precision — they control format, style, and output structure):
 ${filledInstructions}
 
-CRITICAL: The master instructions above are your PRIMARY guide. Follow their output format, their rules, their style, and their requirements EXACTLY as written. Do not add your own format. Do not simplify. Do not shorten. Execute them faithfully.`;
+CRITICAL: Follow the master instructions above for format and style. The ANTI-REPETITION RULE above is non-negotiable and applies on top of everything — every prompt must be from a completely different creative universe.`;
   }
 
   const diversityRule = type === "video"
