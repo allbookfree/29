@@ -444,8 +444,10 @@ export default function PromptGenerator({
 
     try {
       let autoSubject, autoCategory;
-      if (festivalMode && upcomingFestivals.length > 0) {
-        const fest = upcomingFestivals[Math.floor(Math.random() * Math.min(upcomingFestivals.length, 3))];
+      const freshFestivals = festivalMode ? getUpcomingFestivals(30) : [];
+      if (festivalMode && freshFestivals.length > 0) {
+        setUpcomingFestivals(freshFestivals);
+        const fest = freshFestivals[Math.floor(Math.random() * Math.min(freshFestivals.length, 3))];
         const subjects = getFestivalSubjects(fest);
         autoSubject = subjects[Math.floor(Math.random() * subjects.length)];
         autoCategory = fest.name;
