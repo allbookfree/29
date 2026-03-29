@@ -19,7 +19,7 @@ function pickRandom(arr, n) {
   return shuffled.slice(0, n);
 }
 
-function buildDiverseUserPrompt(concept) {
+function buildDiverseUserPrompt(concept, previousPrompts = []) {
   const seed = Math.floor(Math.random() * 999983);
   const era = pickRandom(DIVERSITY_POOLS.era, 2).join(" or ");
   const region = pickRandom(DIVERSITY_POOLS.region, 2).join(" or ");
@@ -28,19 +28,26 @@ function buildDiverseUserPrompt(concept) {
   const lighting = pickRandom(DIVERSITY_POOLS.lighting, 2).join(" or ");
   const subject = pickRandom(DIVERSITY_POOLS.subject, 2).join(" or ");
 
-  return `[Seed: ${seed}]
-
-Topic: ${concept}
-
-Creative diversity angles to draw inspiration from (interpret freely, not literally — mix, combine, subvert, or ignore any of these to maximize variety and surprise):
+  const diversityHint = `Creative inspiration angles (interpret freely — mix, combine, or subvert these):
 - Era/time: ${era}
 - Region/culture: ${region}
 - Mood/atmosphere: ${mood}
 - Visual style: ${style}
 - Lighting: ${lighting}
-- Subject variation: ${subject}
+- Subject variation: ${subject}`;
 
-Generate prompts that feel completely fresh and unexpected. Each prompt should explore a DIFFERENT combination of these dimensions.`;
+  const antiRepeatBlock = previousPrompts.length > 0
+    ? `\n\nPREVIOUSLY GENERATED PROMPTS — study these carefully and DO NOT repeat their themes, subjects, settings, styles, color palettes, or visual concepts. Create something completely different:
+${previousPrompts.slice(0, 12).map((p, i) => `${i + 1}. ${String(p).slice(0, 150)}`).join("\n")}`
+    : "";
+
+  return `[Session seed: ${seed}]
+
+Topic: ${concept}
+
+${diversityHint}${antiRepeatBlock}
+
+Generate prompts that feel completely fresh and unexpected. Each prompt must explore a DIFFERENT combination of the inspiration angles above — and must be nothing like the previously generated prompts.`;
 }
 
 const ALLOWED_MODELS_SET = new Set(ALLOWED_MODELS);
@@ -120,6 +127,9 @@ function validateRequest(body) {
   const speed = typeof body.speed === "string" ? body.speed.trim().slice(0, 80) : "";
   const negativePrompt = typeof body.negativePrompt === "string" ? body.negativePrompt.trim().slice(0, 200) : "";
   const marketResearch = body.marketResearch === true;
+  const previousPrompts = Array.isArray(body.previousPrompts)
+    ? body.previousPrompts.filter(p => typeof p === "string" && p.trim().length > 10).slice(0, 15)
+    : [];
 
   if (!concept) return "Enter a prompt first.";
   if (concept.length > MAX_PROMPT_CHARS) return `Prompt is too long (max ${MAX_PROMPT_CHARS} chars).`;
@@ -134,7 +144,7 @@ function validateRequest(body) {
     return "No API key. Add one via API Keys.";
   }
 
-  return { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch };
+  return { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, previousPrompts };
 }
 
 
@@ -236,9 +246,9 @@ export async function POST(request) {
       return jsonError(validation, 400, "VALIDATION_ERROR");
     }
 
-    const { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch } = validation;
+    const { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, previousPrompts } = validation;
     const systemPrompt = buildSystemPrompt(type, quantity, customInstructions, { style, mood, lighting, camera, shot, speed, negativePrompt });
-    const userPrompt = buildDiverseUserPrompt(concept);
+    const userPrompt = buildDiverseUserPrompt(concept, previousPrompts);
 
     if (marketResearch) {
       const geminiKeys = apiKeysByModel ? sanitizeKeys(apiKeysByModel.gemini) : validKeys;

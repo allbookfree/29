@@ -111,10 +111,25 @@
 .dbg-entry {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 7px;
   font-size: 12px;
   line-height: 1.5;
 }
+
+.dbg-entry-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.dbg-dot-blue   { background: #6366f1; }
+.dbg-dot-purple { background: #8b5cf6; }
+.dbg-dot-green  { background: #10b981; }
+.dbg-dot-orange { background: #f97316; }
+.dbg-dot-teal   { background: #06b6d4; }
+.dbg-dot-red    { background: #ef4444; }
 
 .dbg-entry-label {
   flex-shrink: 0;
@@ -127,11 +142,29 @@
   letter-spacing: 0.03em;
 }
 
-.dbg-entry-value {
+.dbg-entry-right {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.dbg-entry-value {
   color: var(--text);
   word-break: break-word;
   font-size: 12px;
+}
+
+.dbg-hint {
+  font-size: 10.5px;
+  color: var(--text3);
+  font-style: italic;
+  line-height: 1.4;
+  padding: 2px 6px;
+  background: var(--bg2);
+  border-left: 2px solid var(--border);
+  border-radius: 0 4px 4px 0;
 }
 
 .dbg-pre {

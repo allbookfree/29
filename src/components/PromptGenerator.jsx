@@ -7,6 +7,7 @@ import { useApiKeys } from "@/context/ApiKeyContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { copyToClipboard, downloadPromptsCsv, parseNumberedPrompts } from "@/lib/promptUtils";
 import { mapApiError } from "@/lib/apiErrors";
+import { getAntiRepeatSample, saveToPromptHistory } from "@/lib/promptHistory";
 import { PROVIDERS_UI } from "@/config/models";
 import { PROMPT_TEMPLATES } from "@/config/templates";
 import DebugPanel from "@/components/DebugPanel";
@@ -233,7 +234,8 @@ export default function PromptGenerator({
     setGenStep(1);
 
     try {
-      const payload = { concept: concept.trim(), quantity, model: actualModelKey, apiKeys, apiKeysByModel, type };
+      const antiRepeat = getAntiRepeatSample(type);
+      const payload = { concept: concept.trim(), quantity, model: actualModelKey, apiKeys, apiKeysByModel, type, previousPrompts: antiRepeat };
       if (advancedOn && customInstructions.trim()) {
         payload.customInstructions = customInstructions.trim();
       }
@@ -272,7 +274,7 @@ export default function PromptGenerator({
           ...(marketResearch && { marketResearch: true }),
         },
         systemPrompt: sysPrompt,
-        userMessage: `${concept.trim()}\n\n[+ server-side diversity seed and random creative angles are injected into this message on every request to ensure unique outputs]`,
+        userMessage: `${concept.trim()}\n\n[Server-side additions (auto-injected on every request):\n• Random session seed (forces different AI output each time)\n• Random creative angles: era, region, mood, style, lighting, subject\n${antiRepeat.length > 0 ? `• ${antiRepeat.length} previously generated prompts sent as "DO NOT repeat" context (from your local history)\n` : "• No prompt history yet — generates from seed + creative angles only\n"}→ This ensures each generation is unique and never repeats past results]`,
         requestInfo: null,
         requestBody: null,
         rawResponse: null,
@@ -334,6 +336,7 @@ export default function PromptGenerator({
       const final = parseNumberedPrompts(buf, quantity);
       if (final.length) {
         setPrompts([...final]);
+        saveToPromptHistory(type, final);
       }
 
       setDebugData(prev => prev ? {
