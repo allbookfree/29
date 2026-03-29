@@ -31,6 +31,18 @@ export function getHistoryCount(type) {
   return getPromptHistory(type).length;
 }
 
+export function removeFromPromptHistory(type, index) {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = localStorage.getItem(`ph_${type}`);
+    if (!raw) return;
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr) || index < 0 || index >= arr.length) return;
+    arr.splice(index, 1);
+    localStorage.setItem(`ph_${type}`, JSON.stringify(arr));
+  } catch {}
+}
+
 export function clearPromptHistory(type) {
   if (typeof window === "undefined") return;
   try { localStorage.removeItem(`ph_${type}`); } catch {}

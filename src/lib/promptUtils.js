@@ -73,3 +73,11 @@ export function downloadPromptsCsv(prompts, filenamePrefix = "prompts") {
   a.download = `${filenamePrefix}_${Date.now()}.csv`;
   a.click();
 }
+
+export function downloadPromptsTxt(prompts, filenamePrefix = "prompts") {
+  const txt = prompts.map((prompt, index) => `${index + 1}. ${prompt}`).join("\n\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([txt], { type: "text/plain" }));
+  a.download = `${filenamePrefix}_${Date.now()}.txt`;
+  a.click();
+}

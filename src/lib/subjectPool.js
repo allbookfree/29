@@ -698,7 +698,6 @@ export const HALAL_CATEGORIES = {
   ]
 };
 
-export const CATEGORY_NAMES = Object.keys(HALAL_CATEGORIES);
 
 export function getSubjectCount() {
   return Object.values(HALAL_CATEGORIES).reduce((sum, arr) => sum + arr.length, 0);

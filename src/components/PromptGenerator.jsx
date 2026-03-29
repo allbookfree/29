@@ -1,52 +1,38 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Sparkles, Download, Hash, Type, Cpu, AlertCircle, FileText, Copy, Check, Settings, Lightbulb, Lock, Save, Edit3, ChevronDown, ChevronUp, Zap, ClipboardList, SlidersHorizontal, Ban, CheckSquare, Square, Search, Globe, Wand2, Star, CalendarDays } from "lucide-react";
+import { Sparkles, Download, Hash, Type, Cpu, AlertCircle, FileText, Copy, Check, Settings, Lightbulb, Lock, Save, Edit3, ChevronDown, ChevronUp, Zap, ClipboardList, SlidersHorizontal, Ban, CheckSquare, Square, Globe, Wand2, Star, CalendarDays } from "lucide-react";
 
 import { useApiKeys } from "@/context/ApiKeyContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { copyToClipboard, downloadPromptsCsv, parseNumberedPrompts } from "@/lib/promptUtils";
+import { copyToClipboard, downloadPromptsCsv, downloadPromptsTxt, parseNumberedPrompts } from "@/lib/promptUtils";
 import { mapApiError } from "@/lib/apiErrors";
 import { getAntiRepeatSample, saveToPromptHistory } from "@/lib/promptHistory";
 import { getRandomSubjects } from "@/lib/subjectPool";
 import { getUpcomingFestivals, getFestivalSubjects, getFestivalContext } from "@/lib/festivalCalendar";
 import { getCategoryUsage, recordMultipleCategoryUsage } from "@/lib/categoryTracker";
-import { PROVIDERS_UI } from "@/config/models";
+import { PROVIDERS_UI, MODEL_LABELS } from "@/config/models";
 import { PROMPT_TEMPLATES } from "@/config/templates";
 import DebugPanel from "@/components/DebugPanel";
 import { buildSystemPrompt, getRequestInfo, buildRequestBodyPreview } from "@/lib/promptBuilder";
 
 function formatModelName(raw) {
   if (!raw) return "";
+  if (MODEL_LABELS[raw]) return MODEL_LABELS[raw];
+  if (raw.endsWith("+search")) {
+    const base = raw.replace("+search", "");
+    const name = MODEL_LABELS[base] || base;
+    return `${name} + Search`;
+  }
   if (raw.startsWith("or:")) {
-    const full = raw.slice(3);
-    const short = full.split("/").pop()?.split(":")[0] || full;
+    const short = raw.slice(3).split("/").pop()?.split(":")[0] || raw;
     return short.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
   }
   if (raw.startsWith("hf:")) {
-    const full = raw.slice(3);
-    const short = full.split("/").pop() || full;
+    const short = raw.slice(3).split("/").pop() || raw;
     return short.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
   }
-  if (raw.endsWith("+search")) {
-    const base = raw.replace("+search", "");
-    const name = base === "gemini-2.5-flash" ? "Gemini 2.5 Flash" : base;
-    return `${name} + Search`;
-  }
-  const map = {
-    "gemini": "Gemini 2.5 Flash",
-    "gemini-lite": "Gemini Flash-Lite",
-    "gemini-2.5-flash": "Gemini 2.5 Flash",
-    "gemini-2.5-flash-lite": "Gemini Flash-Lite",
-    "groq": "Llama 3.3 70B",
-    "groq-scout": "Llama 4 Scout",
-    "llama-3.3-70b-versatile": "Llama 3.3 70B",
-    "meta-llama/llama-4-scout-17b-16e-instruct": "Llama 4 Scout",
-    "mistral": "Mixtral 8x22B",
-    "open-mixtral-8x22b": "Mixtral 8x22B",
-    "openrouter": "OpenRouter",
-  };
-  return map[raw] || raw;
+  return raw;
 }
 
 function PipelineTracker({ step, providerLabel, isResearch, t }) {
@@ -618,6 +604,11 @@ export default function PromptGenerator({
     downloadPromptsCsv(list, storagePrefix);
   };
 
+  const downloadTXT = () => {
+    const list = selected.size > 0 ? prompts.filter((_, i) => selected.has(i)) : prompts;
+    downloadPromptsTxt(list, storagePrefix);
+  };
+
 
   const iconStyle = gradient ? { background: gradient } : undefined;
   const toggleStyle = gradient && advancedOn ? { background: gradient } : undefined;
@@ -793,6 +784,7 @@ export default function PromptGenerator({
                   {copiedAll ? <><Check size={16} />{t("prompt.copied")}</> : <><ClipboardList size={16} />{selected.size > 0 ? `${t("prompt.copyCount")} ${selected.size}` : t("prompt.copyAll")}</>}
                 </button>
                 <button className="btn btn-secondary" onClick={downloadCSV}><Download size={16} />{t("prompt.csv")}</button>
+                <button className="btn btn-secondary" onClick={downloadTXT}><FileText size={16} />{t("prompt.txt")}</button>
                 <button className="btn btn-ghost" onClick={selected.size === prompts.length ? deselectAll : selectAll}>
                   {selected.size === prompts.length ? <><Square size={14} />{t("prompt.deselect")}</> : <><CheckSquare size={14} />{t("prompt.selectAll")}</>}
                 </button>

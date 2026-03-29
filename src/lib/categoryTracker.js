@@ -1,5 +1,4 @@
 const TRACKER_KEY_PREFIX = "cat_tracker_";
-const MAX_HISTORY_PER_TYPE = 2000;
 
 function getKey(type) {
   return `${TRACKER_KEY_PREFIX}${type}`;
