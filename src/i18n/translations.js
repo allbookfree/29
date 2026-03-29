@@ -136,9 +136,9 @@ const translations = {
       keywords: "Keywords",
       less: "Less",
       dropHere: "Drop images here",
-      noKeysWarning: "Add a Gemini, Groq, OpenRouter, or HuggingFace API key in Settings.",
+      noKeysWarning: "Add a Gemini, Groq, Mistral, OpenRouter, or HuggingFace API key in Settings.",
       uploadWarning: "Upload at least one image.",
-      noKeysLong: "Add a Gemini, Groq, OpenRouter, or HuggingFace API key in Settings to start generating metadata.",
+      noKeysLong: "Add a Gemini, Groq, Mistral, OpenRouter, or HuggingFace API key in Settings to start generating metadata.",
       noKeyHint: "No API key — add in Settings",
     },
     settings: {
@@ -419,9 +419,9 @@ const translations = {
       keywords: "কীওয়ার্ড",
       less: "কম",
       dropHere: "এখানে ছবি ছাড়ুন",
-      noKeysWarning: "সেটিংসে Gemini, Groq, OpenRouter, বা HuggingFace API কী যোগ করুন।",
+      noKeysWarning: "সেটিংসে Gemini, Groq, Mistral, OpenRouter, বা HuggingFace API কী যোগ করুন।",
       uploadWarning: "অন্তত একটি ছবি আপলোড করুন।",
-      noKeysLong: "মেটাডাটা তৈরি শুরু করতে সেটিংসে Gemini, Groq, OpenRouter, বা HuggingFace API কী যোগ করুন।",
+      noKeysLong: "মেটাডাটা তৈরি শুরু করতে সেটিংসে Gemini, Groq, Mistral, OpenRouter, বা HuggingFace API কী যোগ করুন।",
       noKeyHint: "API কী নেই — সেটিংসে যোগ করুন",
     },
     settings: {
