@@ -277,17 +277,20 @@ export default function AnalyticsPage() {
               <span className="analytics-section-badge">{categoriesUsed} {t("analytics.of")} {ALL_CATEGORIES.length}</span>
             </h3>
             <div className="analytics-bars">
-              {sortedCategories.filter(cat => merged[cat] > 0).map(cat => (
-                <div key={cat} className="analytics-bar-row">
-                  <span className="analytics-bar-name">{catLabel(cat)}</span>
-                  <div className="analytics-bar-track">
-                    <div className="analytics-bar-fill"
-                      style={{ width: `${Math.max(4, (merged[cat] / maxCatCount) * 100)}%` }} />
+              {sortedCategories.map(cat => {
+                const count = merged[cat] || 0;
+                const level = count === 0 ? "unused" : count >= maxCatCount * 0.7 ? "high" : count >= maxCatCount * 0.3 ? "medium" : "low";
+                return (
+                  <div key={cat} className={`analytics-bar-row analytics-bar-${level}`}>
+                    <span className="analytics-bar-name">{catLabel(cat)}</span>
+                    <div className="analytics-bar-track">
+                      {count > 0 && <div className={`analytics-bar-fill analytics-bar-fill-${level}`}
+                        style={{ width: `${Math.max(4, (count / maxCatCount) * 100)}%` }} />}
+                    </div>
+                    <span className="analytics-bar-count">{count}</span>
                   </div>
-                  <span className="analytics-bar-count">{merged[cat]}</span>
-                </div>
-              ))}
-              {categoriesUsed === 0 && <p className="analytics-no-data">{t("analytics.noUsageYet")}</p>}
+                );
+              })}
             </div>
           </div>
 

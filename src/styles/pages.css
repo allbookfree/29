@@ -678,6 +678,28 @@
   min-width: 4px;
 }
 
+.analytics-bar-fill-high {
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.analytics-bar-fill-medium {
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+
+.analytics-bar-fill-low {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.analytics-bar-unused .analytics-bar-name {
+  color: var(--text3);
+  opacity: 0.6;
+}
+
+.analytics-bar-unused .analytics-bar-count {
+  color: var(--text3);
+  opacity: 0.5;
+}
+
 .analytics-bar-count {
   font-size: 12px;
   font-weight: 700;
