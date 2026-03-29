@@ -191,6 +191,32 @@ textarea.field {
   background: #2a3548;
 }
 
+.btn-auto {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.btn-auto:hover {
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-auto:active {
+  transform: translateY(0);
+}
+
+.btn-auto:disabled {
+  background: var(--border);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+[data-theme="dark"] .btn-auto:disabled {
+  background: #2a3548;
+}
+
 .btn-secondary {
   background: var(--card);
   color: var(--text2);

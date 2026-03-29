@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Sparkles, Download, Hash, Type, Cpu, AlertCircle, FileText, Copy, Check, Settings, Lightbulb, Lock, Save, Edit3, ChevronDown, ChevronUp, Zap, ClipboardList, SlidersHorizontal, Ban, CheckSquare, Square, Search, Globe } from "lucide-react";
+import { Sparkles, Download, Hash, Type, Cpu, AlertCircle, FileText, Copy, Check, Settings, Lightbulb, Lock, Save, Edit3, ChevronDown, ChevronUp, Zap, ClipboardList, SlidersHorizontal, Ban, CheckSquare, Square, Search, Globe, Wand2 } from "lucide-react";
 
 import { useApiKeys } from "@/context/ApiKeyContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { copyToClipboard, downloadPromptsCsv, parseNumberedPrompts } from "@/lib/promptUtils";
 import { mapApiError } from "@/lib/apiErrors";
 import { getAntiRepeatSample, saveToPromptHistory } from "@/lib/promptHistory";
+import { getRandomSubjects } from "@/lib/subjectPool";
+import { getCategoryUsage, recordMultipleCategoryUsage } from "@/lib/categoryTracker";
 import { PROVIDERS_UI } from "@/config/models";
 import { PROMPT_TEMPLATES } from "@/config/templates";
 import DebugPanel from "@/components/DebugPanel";
@@ -359,6 +361,146 @@ export default function PromptGenerator({
     }
   };
 
+  const autoGenerate = async () => {
+    if (!hasApiKey) return setError(t("errors.addApiKey"));
+    setError("");
+    setLoading(true);
+    setPrompts([]);
+    setModelUsed("");
+    setSelected(new Set());
+    if (resetTimer.current) clearTimeout(resetTimer.current);
+    setGenStep(1);
+
+    try {
+      const usage = getCategoryUsage(type);
+      const picks = getRandomSubjects(usage, 1);
+      const pick = picks[0];
+      const autoSubject = pick.subject;
+      const autoCategory = pick.category;
+
+      const antiRepeat = getAntiRepeatSample(type);
+      const payload = {
+        concept: autoSubject,
+        quantity,
+        model: actualModelKey,
+        apiKeys,
+        apiKeysByModel,
+        type,
+        previousPrompts: antiRepeat,
+        autoMode: true,
+        autoSubject,
+        autoCategory,
+      };
+      if (advancedOn && customInstructions.trim()) {
+        payload.customInstructions = customInstructions.trim();
+      }
+      if (type === "video") {
+        if (camera) payload.camera = camera;
+        if (shot) payload.shot = shot;
+        if (speed) payload.speed = speed;
+        if (mood) payload.mood = mood;
+      } else {
+        if (style) payload.style = style;
+        if (mood) payload.mood = mood;
+        if (lighting) payload.lighting = lighting;
+      }
+      if (negativePrompt.trim()) payload.negativePrompt = negativePrompt.trim();
+
+      const sysPrompt = buildSystemPrompt(type, quantity, payload.customInstructions || "", {
+        style: payload.style, mood: payload.mood, lighting: payload.lighting,
+        camera: payload.camera, shot: payload.shot, speed: payload.speed,
+        negativePrompt: payload.negativePrompt,
+      });
+      setDebugData({
+        hasData: true,
+        userInput: {
+          concept: `[AUTO] ${autoSubject}`, quantity, provider: model, model: actualModelKey, type,
+          autoMode: true, autoCategory,
+          ...(payload.style && { style: payload.style }),
+          ...(payload.mood && { mood: payload.mood }),
+          ...(payload.lighting && { lighting: payload.lighting }),
+          ...(payload.camera && { camera: payload.camera }),
+          ...(payload.shot && { shot: payload.shot }),
+          ...(payload.speed && { speed: payload.speed }),
+          ...(payload.negativePrompt && { negativePrompt: payload.negativePrompt }),
+        },
+        systemPrompt: sysPrompt,
+        userMessage: `[AUTO MODE] Subject: ${autoSubject} (Category: ${autoCategory})\n\n[Server-side additions:\n• Halal content rule (no human figures)\n• Random session seed\n• Random creative angles\n${antiRepeat.length > 0 ? `• ${antiRepeat.length} previously generated prompts as anti-repeat context\n` : ""}]`,
+        requestInfo: null,
+        requestBody: null,
+        rawResponse: null,
+        parsedOutput: null,
+      });
+
+      await new Promise(r => setTimeout(r, 400));
+      setGenStep(2);
+
+      const res = await fetch("/api/generate-prompts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        let errMsg = t("errors.requestFailed");
+        try {
+          const text = await res.text();
+          if (text.trim().startsWith("{")) {
+            errMsg = mapApiError(JSON.parse(text), t);
+          }
+        } catch {}
+        throw new Error(errMsg);
+      }
+
+      setGenStep(3);
+      const usedModel = res.headers.get("x-model-used") || model;
+      setModelUsed(usedModel);
+      const responseStatus = `${res.status} ${res.ok ? "OK" : "Error"}`;
+      setDebugData(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          requestInfo: {
+            ...getRequestInfo(usedModel),
+            responseStatus,
+            responseModel: usedModel,
+          },
+          requestBody: buildRequestBodyPreview(usedModel, prev.systemPrompt, prev.userMessage),
+        };
+      });
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "", lastParsed = [];
+      const hasCustom = advancedOn && customInstructions.trim();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        if (!hasCustom) {
+          const parsed = parseNumberedPrompts(buf, quantity);
+          if (parsed.length > lastParsed.length) {
+            lastParsed = parsed;
+            setPrompts([...parsed]);
+          }
+        }
+      }
+      const final = parseNumberedPrompts(buf, quantity);
+      if (final.length) {
+        setPrompts(final);
+        saveToPromptHistory(type, final);
+        recordMultipleCategoryUsage(type, [autoCategory]);
+        setDebugData(prev => prev ? { ...prev, rawResponse: buf.slice(0, 3000), parsedOutput: final } : prev);
+      }
+      setGenStep(4);
+      resetTimer.current = setTimeout(() => setGenStep(0), 5000);
+    } catch (e) {
+      setError(e.message);
+      setGenStep(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const copyOne = async (text, i) => {
     await copyToClipboard(text);
     setCopied(i);
@@ -522,6 +664,14 @@ export default function PromptGenerator({
           <div className="actions">
             <button className="btn btn-primary" onClick={generate} disabled={loading}>
               {loading ? <><span className="spinner spinner-sm" />{marketResearch ? t("prompt.researching") : t("prompt.generating")}</> : <>{marketResearch ? <Globe size={16} /> : <Sparkles size={16} />}{marketResearch ? t("prompt.researchGenerate") : t("prompt.generatePrompts")}</>}
+            </button>
+            <button
+              className="btn btn-auto"
+              onClick={autoGenerate}
+              disabled={loading || !hasApiKey}
+              title={t("prompt.autoGenerateTip")}
+            >
+              {loading ? <><span className="spinner spinner-sm" />{t("prompt.autoGenerating")}</> : <><Wand2 size={16} />{t("prompt.autoGenerate")}</>}
             </button>
             {prompts.length > 0 && !loading && (
               <>

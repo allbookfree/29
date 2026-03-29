@@ -11,7 +11,7 @@ const DIVERSITY_POOLS = {
   mood: ["melancholic and lonely", "joyful and energetic", "serene and peaceful", "dark and ominous", "playful and whimsical", "romantic and intimate", "surreal and dreamlike", "mysterious and eerie", "epic and powerful", "nostalgic and warm", "tense and dramatic", "ethereal and otherworldly"],
   style: ["hyper-realistic photography", "abstract expressionism", "minimalist design", "baroque maximalism", "film noir", "impressionist painting", "pop art", "dark gothic", "painterly fine art", "macro close-up", "long exposure light trails", "infrared photography", "watercolor illustration", "woodblock print", "stained glass", "neon glow art"],
   lighting: ["golden hour sunrise", "blue hour twilight", "harsh midday sun", "moody overcast", "dramatic stormy sky", "soft foggy morning", "starlit night", "candlelight glow", "neon city lights", "bioluminescent glow", "lightning strike", "underwater caustics", "firelight warmth", "aurora borealis"],
-  subject: ["solitary human figure", "crowd of people", "wild animals", "architecture ruins", "futuristic technology", "natural phenomenon", "still life objects", "celestial bodies", "microscopic world", "underwater scene", "aerial bird's eye view", "street life", "fantasy creatures", "industrial machinery"],
+  subject: ["architecture ruins", "futuristic technology", "natural phenomenon", "still life objects", "celestial bodies", "microscopic world", "underwater scene", "aerial bird's eye view", "food and cuisine", "botanical garden", "geometric patterns", "ancient artifacts", "industrial machinery", "mineral crystals", "traditional crafts"],
 };
 
 function pickRandom(arr, n) {
@@ -19,7 +19,7 @@ function pickRandom(arr, n) {
   return shuffled.slice(0, n);
 }
 
-function buildDiverseUserPrompt(concept, previousPrompts = []) {
+function buildDiverseUserPrompt(concept, previousPrompts = [], { autoMode = false, autoCategory = "" } = {}) {
   const seed = Math.floor(Math.random() * 999983);
   const era = pickRandom(DIVERSITY_POOLS.era, 2).join(" or ");
   const region = pickRandom(DIVERSITY_POOLS.region, 2).join(" or ");
@@ -41,12 +41,18 @@ function buildDiverseUserPrompt(concept, previousPrompts = []) {
 ${previousPrompts.slice(0, 12).map((p, i) => `${i + 1}. ${String(p).slice(0, 150)}`).join("\n")}`
     : "";
 
+  const autoBlock = autoMode && autoCategory
+    ? `\n\n[AUTO MODE — Category: ${autoCategory}] Focus on "${concept}" but create diverse, unexpected interpretations. Each prompt should show this subject in a completely different context, setting, and artistic vision.`
+    : "";
+
   return `[Session seed: ${seed}]
 
 Topic: ${concept}
-${antiRepeatBlock}
+${antiRepeatBlock}${autoBlock}
 
 ${diversityHint}
+
+HALAL CONTENT RULE: Do NOT include any human figures, human body parts, human faces, human hands, human silhouettes, or human shadows in any prompt. Focus on objects, nature, architecture, food, textures, patterns, landscapes, and still life. This is a strict requirement.
 
 Generate prompts that feel completely fresh and unexpected. Each prompt must explore a DIFFERENT combination of the inspiration angles above — and must be nothing like the previously generated prompts.`;
 }
@@ -128,11 +134,14 @@ function validateRequest(body) {
   const speed = typeof body.speed === "string" ? body.speed.trim().slice(0, 80) : "";
   const negativePrompt = typeof body.negativePrompt === "string" ? body.negativePrompt.trim().slice(0, 200) : "";
   const marketResearch = body.marketResearch === true;
+  const autoMode = body.autoMode === true;
+  const autoSubject = typeof body.autoSubject === "string" ? body.autoSubject.trim().slice(0, 200) : "";
+  const autoCategory = typeof body.autoCategory === "string" ? body.autoCategory.trim().slice(0, 100) : "";
   const previousPrompts = Array.isArray(body.previousPrompts)
     ? body.previousPrompts.filter(p => typeof p === "string" && p.trim().length > 10).slice(0, 15)
     : [];
 
-  if (!concept) return "Enter a prompt first.";
+  if (!autoMode && !concept) return "Enter a prompt first.";
   if (concept.length > MAX_PROMPT_CHARS) return `Prompt is too long (max ${MAX_PROMPT_CHARS} chars).`;
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > 100) return "Quantity: 1-100 only.";
   if (!ALLOWED_MODELS_SET.has(model)) return "Unknown model.";
@@ -145,7 +154,8 @@ function validateRequest(body) {
     return "No API key. Add one via API Keys.";
   }
 
-  return { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, previousPrompts };
+  const effectiveConcept = autoMode && autoSubject ? autoSubject : concept;
+  return { concept: effectiveConcept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoSubject, autoCategory, previousPrompts };
 }
 
 
@@ -247,9 +257,9 @@ export async function POST(request) {
       return jsonError(validation, 400, "VALIDATION_ERROR");
     }
 
-    const { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, previousPrompts } = validation;
+    const { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoCategory, previousPrompts } = validation;
     const systemPrompt = buildSystemPrompt(type, quantity, customInstructions, { style, mood, lighting, camera, shot, speed, negativePrompt });
-    const userPrompt = buildDiverseUserPrompt(concept, previousPrompts);
+    const userPrompt = buildDiverseUserPrompt(concept, previousPrompts, { autoMode, autoCategory });
 
     if (marketResearch) {
       const geminiKeys = apiKeysByModel ? sanitizeKeys(apiKeysByModel.gemini) : validKeys;
