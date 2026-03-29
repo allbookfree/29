@@ -519,21 +519,23 @@ export default function MetadataGeneratorPage() {
           </div>
         )}
 
-        {mounted && hasApiKey && (
+        {mounted && (
           <div className="mg-provider-selector">
             {[
-              { id: "auto", label: t("metadata.auto") },
-              apiKeys.length > 0   && { id: "gemini",     label: "Gemini" },
-              groqKeys.length > 0  && { id: "groq",       label: "Groq" },
-              orKeys.length > 0    && { id: "openrouter",  label: "OpenRouter" },
-              hfKeys.length > 0    && { id: "huggingface", label: "HuggingFace" },
-            ].filter(Boolean).map(({ id, label }) => (
+              { id: "auto",            label: t("metadata.auto"),   hasKey: hasApiKey },
+              { id: "gemini-2.5-flash",      label: "Gemini Flash",       hasKey: apiKeys.length > 0 },
+              { id: "gemini-2.5-flash-lite", label: "Flash Lite",          hasKey: apiKeys.length > 0 },
+              { id: "groq",            label: "Groq Scout",         hasKey: groqKeys.length > 0 },
+              { id: "openrouter",      label: "OpenRouter",         hasKey: orKeys.length > 0 },
+              { id: "huggingface",     label: "HuggingFace",        hasKey: hfKeys.length > 0 },
+            ].map(({ id, label, hasKey }) => (
               <button
                 key={id}
-                className={`ct-btn${preferredProvider === id ? " ct-active" : ""}`}
+                className={`ct-btn${preferredProvider === id ? " ct-active" : ""}${!hasKey ? " ct-btn-nokey" : ""}`}
                 style={{ fontSize: 12, padding: "5px 11px" }}
-                onClick={() => !running && setPreferredProvider(id)}
-                disabled={running}
+                title={!hasKey ? t("metadata.noKeyHint") : undefined}
+                onClick={() => !running && hasKey && setPreferredProvider(id)}
+                disabled={running || !hasKey}
               >{label}</button>
             ))}
           </div>

@@ -139,6 +139,7 @@ const translations = {
       noKeysWarning: "Add a Gemini, Groq, OpenRouter, or HuggingFace API key in Settings.",
       uploadWarning: "Upload at least one image.",
       noKeysLong: "Add a Gemini, Groq, OpenRouter, or HuggingFace API key in Settings to start generating metadata.",
+      noKeyHint: "No API key — add in Settings",
     },
     settings: {
       title: "API Configuration",
@@ -421,6 +422,7 @@ const translations = {
       noKeysWarning: "সেটিংসে Gemini, Groq, OpenRouter, বা HuggingFace API কী যোগ করুন।",
       uploadWarning: "অন্তত একটি ছবি আপলোড করুন।",
       noKeysLong: "মেটাডাটা তৈরি শুরু করতে সেটিংসে Gemini, Groq, OpenRouter, বা HuggingFace API কী যোগ করুন।",
+      noKeyHint: "API কী নেই — সেটিংসে যোগ করুন",
     },
     settings: {
       title: "API কনফিগারেশন",

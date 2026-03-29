@@ -418,12 +418,17 @@ export async function POST(request) {
     const prompt = PROMPTS[contentType] || PROMPTS.image;
 
     // If user picked a specific provider, only try that one
-    if (preferredProvider === "gemini") {
+    if (preferredProvider === "gemini" || preferredProvider === "gemini-2.5-flash" || preferredProvider === "gemini-2.5-flash-lite") {
       if (!geminiKeys.length) return jsonError("No Gemini keys configured.", 400, "NO_KEYS");
-      const r1 = await tryGemini(geminiKeys, mimeType, base64Data, prompt, "gemini-2.5-flash");
-      if (r1.ok) return Response.json({ ...r1.data, provider: r1.provider });
-      const r2 = await tryGemini(geminiKeys, mimeType, base64Data, prompt, "gemini-2.5-flash-lite");
-      if (r2.ok) return Response.json({ ...r2.data, provider: r2.provider });
+      // If a specific model was chosen, try only that model; otherwise try both
+      const modelsToTry = (preferredProvider === "gemini-2.5-flash" || preferredProvider === "gemini-2.5-flash-lite")
+        ? [preferredProvider]
+        : ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
+      for (const model of modelsToTry) {
+        const r = await tryGemini(geminiKeys, mimeType, base64Data, prompt, model);
+        if (r.ok) return Response.json({ ...r.data, provider: r.provider });
+        if (!r.retry && r.error) return jsonError(r.error, 502, "PROVIDER_ERROR");
+      }
       return jsonError("Gemini rate-limited. Try again later or switch provider.", 429, "PROVIDER_RATE_LIMITED");
     }
 

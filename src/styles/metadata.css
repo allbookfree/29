@@ -72,6 +72,12 @@
   cursor: not-allowed;
 }
 
+.ct-btn.ct-btn-nokey {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
 .mg-upload-label {
   display: inline-flex;
   align-items: center;
