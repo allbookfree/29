@@ -308,6 +308,76 @@ async function tryGroq(groqKeys, mimeType, base64Data, prompt) {
   return { error: null, retry: false };
 }
 
+// ── Mistral Pixtral (vision) ──────────────────────────────────────────────────
+const PIXTRAL_MODELS = ["pixtral-12b-2409", "pixtral-large-latest"];
+
+async function tryMistral(mistralKeys, mimeType, base64Data, prompt) {
+  const effectiveMime = mimeType === "image/svg+xml" ? "image/png" : mimeType;
+  const dataUrl = `data:${effectiveMime};base64,${base64Data}`;
+  let lastErr = "";
+
+  for (const apiKey of mistralKeys) {
+    for (const model of PIXTRAL_MODELS) {
+      try {
+        const res = await fetchWithTimeout("https://api.mistral.ai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              {
+                role: "user",
+                content: [
+                  { type: "text", text: prompt },
+                  { type: "image_url", image_url: { url: dataUrl } },
+                ],
+              },
+            ],
+            temperature: 0.4,
+            max_tokens: 1024,
+          }),
+        });
+
+        if (!res.ok) {
+          let errBody = "";
+          try { errBody = await res.text(); } catch {}
+          let parsed = null;
+          try { parsed = JSON.parse(errBody); } catch {}
+          const apiMsg = parsed?.message || parsed?.error?.message || errBody || `HTTP ${res.status}`;
+          console.error(`[Mistral] ${model} → ${res.status}: ${apiMsg}`);
+
+          if (res.status === 401 || res.status === 403) {
+            return { error: `Mistral key invalid (${res.status}). Check your key in Settings.`, retry: false };
+          }
+          if (res.status === 429) { lastErr = "Rate limit"; continue; }
+          lastErr = (typeof apiMsg === "string" ? apiMsg : String(apiMsg)).slice(0, 120);
+          continue;
+        }
+
+        const data = await res.json();
+        const rawText = data?.choices?.[0]?.message?.content || "";
+        const metadata = parseJsonResponse(rawText);
+        if (!metadata) { lastErr = "No valid JSON in response"; continue; }
+
+        const normalized = normalizeMetadata(metadata);
+        if (normalized.hasMinimumContent) {
+          return { ok: true, data: normalized, provider: `pixtral-${model.includes("large") ? "large" : "12b"}` };
+        }
+        lastErr = "Incomplete metadata returned";
+      } catch (err) {
+        const msg = String(err?.message || "");
+        console.error(`[Mistral] ${model} exception:`, msg);
+        if (msg.includes("timeout") || msg.includes("aborted")) { lastErr = "Timeout"; continue; }
+        lastErr = msg.slice(0, 80);
+      }
+    }
+  }
+  return { error: lastErr ? `Mistral: ${lastErr}` : null, retry: false };
+}
+
 const HF_VISION_MODELS = [
   "Qwen/Qwen2.5-VL-72B-Instruct",
   "meta-llama/Llama-3.2-11B-Vision-Instruct",
@@ -387,15 +457,16 @@ async function tryHuggingFace(hfKeys, mimeType, base64Data, prompt) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { image, apiKeys, groqKeys: rawGroqKeys, orKeys: rawOrKeys, hfKeys: rawHfKeys, preferredProvider, contentType = "image" } = body;
+    const { image, apiKeys, groqKeys: rawGroqKeys, mistralKeys: rawMistralKeys, orKeys: rawOrKeys, hfKeys: rawHfKeys, preferredProvider, contentType = "image" } = body;
 
     const geminiKeys = sanitizeKeys(apiKeys);
     const groqKeys = sanitizeKeys(rawGroqKeys);
+    const mistralKeys = sanitizeKeys(rawMistralKeys);
     const orKeys = sanitizeKeys(rawOrKeys);
     const hfKeys = sanitizeKeys(rawHfKeys);
 
-    if (geminiKeys.length === 0 && groqKeys.length === 0 && orKeys.length === 0 && hfKeys.length === 0) {
-      return jsonError("No API keys found. Add Gemini, Groq, OpenRouter, or HuggingFace keys in Settings.", 400, "VALIDATION_API_KEYS");
+    if (geminiKeys.length === 0 && groqKeys.length === 0 && mistralKeys.length === 0 && orKeys.length === 0 && hfKeys.length === 0) {
+      return jsonError("No API keys found. Add Gemini, Groq, Mistral, OpenRouter, or HuggingFace keys in Settings.", 400, "VALIDATION_API_KEYS");
     }
 
     if (!image || typeof image !== "string") {
@@ -439,6 +510,13 @@ export async function POST(request) {
       return jsonError(r.error || "Groq failed. Try another provider.", 502, "PROVIDER_ERROR");
     }
 
+    if (preferredProvider === "mistral") {
+      if (!mistralKeys.length) return jsonError("No Mistral keys configured.", 400, "NO_KEYS");
+      const r = await tryMistral(mistralKeys, mimeType, base64Data, prompt);
+      if (r.ok) return Response.json({ ...r.data, provider: r.provider });
+      return jsonError(r.error || "Mistral Pixtral failed. Try another provider.", 502, "PROVIDER_ERROR");
+    }
+
     if (preferredProvider === "openrouter") {
       if (!orKeys.length) return jsonError("No OpenRouter keys configured.", 400, "NO_KEYS");
       const r = await tryOpenRouter(orKeys, mimeType, base64Data, prompt);
@@ -475,14 +553,21 @@ export async function POST(request) {
       if (result.error) return jsonError(result.error, 502, "PROVIDER_ERROR");
     }
 
-    // 4. OpenRouter (free vision models)
+    // 4. Mistral Pixtral (vision)
+    if (mistralKeys.length > 0) {
+      const result = await tryMistral(mistralKeys, mimeType, base64Data, prompt);
+      if (result.ok) return Response.json({ ...result.data, provider: result.provider });
+      if (result.error) return jsonError(result.error, 502, "PROVIDER_ERROR");
+    }
+
+    // 5. OpenRouter (free vision models)
     if (orKeys.length > 0) {
       const result = await tryOpenRouter(orKeys, mimeType, base64Data, prompt);
       if (result.ok) return Response.json({ ...result.data, provider: result.provider });
       if (result.error) return jsonError(result.error, 502, "PROVIDER_ERROR");
     }
 
-    // 5. HuggingFace (vision models)
+    // 6. HuggingFace (vision models)
     if (hfKeys.length > 0) {
       const result = await tryHuggingFace(hfKeys, mimeType, base64Data, prompt);
       if (result.ok) return Response.json({ ...result.data, provider: result.provider });
@@ -493,6 +578,7 @@ export async function POST(request) {
     const providers = [];
     if (geminiKeys.length > 0) providers.push("Gemini");
     if (groqKeys.length > 0) providers.push("Groq");
+    if (mistralKeys.length > 0) providers.push("Mistral");
     if (orKeys.length > 0) providers.push("OpenRouter");
     if (hfKeys.length > 0) providers.push("HuggingFace");
     return jsonError(

@@ -197,11 +197,12 @@ export default function MetadataGeneratorPage() {
     };
   }, []);
 
-  const apiKeys  = mounted ? getAllKeys("gemini").filter(k => k.trim()) : [];
-  const groqKeys = mounted ? getAllKeys("groq").filter(k => k.trim()) : [];
-  const orKeys   = mounted ? getAllKeys("openrouter").filter(k => k.trim()) : [];
-  const hfKeys   = mounted ? getAllKeys("huggingface").filter(k => k.trim()) : [];
-  const hasApiKey = apiKeys.length > 0 || groqKeys.length > 0 || orKeys.length > 0 || hfKeys.length > 0;
+  const apiKeys      = mounted ? getAllKeys("gemini").filter(k => k.trim()) : [];
+  const groqKeys     = mounted ? getAllKeys("groq").filter(k => k.trim()) : [];
+  const mistralKeys  = mounted ? getAllKeys("mistral").filter(k => k.trim()) : [];
+  const orKeys       = mounted ? getAllKeys("openrouter").filter(k => k.trim()) : [];
+  const hfKeys       = mounted ? getAllKeys("huggingface").filter(k => k.trim()) : [];
+  const hasApiKey = apiKeys.length > 0 || groqKeys.length > 0 || mistralKeys.length > 0 || orKeys.length > 0 || hfKeys.length > 0;
   const [preferredProvider, setPreferredProvider] = useState("auto");
   const [debugData, setDebugData] = useState(null);
 
@@ -283,6 +284,7 @@ export default function MetadataGeneratorPage() {
             image: base64,
             apiKeys,
             groqKeys,
+            mistralKeys,
             orKeys,
             hfKeys,
             preferredProvider: preferredProvider === "auto" ? undefined : preferredProvider,
@@ -386,7 +388,7 @@ export default function MetadataGeneratorPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            image: base64, apiKeys, groqKeys, orKeys, hfKeys,
+            image: base64, apiKeys, groqKeys, mistralKeys, orKeys, hfKeys,
             preferredProvider: preferredProvider === "auto" ? undefined : preferredProvider,
             contentType,
           }),
@@ -526,6 +528,7 @@ export default function MetadataGeneratorPage() {
               { id: "gemini-2.5-flash",      label: "Gemini Flash",       hasKey: apiKeys.length > 0 },
               { id: "gemini-2.5-flash-lite", label: "Flash Lite",          hasKey: apiKeys.length > 0 },
               { id: "groq",            label: "Groq Scout",         hasKey: groqKeys.length > 0 },
+              { id: "mistral",         label: "Pixtral",            hasKey: mistralKeys.length > 0 },
               { id: "openrouter",      label: "OpenRouter",         hasKey: orKeys.length > 0 },
               { id: "huggingface",     label: "HuggingFace",        hasKey: hfKeys.length > 0 },
             ].map(({ id, label, hasKey }) => (
