@@ -488,6 +488,213 @@ export const HALAL_CATEGORIES = {
     "escalator mechanical detail", "steps in rice terrace", "cave entrance steps carved",
     "temple steps long climb", "library ladder on rails",
     "stepping stones in garden", "staircase with shadow pattern", "floating staircase modern"
+  ],
+
+  jewelry: [
+    "gold necklace on velvet display", "silver bracelet filigree work", "gemstone ring collection",
+    "pearl strand on silk fabric", "diamond pendant close-up", "antique brooch ornate",
+    "turquoise earrings on stone", "amber jewelry set display", "coral bead necklace",
+    "jade bangle carved pattern", "opal ring fire play", "sapphire cabochon ring",
+    "emerald cut gemstone loose", "ruby pendant in gold setting", "moonstone pendant silver",
+    "filigree earrings detailed", "charm bracelet with pendants", "vintage cameo brooch",
+    "locket pendant open heart", "anklet with bells traditional", "cufflinks on dress shirt flat",
+    "tiara crown jeweled display", "watch chain pocket vintage", "jewelry box velvet interior",
+    "ring tray organized display", "gemstone sorting table", "polishing wheel with jewelry",
+    "beaded necklace handmade", "enamel pin collection colorful", "wax seal signet ring"
+  ],
+
+  clothing: [
+    "silk scarf draped on chair", "leather boots pair on shelf", "wool coat on hanger",
+    "straw hat summer display", "embroidered shawl folded", "denim jacket patches",
+    "kimono fabric pattern display", "sari silk draped on mannequin stand", "abaya embroidery detail",
+    "keffiyeh pattern woven", "tartan scarf plaid", "linen shirt folded stack",
+    "bow tie collection display", "belt leather coiled", "gloves leather pair",
+    "vintage hat collection on hooks", "knitted sweater cable pattern", "lace collar antique",
+    "button collection on card", "zipper and clasp details", "fabric swatches fan display",
+    "shoe last wooden form", "umbrella collection colorful", "sunglasses display rack",
+    "handbag leather crafted", "wallet leather minimalist", "tote bag canvas printed"
+  ],
+
+  toysAndGames: [
+    "wooden toy train set", "teddy bear vintage on shelf", "building blocks colorful stack",
+    "marble collection glass swirls", "spinning top wooden painted", "yo-yo vintage wooden",
+    "jigsaw puzzle half completed", "chess set carved wooden", "backgammon board inlaid",
+    "domino tiles lined up", "playing cards fanned deck", "dice collection various colors",
+    "kite colorful in workshop", "paper boat origami fleet", "toy soldier tin painted",
+    "dollhouse exterior miniature", "rocking horse wooden antique", "kaleidoscope interior view",
+    "wooden spinning top colorful", "toy windmill garden decorative",
+    "jack-in-the-box vintage", "wooden stacking rings", "puzzle cube colorful",
+    "board game pieces close-up", "abacus toy colorful beads", "wind-up toy mechanism",
+    "toy car vintage diecast", "puppet theater miniature stage", "slingshot wooden handmade",
+    "jump rope coiled on floor", "balloon animals colorful", "bubble wand with bubbles"
+  ],
+
+  sportsEquipment: [
+    "cricket bat and ball on grass", "football on empty field", "tennis racket and balls",
+    "basketball on hardwood court empty", "baseball glove and bat", "golf club and ball on tee",
+    "swimming goggles and cap", "boxing gloves red pair", "archery bow and arrows",
+    "badminton shuttlecock and racket", "table tennis paddles crossed", "hockey stick and puck",
+    "skateboard deck artwork", "surfboard on sand beach", "bicycle wheel spoke detail",
+    "climbing rope and carabiners", "dumbbells weight rack organized", "yoga mat rolled",
+    "jump rope speed wire", "kettlebell cast iron", "resistance bands colorful set",
+    "punching bag in gym empty", "running shoes pair on track", "stopwatch and whistle",
+    "trophy cup gold polished", "medal collection display", "sports jersey folded stack"
+  ],
+
+  medicalEquipment: [
+    "stethoscope on white surface", "microscope laboratory research", "test tubes in rack colorful",
+    "petri dish with cultures", "syringe and vial medical", "blood pressure monitor digital",
+    "thermometer mercury glass vintage", "pill bottles pharmacy display", "mortar and pestle pharmacy",
+    "herbal medicine dried plants", "essential oil bottles amber", "acupuncture needles set",
+    "surgical instruments tray steel", "wheelchair folded metal", "crutches pair leaning",
+    "first aid kit open contents", "medicine cabinet organized", "eye chart poster",
+    "dental tools mirror and probe", "hearing aid device small", "oxygen mask and tank",
+    "x-ray film on lightbox", "lab coat hanging on hook", "prescription pad and pen",
+    "vitamin supplement bottles row", "hand sanitizer bottle pump"
+  ],
+
+  kitchenAppliances: [
+    "espresso machine steaming", "stand mixer with bowl", "toaster vintage chrome",
+    "blender with fruit smoothie", "food processor with vegetables", "rice cooker steaming",
+    "waffle iron open hot", "juicer with citrus fruits", "bread maker with fresh loaf",
+    "electric kettle boiling bubbles", "slow cooker ceramic pot", "air fryer basket",
+    "ice cream maker churning", "pasta maker with fresh noodles", "meat grinder manual vintage",
+    "coffee roaster drum", "popcorn maker vintage cart", "candy thermometer in sugar",
+    "dehydrator with fruit slices", "pressure cooker steam releasing", "griddle with pancakes",
+    "deep fryer basket golden", "hand mixer vintage", "kitchen scale brass vintage",
+    "egg timer chicken shape", "tea infuser ball chain"
+  ],
+
+  eidAndSeasonal: [
+    "crescent moon lantern Ramadan", "dates and water iftar setting", "prayer beads tasbih",
+    "Eid gift boxes wrapped gold", "henna cone and designs on paper", "mosque silhouette at dusk",
+    "Ramadan lantern fanous glowing", "charity box zakat coins", "Islamic geometric greeting card",
+    "attar perfume bottle traditional", "prayer mat rolled ornate", "miswak natural toothbrush",
+    "Eid sweets tray colorful", "rose water sprinkler brass", "incense burner mabkhara",
+    "Arabic coffee pot dallah", "Arabic calligraphy Eid art", "moon sighting telescope",
+    "festive table setting Islamic", "gift bag with Islamic pattern", "date palm branch golden",
+    "star and crescent decoration", "Quran stand wooden carved", "Eid balloon decoration",
+    "Islamic wall hanging ornament", "traditional sweets box assorted"
+  ],
+
+  historicalArtifacts: [
+    "ancient coin collection display", "clay tablet with inscription", "bronze age tool artifact",
+    "Egyptian scarab carved stone", "Roman mosaic fragment", "Viking rune stone carving",
+    "Medieval manuscript illuminated page", "antique compass brass nautical", "ancient pottery shard painted",
+    "fossil fish preserved in stone", "arrowhead obsidian collection", "ancient oil lamp clay",
+    "Phoenician glass bead necklace", "Chinese bronze vessel ornate", "Persian miniature painting",
+    "Ottoman calligraphy panel", "Mughal inlay marble pietra dura", "Aztec calendar stone detail",
+    "Greek amphora painted", "Islamic astrolabe brass instrument", "antique key collection iron",
+    "wax seal impression collection", "antique map with compass rose", "parchment scroll rolled",
+    "quill pen and inkwell", "sundial brass garden antique", "vintage stamp collection album",
+    "old photograph sepia equipment", "telegraph key Morse device", "vintage apothecary jars"
+  ],
+
+  packagingAndBranding: [
+    "kraft paper bag with twine", "glass bottle with cork label", "tin can vintage design",
+    "wooden crate with straw", "cardboard box custom printed", "gift wrapping paper rolls",
+    "ribbon spool satin colors", "wax seal on envelope", "label design on jar",
+    "shopping bag paper handles", "product box mockup clean", "tube packaging cosmetic",
+    "pouch packaging stand-up", "bottle cap collection vintage", "hang tag design thread",
+    "sticker sheet die-cut designs", "business card letterpress", "stamp rubber custom design",
+    "packaging tape printed custom", "wrapping tissue paper layers", "box insert foam cutout",
+    "sleeve packaging slide open", "blister pack product display", "sachet packaging foil"
+  ],
+
+  foodPreparation: [
+    "dough kneading on flour surface", "vegetable chopping board colorful", "spice grinding mortar stone",
+    "oil pouring into pan golden", "batter mixing bowl whisk", "bread rising in pan",
+    "pasta drying on rack fresh", "cheese aging on shelf", "pickle jars fermentation",
+    "chocolate tempering marble slab", "sugar spinning cotton candy", "tea leaves steeping glass",
+    "coffee roasting beans drum", "fruit preserves cooking pot", "butter churning traditional",
+    "ice being crushed for drinks", "herbs being dried hanging", "rice washing water bowl",
+    "egg whisking into foam", "sauce reducing in pan steam", "caramelization sugar process",
+    "smoking food wood chips", "marinating vegetables in bowl", "noodles being pulled by machine",
+    "juice pressing citrus fresh", "grain milling stone wheel"
+  ],
+
+  constructionMaterials: [
+    "brick wall pattern red bond", "concrete blocks stacked site", "timber planks lumber yard",
+    "steel beams I-beam stack", "glass panes stacked workshop", "ceramic tiles mosaic display",
+    "copper pipes plumbing fittings", "marble slabs quarry cut", "granite countertop polished",
+    "slate roofing tiles stack", "bamboo scaffolding structure", "thatch roofing material bundle",
+    "adobe mud brick drying sun", "rebar steel reinforcement grid", "insulation material fiberglass",
+    "plywood sheets stacked workshop", "cement bags stacked warehouse", "gravel aggregate pile",
+    "sandstone block quarry carved", "terracotta drainage pipes", "wire mesh fencing roll",
+    "paint cans color spectrum", "varnish and stain bottles wood", "welding electrode rods",
+    "concrete mixer drum turning", "scaffolding metal framework"
+  ],
+
+  calligraphyStyles: [
+    "Arabic Naskh script ink pen", "Arabic Thuluth script ornate", "Arabic Diwani script flowing",
+    "Arabic Kufi script angular", "Persian Nastaliq script elegant", "Chinese brush calligraphy",
+    "Japanese shodo brush ink", "Latin copperplate script pen", "Gothic blackletter script",
+    "Devanagari script carved stone", "Korean hangul brush art", "Greek script ancient manuscript",
+    "Hebrew calligraphy scroll", "Thai script gold on black", "Bengali calligraphy ornate",
+    "calligraphy ink stone and brush set", "quill pen scratching parchment", "modern brush lettering",
+    "digital calligraphy tablet pen", "calligraphy practice sheet drills", "gold leaf gilding letters",
+    "engraving letters metal plate", "woodblock letter carving", "neon sign calligraphy style",
+    "sand calligraphy beach writing", "water calligraphy stone evaporating"
+  ],
+
+  mapsAndCartography: [
+    "antique world map parchment", "nautical chart compass rose", "topographic map contour lines",
+    "treasure map aged paper", "star chart constellation map", "city map vintage illustrated",
+    "globe vintage wooden stand", "atlas open page detailed", "road map folded vintage",
+    "subway map diagram colorful", "hiking trail map laminated", "weather map pressure systems",
+    "satellite imagery landscape", "relief map 3D terrain model", "maritime navigation chart",
+    "polar projection map ice cap", "geological map rock layers", "land survey map instruments",
+    "pirate map with X marks", "silk road trade route map", "migration route map overlay",
+    "constellation map planisphere", "floor plan architectural drawing", "blueprint technical drawing"
+  ],
+
+  boardGamesAndPuzzles: [
+    "chess pieces carved wood closeup", "Go game stones black white board", "Mancala board seeds wooden",
+    "Mahjong tiles ivory carved", "Othello reversi board game", "Scrabble letter tiles rack",
+    "crossword puzzle newspaper pen", "Sudoku grid pencil eraser", "Rubik cube colorful solving",
+    "tangram shapes wooden puzzle", "wooden maze ball labyrinth", "card game hand fan spread",
+    "game tokens stacked on board", "bingo cards and markers", "Connect Four dropping piece",
+    "jigsaw puzzle edge pieces sorted", "wooden brain teaser puzzle", "dice tower rolling",
+    "hourglass sand timer for games", "score pad and pencil game night", "game box collection shelf",
+    "strategy game map board tokens", "trivia cards stack question", "puzzle box secret opening"
+  ],
+
+  vintageAndRetro: [
+    "vintage camera collection display", "retro radio transistor colorful", "old film projector reels",
+    "vintage suitcase stacked travel", "antique telephone rotary black", "retro diner booth empty",
+    "vintage neon sign glowing", "old typewriter keys closeup", "retro clock flip numbers",
+    "vintage postcard collection", "old compass brass pocket", "retro television rounded screen",
+    "antique gramophone horn speaker", "vintage bicycle basket flowers", "old lantern kerosene brass",
+    "retro sunglasses aviator display", "vintage perfume bottles ornate", "old camera bellows folding",
+    "retro game console controllers", "vintage map rolled parchment", "antique magnifying glass brass",
+    "old pocket watch chain gold", "vintage thermometer mercury wall", "retro jukebox colorful lights",
+    "antique cash register brass", "vintage binoculars leather case", "old film canisters stacked",
+    "retro toaster chrome shiny", "vintage alarm clock twin bell", "antique desk globe spinning"
+  ],
+
+  dessertsAndSweets: [
+    "chocolate fountain flowing dark", "macaron tower pastel colors", "baklava layers pistachio honey",
+    "Turkish delight rose dusted", "kunafa cheese golden crispy", "gulab jamun syrup bowl",
+    "mochi rice cake assorted", "churros cinnamon sugar plate", "crepe suzette flambee pan",
+    "tiramisu layers cocoa dusted", "creme brulee torch caramel", "panna cotta berry sauce",
+    "cannoli ricotta pistachio", "profiterole chocolate tower", "mille-feuille pastry cream",
+    "gelato scoops colorful display", "sorbet fruit frozen fresh", "cotton candy pink cloud",
+    "candy apples red glossy", "fudge squares chocolate walnut", "halwa carrot sweet traditional",
+    "jalebi orange spiral sweet", "ladoo golden round sweet", "date balls coconut rolled",
+    "chocolate truffles assorted box", "praline hazelnut golden", "nougat honey almond bar",
+    "marshmallow pastel stack soft", "rock candy crystal string", "honeycomb toffee broken pieces"
+  ],
+
+  outdoorScenes: [
+    "campfire crackling night forest", "tent camping mountain lake", "hammock between trees forest",
+    "picnic blanket park empty", "garden path stone winding", "wooden dock lake morning",
+    "park bench autumn leaves", "gazebo garden white lattice", "treehouse wooden childhood",
+    "outdoor market canopy fabric", "rooftop terrace city plants", "courtyard fountain stone",
+    "patio furniture rattan set", "balcony garden urban plants", "fire pit stone circle backyard",
+    "outdoor kitchen grill setup", "greenhouse interior lush plants", "vineyard path autumn row",
+    "orchard bloom spring morning", "beach bonfire sunset glow", "cliff edge ocean view bench",
+    "forest clearing sunbeam circle", "riverside rocks moss green", "garden swing wooden rope",
+    "outdoor staircase stone hillside"
   ]
 };
 

@@ -362,7 +362,9 @@ export default function PromptGenerator({
   };
 
   const autoGenerate = async () => {
-    if (!hasApiKey) return setError(t("errors.addApiKey"));
+    if (marketResearch && !hasGeminiKey) return setError(t("prompt.marketResearchRequires"));
+    const useMarketResearch = marketResearch && hasGeminiKey;
+    if (!useMarketResearch && !hasApiKey) return setError(t("errors.addApiKey"));
     setError("");
     setLoading(true);
     setPrompts([]);
@@ -382,7 +384,7 @@ export default function PromptGenerator({
       const payload = {
         concept: autoSubject,
         quantity,
-        model: actualModelKey,
+        model: useMarketResearch ? "gemini" : actualModelKey,
         apiKeys,
         apiKeysByModel,
         type,
@@ -405,17 +407,21 @@ export default function PromptGenerator({
         if (lighting) payload.lighting = lighting;
       }
       if (negativePrompt.trim()) payload.negativePrompt = negativePrompt.trim();
+      if (useMarketResearch) payload.marketResearch = true;
 
-      const sysPrompt = buildSystemPrompt(type, quantity, payload.customInstructions || "", {
-        style: payload.style, mood: payload.mood, lighting: payload.lighting,
-        camera: payload.camera, shot: payload.shot, speed: payload.speed,
-        negativePrompt: payload.negativePrompt,
-      });
+      const sysPrompt = useMarketResearch
+        ? "(Auto + Market Research mode — the system prompt includes Google Search results and is built server-side)"
+        : buildSystemPrompt(type, quantity, payload.customInstructions || "", {
+            style: payload.style, mood: payload.mood, lighting: payload.lighting,
+            camera: payload.camera, shot: payload.shot, speed: payload.speed,
+            negativePrompt: payload.negativePrompt,
+          });
       setDebugData({
         hasData: true,
         userInput: {
-          concept: `[AUTO] ${autoSubject}`, quantity, provider: model, model: actualModelKey, type,
+          concept: `[AUTO] ${autoSubject}`, quantity, provider: useMarketResearch ? "google" : model, model: useMarketResearch ? "gemini" : actualModelKey, type,
           autoMode: true, autoCategory,
+          ...(useMarketResearch && { marketResearch: true }),
           ...(payload.style && { style: payload.style }),
           ...(payload.mood && { mood: payload.mood }),
           ...(payload.lighting && { lighting: payload.lighting }),
@@ -425,7 +431,7 @@ export default function PromptGenerator({
           ...(payload.negativePrompt && { negativePrompt: payload.negativePrompt }),
         },
         systemPrompt: sysPrompt,
-        userMessage: `[AUTO MODE] Subject: ${autoSubject} (Category: ${autoCategory})\n\n[Server-side additions:\n• Halal content rule (no human figures)\n• Random session seed\n• Random creative angles\n${antiRepeat.length > 0 ? `• ${antiRepeat.length} previously generated prompts as anti-repeat context\n` : ""}]`,
+        userMessage: `[AUTO MODE${useMarketResearch ? " + MARKET RESEARCH" : ""}] Subject: ${autoSubject} (Category: ${autoCategory})\n\n[Server-side additions:\n• Halal content rule (no human figures)\n• Random session seed\n• Type-aware creative angles (${type})\n${antiRepeat.length > 0 ? `• ${antiRepeat.length} previously generated prompts as anti-repeat context\n` : ""}${useMarketResearch ? "• Google Search for trending microstock topics\n" : ""}]`,
         requestInfo: null,
         requestBody: null,
         rawResponse: null,

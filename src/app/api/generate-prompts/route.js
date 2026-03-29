@@ -6,12 +6,27 @@ const MAX_API_KEYS = 10;
 const REQUEST_TIMEOUT_MS = 60000;
 
 const DIVERSITY_POOLS = {
-  era: ["ancient civilizations", "medieval period", "Renaissance", "Victorian era", "1920s Art Deco", "1960s retro", "1980s neon", "Cold War era", "cyberpunk future", "far future space age", "post-apocalyptic", "prehistoric", "steampunk industrial", "Edo period Japan", "Ming dynasty China", "Ottoman empire"],
-  region: ["Japanese countryside", "Scandinavian fjords", "Moroccan medina", "African savanna", "Amazon rainforest", "Arctic tundra", "Mediterranean coast", "Southeast Asian jungle", "Himalayan peaks", "Caribbean island", "Patagonian wilderness", "Saharan desert", "Scottish highlands", "New Zealand coast", "Peruvian mountains", "Icelandic lava fields"],
-  mood: ["melancholic and lonely", "joyful and energetic", "serene and peaceful", "dark and ominous", "playful and whimsical", "romantic and intimate", "surreal and dreamlike", "mysterious and eerie", "epic and powerful", "nostalgic and warm", "tense and dramatic", "ethereal and otherworldly"],
-  style: ["hyper-realistic photography", "abstract expressionism", "minimalist design", "baroque maximalism", "film noir", "impressionist painting", "pop art", "dark gothic", "painterly fine art", "macro close-up", "long exposure light trails", "infrared photography", "watercolor illustration", "woodblock print", "stained glass", "neon glow art"],
-  lighting: ["golden hour sunrise", "blue hour twilight", "harsh midday sun", "moody overcast", "dramatic stormy sky", "soft foggy morning", "starlit night", "candlelight glow", "neon city lights", "bioluminescent glow", "lightning strike", "underwater caustics", "firelight warmth", "aurora borealis"],
-  subject: ["architecture ruins", "futuristic technology", "natural phenomenon", "still life objects", "celestial bodies", "microscopic world", "underwater scene", "aerial bird's eye view", "food and cuisine", "botanical garden", "geometric patterns", "ancient artifacts", "industrial machinery", "mineral crystals", "traditional crafts"],
+  shared: {
+    era: ["ancient civilizations", "medieval period", "Renaissance", "Victorian era", "1920s Art Deco", "1960s retro", "1980s neon", "Cold War era", "cyberpunk future", "far future space age", "post-apocalyptic", "prehistoric", "steampunk industrial", "Edo period Japan", "Ming dynasty China", "Ottoman empire"],
+    region: ["Japanese countryside", "Scandinavian fjords", "Moroccan medina", "African savanna", "Amazon rainforest", "Arctic tundra", "Mediterranean coast", "Southeast Asian jungle", "Himalayan peaks", "Caribbean island", "Patagonian wilderness", "Saharan desert", "Scottish highlands", "New Zealand coast", "Peruvian mountains", "Icelandic lava fields"],
+    mood: ["melancholic and lonely", "joyful and energetic", "serene and peaceful", "dark and ominous", "playful and whimsical", "romantic and intimate", "surreal and dreamlike", "mysterious and eerie", "epic and powerful", "nostalgic and warm", "tense and dramatic", "ethereal and otherworldly"],
+  },
+  image: {
+    style: ["hyper-realistic photography", "abstract expressionism", "minimalist design", "baroque maximalism", "film noir", "impressionist painting", "pop art", "dark gothic", "painterly fine art", "macro close-up", "long exposure light trails", "infrared photography", "watercolor illustration", "double exposure composite", "tilt-shift miniature", "cross-process film look"],
+    lighting: ["golden hour sunrise", "blue hour twilight", "harsh midday sun", "moody overcast", "dramatic stormy sky", "soft foggy morning", "starlit night", "candlelight glow", "neon city lights", "bioluminescent glow", "lightning strike", "underwater caustics", "firelight warmth", "aurora borealis"],
+    composition: ["rule of thirds off-center", "symmetrical reflection", "leading lines perspective", "frame within a frame", "negative space minimal", "bird's eye view flat lay", "worm's eye dramatic angle", "Dutch angle tilted", "panoramic ultra-wide", "extreme close-up detail", "layered depth foreground-background", "diagonal dynamic tension"],
+  },
+  vector: {
+    style: ["flat design 2D", "isometric 3D illustration", "line art minimal", "geometric abstract shapes", "gradient mesh smooth", "paper cut layered", "retro vintage poster", "kawaii cute style", "blueprint technical", "hand-drawn sketch", "pixel art retro", "art nouveau ornamental", "bauhaus modernist", "Memphis design 80s", "low-poly faceted", "sticker die-cut style"],
+    palette: ["monochrome single hue", "complementary two-tone", "analogous warm harmony", "triadic vibrant bold", "pastel soft muted", "neon bright saturated", "earth tones natural", "jewel tones rich", "black and white contrast", "gradient rainbow spectrum", "duotone trendy", "limited 3-color palette"],
+    useCase: ["app icon design", "infographic element", "social media post asset", "website hero illustration", "logo mark concept", "pattern tile repeat", "icon set UI", "greeting card design", "book cover illustration", "packaging label art", "badge and emblem", "mascot character design"],
+  },
+  video: {
+    cameraMove: ["slow dolly forward reveal", "sweeping crane aerial", "handheld documentary style", "smooth gimbal tracking", "rotating orbit around subject", "pull-back zoom out wide", "push-in zoom to detail", "panning left to right scenic", "tilt up from ground to sky", "static locked tripod", "slider lateral movement", "drone ascending overhead"],
+    transition: ["crossfade dissolve smooth", "whip pan fast cut", "match cut shape transition", "light flash white out", "rack focus foreground-background", "time lapse speed ramp", "morph dissolve subject change", "split screen comparison", "iris wipe circular", "zoom transition seamless"],
+    pacing: ["slow motion cinematic 120fps", "real-time natural flow", "hyperlapse time-lapse urban", "speed ramp fast-slow-fast", "stop-motion frame by frame", "reverse playback dramatic", "bullet time frozen moment", "timelapse sunrise to sunset", "normal speed with slow detail"],
+    colorGrade: ["warm golden cinematic", "cool blue moody thriller", "desaturated muted documentary", "high contrast dramatic noir", "pastel soft dreamy", "teal and orange blockbuster", "vintage film grain retro", "neon cyberpunk saturated", "natural neutral realistic", "sepia aged nostalgic"],
+  },
 };
 
 function pickRandom(arr, n) {
@@ -19,22 +34,48 @@ function pickRandom(arr, n) {
   return shuffled.slice(0, n);
 }
 
-function buildDiverseUserPrompt(concept, previousPrompts = [], { autoMode = false, autoCategory = "" } = {}) {
+function buildDiverseUserPrompt(concept, previousPrompts = [], { autoMode = false, autoCategory = "", type = "image" } = {}) {
   const seed = Math.floor(Math.random() * 999983);
-  const era = pickRandom(DIVERSITY_POOLS.era, 2).join(" or ");
-  const region = pickRandom(DIVERSITY_POOLS.region, 2).join(" or ");
-  const mood = pickRandom(DIVERSITY_POOLS.mood, 2).join(", ");
-  const style = pickRandom(DIVERSITY_POOLS.style, 2).join(" or ");
-  const lighting = pickRandom(DIVERSITY_POOLS.lighting, 2).join(" or ");
-  const subject = pickRandom(DIVERSITY_POOLS.subject, 2).join(" or ");
+  const shared = DIVERSITY_POOLS.shared;
+  const era = pickRandom(shared.era, 2).join(" or ");
+  const region = pickRandom(shared.region, 2).join(" or ");
+  const mood = pickRandom(shared.mood, 2).join(", ");
+
+  let typeSpecificHint = "";
+
+  if (type === "video") {
+    const pool = DIVERSITY_POOLS.video;
+    const cam = pickRandom(pool.cameraMove, 2).join(" or ");
+    const trans = pickRandom(pool.transition, 2).join(" or ");
+    const pace = pickRandom(pool.pacing, 2).join(" or ");
+    const grade = pickRandom(pool.colorGrade, 2).join(" or ");
+    typeSpecificHint = `- Camera movement: ${cam}
+- Transition style: ${trans}
+- Pacing/speed: ${pace}
+- Color grading: ${grade}`;
+  } else if (type === "vector") {
+    const pool = DIVERSITY_POOLS.vector;
+    const style = pickRandom(pool.style, 2).join(" or ");
+    const palette = pickRandom(pool.palette, 2).join(" or ");
+    const use = pickRandom(pool.useCase, 2).join(" or ");
+    typeSpecificHint = `- Art style: ${style}
+- Color palette: ${palette}
+- Use case: ${use}`;
+  } else {
+    const pool = DIVERSITY_POOLS.image;
+    const style = pickRandom(pool.style, 2).join(" or ");
+    const light = pickRandom(pool.lighting, 2).join(" or ");
+    const comp = pickRandom(pool.composition, 2).join(" or ");
+    typeSpecificHint = `- Photography style: ${style}
+- Lighting: ${light}
+- Composition: ${comp}`;
+  }
 
   const diversityHint = `Creative inspiration angles (interpret freely — mix, combine, or subvert these):
 - Era/time: ${era}
 - Region/culture: ${region}
 - Mood/atmosphere: ${mood}
-- Visual style: ${style}
-- Lighting: ${lighting}
-- Subject variation: ${subject}`;
+${typeSpecificHint}`;
 
   const antiRepeatBlock = previousPrompts.length > 0
     ? `\n\nPREVIOUSLY GENERATED PROMPTS — study these carefully and DO NOT repeat their themes, subjects, settings, styles, color palettes, or visual concepts. Create something completely different:
@@ -259,7 +300,7 @@ export async function POST(request) {
 
     const { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoCategory, previousPrompts } = validation;
     const systemPrompt = buildSystemPrompt(type, quantity, customInstructions, { style, mood, lighting, camera, shot, speed, negativePrompt });
-    const userPrompt = buildDiverseUserPrompt(concept, previousPrompts, { autoMode, autoCategory });
+    const userPrompt = buildDiverseUserPrompt(concept, previousPrompts, { autoMode, autoCategory, type });
 
     if (marketResearch) {
       const geminiKeys = apiKeysByModel ? sanitizeKeys(apiKeysByModel.gemini) : validKeys;

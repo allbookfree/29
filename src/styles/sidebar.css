@@ -14,7 +14,8 @@
 }
 
 [data-theme="dark"] .sidebar {
-  background: rgba(26, 35, 50, 0.9);
+  background: rgba(20, 29, 47, 0.95);
+  border-right-color: rgba(42, 53, 72, 0.6);
 }
 
 .sidebar.collapsed {

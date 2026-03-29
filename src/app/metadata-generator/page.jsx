@@ -174,8 +174,6 @@ export default function MetadataGeneratorPage() {
   const { getAllKeys } = useApiKeys();
   const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
   const [files, setFiles] = useState([]);
   const [results, setResults] = useState([]);
   const [contentType, setContentType] = useState("image");
@@ -188,6 +186,16 @@ export default function MetadataGeneratorPage() {
   const inputRef = useRef(null);
   const [eta, setEta] = useState("");
   const batchStartRef = useRef(null);
+
+  const filesRef = useRef(files);
+  filesRef.current = files;
+
+  useEffect(() => {
+    setMounted(true);
+    return () => {
+      filesRef.current.forEach(f => { if (f.preview) URL.revokeObjectURL(f.preview); });
+    };
+  }, []);
 
   const apiKeys  = mounted ? getAllKeys("gemini").filter(k => k.trim()) : [];
   const groqKeys = mounted ? getAllKeys("groq").filter(k => k.trim()) : [];

@@ -5,11 +5,16 @@
   box-shadow: var(--shadow);
   overflow: hidden;
   margin-bottom: 16px;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 [data-theme="light"] .card {
-  background: linear-gradient(180deg, #ffffff, #fcfdff);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+}
+
+[data-theme="dark"] .card {
+  border-color: rgba(42, 53, 72, 0.8);
+  background: linear-gradient(180deg, rgba(26, 35, 50, 0.95), rgba(20, 29, 47, 0.9));
 }
 
 .card:hover {
@@ -154,15 +159,17 @@ textarea.field {
 .btn {
   border: none;
   border-radius: var(--radius-sm);
-  padding: 9px 16px;
+  padding: 10px 18px;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-primary {
@@ -172,12 +179,13 @@ textarea.field {
 }
 
 .btn-primary:hover {
-  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
+  transform: translateY(-2px);
 }
 
 .btn-primary:active {
   transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
 }
 
 .btn-primary:disabled {
@@ -198,12 +206,13 @@ textarea.field {
 }
 
 .btn-auto:hover {
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
 }
 
 .btn-auto:active {
   transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 }
 
 .btn-auto:disabled {
@@ -268,16 +277,21 @@ textarea.field {
 
 .badge {
   margin-left: auto;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(79, 70, 229, 0.15);
-  background: var(--accent-bg);
+  border: 1px solid rgba(79, 70, 229, 0.12);
+  background: linear-gradient(135deg, var(--accent-bg), rgba(79, 70, 229, 0.06));
   color: var(--accent);
   font-size: 12px;
   font-weight: 600;
   display: inline-flex;
   gap: 5px;
   align-items: center;
+}
+
+[data-theme="dark"] .badge {
+  border-color: rgba(129, 140, 248, 0.2);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(99, 102, 241, 0.06));
 }
 
 .error {
@@ -321,8 +335,14 @@ textarea.field {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 40px 0;
+  gap: 16px;
+  padding: 48px 20px;
+  animation: loadingPulse 2s ease-in-out infinite;
+}
+
+@keyframes loadingPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 .loading-text {
@@ -330,14 +350,16 @@ textarea.field {
 }
 
 .loading-title {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 15px;
+  color: var(--text);
 }
 
 .loading-desc {
   font-size: 13px;
   color: var(--text3);
-  margin-top: 4px;
+  margin-top: 6px;
+  line-height: 1.4;
 }
 
 .toast {
@@ -348,20 +370,26 @@ textarea.field {
   display: flex;
   align-items: center;
   gap: 8px;
-  border-radius: var(--radius-sm);
+  border-radius: 10px;
   border: 1px solid rgba(5, 150, 105, 0.2);
   background: #f0fdf4;
   color: var(--success);
-  padding: 10px 16px;
+  padding: 12px 18px;
   font-weight: 600;
   font-size: 13px;
-  box-shadow: var(--shadow-md);
-  animation: slideUp 0.2s ease;
+  box-shadow: 0 8px 24px rgba(5, 150, 105, 0.15), var(--shadow-md);
+  animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 [data-theme="dark"] .toast {
   border-color: rgba(52, 211, 153, 0.2);
-  background: rgba(52, 211, 153, 0.08);
+  background: rgba(52, 211, 153, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .toggle-btn {
@@ -475,31 +503,47 @@ textarea.field {
 
 .empty-state {
   text-align: center;
-  margin-top: 40px;
+  margin-top: 48px;
+  padding: 32px 20px;
+  animation: emptyFadeIn 0.5s ease both 0.2s;
+}
+
+@keyframes emptyFadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .empty-state-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: var(--bg2);
-  color: var(--text3);
-  margin-bottom: 14px;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--accent-bg), rgba(79, 70, 229, 0.08));
+  color: var(--accent);
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
+}
+
+[data-theme="dark"] .empty-state-icon {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(99, 102, 241, 0.06));
+  box-shadow: none;
 }
 
 .empty-state-title {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: var(--text2);
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text);
 }
 
 .empty-state-desc {
   font-size: 13px;
   color: var(--text3);
+  max-width: 360px;
+  margin: 0 auto;
+  line-height: 1.5;
 }
 
 .error-boundary {

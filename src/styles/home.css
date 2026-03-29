@@ -122,21 +122,26 @@
   background: var(--card);
   box-shadow: var(--shadow);
   min-height: 86px;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 [data-theme="light"] .home-card {
-  background: linear-gradient(180deg, #ffffff, #fcfdff);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+}
+
+[data-theme="dark"] .home-card {
+  background: linear-gradient(180deg, rgba(26, 35, 50, 0.8), rgba(20, 29, 47, 0.7));
 }
 
 .home-card:hover {
-  border-color: rgba(79, 70, 229, 0.2);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  border-color: rgba(79, 70, 229, 0.25);
+  box-shadow: 0 8px 28px rgba(79, 70, 229, 0.1), var(--shadow-md);
+  transform: translateY(-3px);
 }
 
 [data-theme="dark"] .home-card:hover {
-  border-color: rgba(129, 140, 248, 0.2);
+  border-color: rgba(129, 140, 248, 0.25);
+  box-shadow: 0 8px 28px rgba(129, 140, 248, 0.08);
 }
 
 .home-card-icon {
