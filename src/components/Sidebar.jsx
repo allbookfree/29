@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Sparkles, Image, Palette, Video, KeyRound, PanelLeftClose, PanelLeftOpen, X, Moon, Sun, Languages } from "lucide-react";
+import { Home, Sparkles, Image, Palette, Video, KeyRound, PanelLeftClose, PanelLeftOpen, X, Moon, Sun, Languages, BarChart3 } from "lucide-react";
 import SettingsModal from "./SettingsModal";
 import { useTheme } from "@/context/ThemeContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -14,6 +14,7 @@ const linkKeys = [
   { key: "nav.vectorPrompt", href: "/vector-generator", icon: Palette },
   { key: "nav.videoPrompt", href: "/video-generator", icon: Video },
   { key: "nav.metadata", href: "/metadata-generator", icon: Image },
+  { key: "analytics.navLabel", href: "/analytics", icon: BarChart3 },
 ];
 
 export default function Sidebar({ isOpen, onToggle }) {
