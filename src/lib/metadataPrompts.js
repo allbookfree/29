@@ -44,7 +44,7 @@ Cover these keyword categories (only those that genuinely apply to THIS image):
 9. INDUSTRY USE — what commercial fields would license this image
 10. ABSTRACT CONCEPTS — broader themes this image represents
 11. TEXTURE/MATERIAL — visible surfaces and materials
-12. FORMAT TERMS — how this image could be used (background, banner, etc.)
+12. FORMAT TERMS — stock platform usage formats this image suits
 
 Think like a stock photo buyer: what would they type to find THIS exact image?`,
 
@@ -82,7 +82,7 @@ KEYWORDS:
 - Include singular and plural for the 2-3 most important terms
 
 Cover these keyword categories (only those that genuinely apply to THIS illustration):
-1. FORMAT — vector, illustration, and related format terms
+1. FORMAT — file format and medium-related terms
 2. DESIGN STYLE — the exact visual style used in this illustration
 3. PRIMARY SUBJECT — the main subject depicted
 4. SECONDARY ELEMENTS — other visible design elements
@@ -91,7 +91,7 @@ Cover these keyword categories (only those that genuinely apply to THIS illustra
 7. INDUSTRY — what commercial fields would use this illustration
 8. THEME/CONCEPT — broader themes this illustration represents
 9. PATTERN TERMS — if this is a pattern or repeating design
-10. DESIGN ELEMENTS — specific components visible (icons, badges, frames, etc.)
+10. DESIGN ELEMENTS — specific visual components present in the illustration
 11. TRENDING TERMS — current design trends this illustration fits
 
 Think like a designer searching for assets: what would they type to find THIS exact illustration?`,
