@@ -8,6 +8,15 @@
   box-sizing: border-box;
 }
 
+button, a, [role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input, select, textarea {
+  touch-action: manipulation;
+}
+
 :root {
   --bg: #f5f7fb;
   --bg2: #eef1f8;

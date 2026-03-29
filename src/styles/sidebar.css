@@ -155,8 +155,8 @@
     top: 14px;
     left: 14px;
     z-index: 40;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 10px;
     border: 1px solid var(--border);
     background: var(--card);
@@ -165,6 +165,8 @@
     justify-content: center;
     cursor: pointer;
     color: var(--text);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .sidebar-overlay.active {
@@ -174,16 +176,19 @@
     background: rgba(15, 23, 42, 0.3);
     backdrop-filter: blur(2px);
     z-index: 45;
+    touch-action: manipulation;
   }
 
   .sidebar {
     position: fixed;
     transform: translateX(-100%);
     box-shadow: 4px 0 20px rgba(15, 23, 42, 0.1);
+    pointer-events: none;
   }
 
   .sidebar.open {
     transform: translateX(0);
+    pointer-events: auto;
   }
 
   .sidebar-close {
