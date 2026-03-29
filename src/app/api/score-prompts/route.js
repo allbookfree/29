@@ -39,7 +39,7 @@ function parseScores(text, count) {
       if (Array.isArray(arr) && arr.length > 0) {
         return arr.slice(0, count).map(n => {
           const num = Number(n);
-          return Number.isFinite(num) ? Math.max(1, Math.min(10, Math.round(num))) : null;
+          return Number.isFinite(num) ? Math.max(1, Math.min(10, Math.round(num))) : 5;
         });
       }
     }
