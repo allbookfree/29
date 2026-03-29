@@ -272,7 +272,7 @@ export default function PromptGenerator({
           ...(marketResearch && { marketResearch: true }),
         },
         systemPrompt: sysPrompt,
-        userMessage: concept.trim(),
+        userMessage: `${concept.trim()}\n\n[+ server-side diversity seed and random creative angles are injected into this message on every request to ensure unique outputs]`,
         requestInfo: null,
         requestBody: null,
         rawResponse: null,

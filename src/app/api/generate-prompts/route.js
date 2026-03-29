@@ -5,6 +5,44 @@ const MAX_PROMPT_CHARS = 4000;
 const MAX_API_KEYS = 10;
 const REQUEST_TIMEOUT_MS = 60000;
 
+const DIVERSITY_POOLS = {
+  era: ["ancient civilizations", "medieval period", "Renaissance", "Victorian era", "1920s Art Deco", "1960s retro", "1980s neon", "Cold War era", "cyberpunk future", "far future space age", "post-apocalyptic", "prehistoric", "steampunk industrial", "Edo period Japan", "Ming dynasty China", "Ottoman empire"],
+  region: ["Japanese countryside", "Scandinavian fjords", "Moroccan medina", "African savanna", "Amazon rainforest", "Arctic tundra", "Mediterranean coast", "Southeast Asian jungle", "Himalayan peaks", "Caribbean island", "Patagonian wilderness", "Saharan desert", "Scottish highlands", "New Zealand coast", "Peruvian mountains", "Icelandic lava fields"],
+  mood: ["melancholic and lonely", "joyful and energetic", "serene and peaceful", "dark and ominous", "playful and whimsical", "romantic and intimate", "surreal and dreamlike", "mysterious and eerie", "epic and powerful", "nostalgic and warm", "tense and dramatic", "ethereal and otherworldly"],
+  style: ["hyper-realistic photography", "abstract expressionism", "minimalist design", "baroque maximalism", "film noir", "impressionist painting", "pop art", "dark gothic", "painterly fine art", "macro close-up", "long exposure light trails", "infrared photography", "watercolor illustration", "woodblock print", "stained glass", "neon glow art"],
+  lighting: ["golden hour sunrise", "blue hour twilight", "harsh midday sun", "moody overcast", "dramatic stormy sky", "soft foggy morning", "starlit night", "candlelight glow", "neon city lights", "bioluminescent glow", "lightning strike", "underwater caustics", "firelight warmth", "aurora borealis"],
+  subject: ["solitary human figure", "crowd of people", "wild animals", "architecture ruins", "futuristic technology", "natural phenomenon", "still life objects", "celestial bodies", "microscopic world", "underwater scene", "aerial bird's eye view", "street life", "fantasy creatures", "industrial machinery"],
+};
+
+function pickRandom(arr, n) {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, n);
+}
+
+function buildDiverseUserPrompt(concept) {
+  const seed = Math.floor(Math.random() * 999983);
+  const era = pickRandom(DIVERSITY_POOLS.era, 2).join(" or ");
+  const region = pickRandom(DIVERSITY_POOLS.region, 2).join(" or ");
+  const mood = pickRandom(DIVERSITY_POOLS.mood, 2).join(", ");
+  const style = pickRandom(DIVERSITY_POOLS.style, 2).join(" or ");
+  const lighting = pickRandom(DIVERSITY_POOLS.lighting, 2).join(" or ");
+  const subject = pickRandom(DIVERSITY_POOLS.subject, 2).join(" or ");
+
+  return `[Seed: ${seed}]
+
+Topic: ${concept}
+
+Creative diversity angles to draw inspiration from (interpret freely, not literally — mix, combine, subvert, or ignore any of these to maximize variety and surprise):
+- Era/time: ${era}
+- Region/culture: ${region}
+- Mood/atmosphere: ${mood}
+- Visual style: ${style}
+- Lighting: ${lighting}
+- Subject variation: ${subject}
+
+Generate prompts that feel completely fresh and unexpected. Each prompt should explore a DIFFERENT combination of these dimensions.`;
+}
+
 const ALLOWED_MODELS_SET = new Set(ALLOWED_MODELS);
 const ALLOWED_TYPES_SET = new Set(ALLOWED_TYPES);
 
@@ -200,7 +238,7 @@ export async function POST(request) {
 
     const { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch } = validation;
     const systemPrompt = buildSystemPrompt(type, quantity, customInstructions, { style, mood, lighting, camera, shot, speed, negativePrompt });
-    const userPrompt = concept;
+    const userPrompt = buildDiverseUserPrompt(concept);
 
     if (marketResearch) {
       const geminiKeys = apiKeysByModel ? sanitizeKeys(apiKeysByModel.gemini) : validKeys;

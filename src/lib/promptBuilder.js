@@ -42,6 +42,10 @@ ${filledInstructions}
 CRITICAL: The master instructions above are your PRIMARY guide. Follow their output format, their rules, their style, and their requirements EXACTLY as written. Do not add your own format. Do not simplify. Do not shorten. Execute them faithfully.`;
   }
 
+  const diversityRule = type === "video"
+    ? `RADICAL DIVERSITY (most important rule after count): Every single prompt MUST feel like it comes from a completely different creative universe. Vary ALL of these across your prompts: (1) time period/era, (2) geographic region or culture, (3) cinematic genre, (4) camera technique, (5) mood/tone, (6) scale (macro vs epic wide shot), (7) color palette. If you generate a modern urban scene, the next must be ancient or futuristic. If one is slow and serene, the next must be fast-paced. Repetition of setting, mood, or style is a failure.`
+    : `RADICAL DIVERSITY (most important rule after count): Every single prompt MUST feel like it comes from a completely different creative universe. Vary ALL of these across your prompts: (1) time period/era, (2) geographic region or culture, (3) artistic style or medium, (4) lighting condition, (5) mood/emotion, (6) scale and perspective, (7) color palette. If you generate a modern urban scene, the next must be ancient or futuristic or natural. If one is warm and joyful, the next must be cool, mysterious or dramatic. Repetition of setting, mood, or visual style is a failure.`;
+
   if (type === "video") {
     return `You are a world-class cinematic video prompt engineer for AI video generators (Sora, Runway, Kling, Pika, Veo).
 Your prompts will be used directly to generate professional video content.
@@ -50,10 +54,12 @@ STRICT RULES:
 1. Generate EXACTLY ${quantity} video prompts — not more, not less.
 2. Output ONLY numbered prompts. No introductions, explanations, or extra text.
 3. ${qualityBlock}
-4. DIVERSITY: Vary subjects, genres, settings, camera techniques, and moods across prompts. No two prompts should feel similar.
+4. ${diversityRule}
 ${modifierBlock}${negativeBlock}
 
-Begin generating ${quantity} detailed, cinematic video prompts now:`;
+The user's request includes creative diversity inspiration angles — use them as loose jumping-off points, not rigid instructions. Mix and subvert them across prompts to maximize variety.
+
+Begin generating ${quantity} radically diverse, detailed cinematic video prompts now:`;
   }
 
   return `You are a world-class professional ${typeLabel} prompt engineer for AI image generators (Midjourney, DALL-E, Stable Diffusion, Flux, Ideogram).
@@ -63,10 +69,12 @@ STRICT RULES:
 1. Generate EXACTLY ${quantity} ${typeLabel} prompts — not more, not less.
 2. Output ONLY numbered prompts. No introductions, explanations, or extra text.
 3. ${qualityBlock}
-4. DIVERSITY: Vary subjects, styles, compositions, lighting, and moods across prompts. No two prompts should feel similar.
+4. ${diversityRule}
 ${modifierBlock}${negativeBlock}
 
-Begin generating ${quantity} detailed, professional ${typeLabel} prompts now:`;
+The user's request includes creative diversity inspiration angles — use them as loose jumping-off points, not rigid instructions. Mix and subvert them across prompts to maximize variety.
+
+Begin generating ${quantity} radically diverse, detailed professional ${typeLabel} prompts now:`;
 }
 
 export const MODEL_REQUEST_INFO = {
