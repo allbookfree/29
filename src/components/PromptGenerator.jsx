@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Sparkles, Download, Hash, Type, Cpu, AlertCircle, FileText, Copy, Check, Settings, Lightbulb, Lock, Save, Edit3, ChevronDown, ChevronUp, Zap, ClipboardList, SlidersHorizontal, Ban, CheckSquare, Square, Search, Globe, Wand2, Star } from "lucide-react";
+import { Sparkles, Download, Hash, Type, Cpu, AlertCircle, FileText, Copy, Check, Settings, Lightbulb, Lock, Save, Edit3, ChevronDown, ChevronUp, Zap, ClipboardList, SlidersHorizontal, Ban, CheckSquare, Square, Search, Globe, Wand2, Star, CalendarDays } from "lucide-react";
 
 import { useApiKeys } from "@/context/ApiKeyContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -9,6 +9,7 @@ import { copyToClipboard, downloadPromptsCsv, parseNumberedPrompts } from "@/lib
 import { mapApiError } from "@/lib/apiErrors";
 import { getAntiRepeatSample, saveToPromptHistory } from "@/lib/promptHistory";
 import { getRandomSubjects } from "@/lib/subjectPool";
+import { getUpcomingFestivals, getFestivalSubjects, getFestivalContext } from "@/lib/festivalCalendar";
 import { getCategoryUsage, recordMultipleCategoryUsage } from "@/lib/categoryTracker";
 import { PROVIDERS_UI } from "@/config/models";
 import { PROMPT_TEMPLATES } from "@/config/templates";
@@ -129,7 +130,7 @@ export default function PromptGenerator({
   placeholderKey,
 }) {
   const { getAllKeys, selectedModels } = useApiKeys();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [concept, setConcept] = useState("");
   const [quantity, setQuantity] = useState(10);
   const [model, setModel] = useState("google");
@@ -162,6 +163,8 @@ export default function PromptGenerator({
   const [scores, setScores] = useState([]);
   const [scoring, setScoring] = useState(false);
   const scoringAbortRef = useRef(null);
+  const [festivalMode, setFestivalMode] = useState(false);
+  const [upcomingFestivals, setUpcomingFestivals] = useState([]);
 
   const displayTitle = titleKey ? t(titleKey) : title;
   const displayDesc = descKey ? t(descKey) : description;
@@ -196,6 +199,11 @@ export default function PromptGenerator({
     }
     const savedScoring = localStorage.getItem(`${storagePrefix}_quality_scoring`);
     if (savedScoring === "true") setQualityScoring(true);
+    const savedFestival = localStorage.getItem(`${storagePrefix}_festival_mode`);
+    if (savedFestival === "true") {
+      setFestivalMode(true);
+      setUpcomingFestivals(getUpcomingFestivals(30));
+    }
   }, [storagePrefix]);
 
   useEffect(() => () => { if (resetTimer.current) clearTimeout(resetTimer.current); }, []);
@@ -235,6 +243,17 @@ export default function PromptGenerator({
       setScores([]);
       setScoring(false);
       if (scoringAbortRef.current) scoringAbortRef.current.abort();
+    }
+  };
+
+  const toggleFestivalMode = () => {
+    const next = !festivalMode;
+    setFestivalMode(next);
+    localStorage.setItem(`${storagePrefix}_festival_mode`, next ? "true" : "false");
+    if (next) {
+      setUpcomingFestivals(getUpcomingFestivals(30));
+    } else {
+      setUpcomingFestivals([]);
     }
   };
 
@@ -288,6 +307,9 @@ export default function PromptGenerator({
     try {
       const antiRepeat = getAntiRepeatSample(type);
       const payload = { concept: concept.trim(), quantity, model: actualModelKey, apiKeys, apiKeysByModel, type, previousPrompts: antiRepeat };
+      if (festivalMode && upcomingFestivals.length > 0) {
+        payload.festivalContext = getFestivalContext(upcomingFestivals);
+      }
       if (advancedOn && customInstructions.trim()) {
         payload.customInstructions = customInstructions.trim();
       }
@@ -421,11 +443,19 @@ export default function PromptGenerator({
     setGenStep(1);
 
     try {
-      const usage = getCategoryUsage(type);
-      const picks = getRandomSubjects(usage, 1);
-      const pick = picks[0];
-      const autoSubject = pick.subject;
-      const autoCategory = pick.category;
+      let autoSubject, autoCategory;
+      if (festivalMode && upcomingFestivals.length > 0) {
+        const fest = upcomingFestivals[Math.floor(Math.random() * Math.min(upcomingFestivals.length, 3))];
+        const subjects = getFestivalSubjects(fest);
+        autoSubject = subjects[Math.floor(Math.random() * subjects.length)];
+        autoCategory = fest.name;
+      } else {
+        const usage = getCategoryUsage(type);
+        const picks = getRandomSubjects(usage, 1);
+        const pick = picks[0];
+        autoSubject = pick.subject;
+        autoCategory = pick.category;
+      }
 
       const antiRepeat = getAntiRepeatSample(type);
       const payload = {
@@ -440,6 +470,9 @@ export default function PromptGenerator({
         autoSubject,
         autoCategory,
       };
+      if (festivalMode && upcomingFestivals.length > 0) {
+        payload.festivalContext = getFestivalContext(upcomingFestivals);
+      }
       if (advancedOn && customInstructions.trim()) {
         payload.customInstructions = customInstructions.trim();
       }
@@ -641,6 +674,18 @@ export default function PromptGenerator({
               <span>{t("prompt.qualityScore")}</span>
               {qualityScoring && <Check size={13} />}
             </button>
+            <button
+              className={`toolbar-btn${festivalMode ? " toolbar-btn-active toolbar-btn-festival" : ""}`}
+              onClick={toggleFestivalMode}
+              title={t("prompt.festivalModeTip")}
+            >
+              <CalendarDays size={13} />
+              <span>{t("prompt.festivalMode")}</span>
+              {festivalMode && upcomingFestivals.length > 0 && (
+                <span className="festival-badge">{lang === "bn" ? upcomingFestivals[0].namebn : upcomingFestivals[0].name}</span>
+              )}
+              {festivalMode && <Check size={13} />}
+            </button>
           </div>
 
           {showTemplates && (
@@ -703,6 +748,13 @@ export default function PromptGenerator({
             <div className="research-banner">
               <Globe size={14} />
               <span>{t("prompt.marketResearchBanner")}</span>
+            </div>
+          )}
+
+          {festivalMode && upcomingFestivals.length > 0 && (
+            <div className="festival-banner">
+              <CalendarDays size={14} />
+              <span>{t("prompt.festivalModeBanner")} — {upcomingFestivals.slice(0, 3).map(f => lang === "bn" ? f.namebn : f.name).join(", ")}</span>
             </div>
           )}
 

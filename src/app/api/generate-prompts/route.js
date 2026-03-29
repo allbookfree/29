@@ -187,6 +187,7 @@ function validateRequest(body) {
   const autoMode = body.autoMode === true;
   const autoSubject = typeof body.autoSubject === "string" ? body.autoSubject.trim().slice(0, 200) : "";
   const autoCategory = typeof body.autoCategory === "string" ? body.autoCategory.trim().slice(0, 100) : "";
+  const festivalContext = typeof body.festivalContext === "string" ? body.festivalContext.trim().slice(0, 2000) : "";
   const previousPrompts = Array.isArray(body.previousPrompts)
     ? body.previousPrompts.filter(p => typeof p === "string" && p.trim().length > 10).slice(0, 15)
     : [];
@@ -205,7 +206,7 @@ function validateRequest(body) {
   }
 
   const effectiveConcept = autoMode && autoSubject ? autoSubject : concept;
-  return { concept: effectiveConcept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoSubject, autoCategory, previousPrompts };
+  return { concept: effectiveConcept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoSubject, autoCategory, festivalContext, previousPrompts };
 }
 
 
@@ -307,9 +308,12 @@ export async function POST(request) {
       return jsonError(validation, 400, "VALIDATION_ERROR");
     }
 
-    const { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoCategory, previousPrompts } = validation;
+    const { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoCategory, festivalContext, previousPrompts } = validation;
     const systemPrompt = buildSystemPrompt(type, quantity, customInstructions, { style, mood, lighting, camera, shot, speed, negativePrompt, autoMode: !!autoMode });
-    const userPrompt = buildDiverseUserPrompt(concept, previousPrompts, { autoMode, autoCategory, type });
+    let userPrompt = buildDiverseUserPrompt(concept, previousPrompts, { autoMode, autoCategory, type });
+    if (festivalContext) {
+      userPrompt += festivalContext;
+    }
 
     if (marketResearch) {
       const geminiKeys = apiKeysByModel ? sanitizeKeys(apiKeysByModel.gemini) : validKeys;
