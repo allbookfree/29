@@ -83,7 +83,16 @@ ${previousPrompts.slice(0, 12).map((p, i) => `${i + 1}. ${String(p).slice(0, 150
     : "";
 
   const autoBlock = autoMode && autoCategory
-    ? `\n\n[AUTO MODE — Category: ${autoCategory}] Focus on "${concept}" but create diverse, unexpected interpretations. Each prompt should show this subject in a completely different context, setting, and artistic vision.`
+    ? `\n\n[AUTO MODE — COMMERCIAL MICROSTOCK INTELLIGENCE]
+Category: ${autoCategory} | Subject: "${concept}"
+You are generating for commercial microstock platforms (Shutterstock, Adobe Stock, Dreamstime).
+COMMERCIAL REQUIREMENTS:
+- Every prompt MUST describe an image/vector/video that buyers would purchase for business, marketing, or editorial use.
+- Focus on high-demand commercial themes: business concepts, seasonal events, trending topics, universal emotions, abstract concepts, food styling, travel destinations, technology, nature beauty, luxury lifestyle, wellness, education.
+- Each prompt should target a DIFFERENT buyer persona (marketer, blogger, designer, educator, publisher).
+- Include specific commercial details: clean backgrounds for text overlay space, versatile compositions for cropping, trending color palettes, on-trend visual styles.
+- Think like a stock contributor: what sells? What has search volume? What fills gaps in existing stock libraries?
+- Show "${concept}" in ${type === "video" ? "cinematic motion contexts" : type === "vector" ? "scalable design contexts" : "photographically compelling contexts"} — each prompt must present a COMPLETELY different commercial angle, setting, and artistic vision.`
     : "";
 
   return `[Session seed: ${seed}]

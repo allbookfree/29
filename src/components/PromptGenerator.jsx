@@ -324,17 +324,14 @@ export default function PromptGenerator({
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buf = "", lastParsed = [];
-      const hasCustom = advancedOn && customInstructions.trim();
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         buf += decoder.decode(value, { stream: true });
-        if (!hasCustom) {
-          const parsed = parseNumberedPrompts(buf, quantity);
-          if (parsed.length > lastParsed.length) {
-            lastParsed = parsed;
-            setPrompts([...parsed]);
-          }
+        const parsed = parseNumberedPrompts(buf, quantity);
+        if (parsed.length > lastParsed.length) {
+          lastParsed = parsed;
+          setPrompts([...parsed]);
         }
       }
       const final = parseNumberedPrompts(buf, quantity);
@@ -477,17 +474,14 @@ export default function PromptGenerator({
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buf = "", lastParsed = [];
-      const hasCustom = advancedOn && customInstructions.trim();
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         buf += decoder.decode(value, { stream: true });
-        if (!hasCustom) {
-          const parsed = parseNumberedPrompts(buf, quantity);
-          if (parsed.length > lastParsed.length) {
-            lastParsed = parsed;
-            setPrompts([...parsed]);
-          }
+        const parsed = parseNumberedPrompts(buf, quantity);
+        if (parsed.length > lastParsed.length) {
+          lastParsed = parsed;
+          setPrompts([...parsed]);
         }
       }
       const final = parseNumberedPrompts(buf, quantity);
