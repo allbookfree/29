@@ -13,11 +13,11 @@ export const MODEL_IDS = {
 
 export const OR_MODEL_MAP = {
   "or-auto": null,
-  "or-gemini-flash": "google/gemini-2.5-flash-preview:free",
-  "or-maverick": "meta-llama/llama-4-maverick:free",
-  "or-qwen3": "qwen/qwen3-235b-a22b:free",
-  "or-deepseek-v3": "deepseek/deepseek-chat-v3-0324:free",
-  "or-mistral-small": "mistralai/mistral-small-3.2-24b-instruct:free",
+  "or-nemotron": "nvidia/nemotron-3-super-120b-a12b:free",
+  "or-qwen3": "qwen/qwen3-next-80b-a3b-instruct:free",
+  "or-gpt-oss": "openai/gpt-oss-120b:free",
+  "or-gemma": "google/gemma-3-27b-it:free",
+  "or-stepfun": "stepfun/step-3.5-flash:free",
 };
 
 export const MODEL_LABELS = {
@@ -28,11 +28,11 @@ export const MODEL_LABELS = {
   mistral: "Mixtral 8x22B",
   openrouter: "OpenRouter",
   "or-auto": "OR: Auto (Best Free)",
-  "or-gemini-flash": "OR: Gemini Flash",
-  "or-maverick": "OR: Llama 4 Maverick",
-  "or-qwen3": "OR: Qwen3 235B",
-  "or-deepseek-v3": "OR: DeepSeek V3",
-  "or-mistral-small": "OR: Mistral Small 3.2",
+  "or-nemotron": "OR: Nemotron Super 120B",
+  "or-qwen3": "OR: Qwen3 Next 80B",
+  "or-gpt-oss": "OR: GPT-OSS 120B",
+  "or-gemma": "OR: Gemma 3 27B",
+  "or-stepfun": "OR: Step 3.5 Flash",
   "hf-llama": "hf:Llama-3.3-70B",
   "hf-qwen": "hf:Qwen2.5-72B",
   "hf-mistral": "hf:Mistral-Small",
@@ -44,11 +44,11 @@ export const PROVIDER_KEY_MAP = {
   "gemini-lite": "gemini",
   "groq-scout": "groq",
   "or-auto": "openrouter",
-  "or-gemini-flash": "openrouter",
-  "or-maverick": "openrouter",
+  "or-nemotron": "openrouter",
   "or-qwen3": "openrouter",
-  "or-deepseek-v3": "openrouter",
-  "or-mistral-small": "openrouter",
+  "or-gpt-oss": "openrouter",
+  "or-gemma": "openrouter",
+  "or-stepfun": "openrouter",
   "hf-llama": "huggingface",
   "hf-qwen": "huggingface",
   "hf-mistral": "huggingface",
@@ -65,7 +65,7 @@ export const PROVIDERS_UI = [
 
 export const ALLOWED_MODELS = [
   "gemini", "gemini-lite", "groq", "groq-scout", "mistral",
-  "openrouter", "or-auto", "or-gemini-flash", "or-maverick", "or-qwen3", "or-deepseek-v3", "or-mistral-small",
+  "openrouter", "or-auto", "or-nemotron", "or-qwen3", "or-gpt-oss", "or-gemma", "or-stepfun",
   "huggingface", "hf-llama", "hf-qwen", "hf-mistral", "hf-deepseek",
 ];
 

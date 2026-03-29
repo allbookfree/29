@@ -263,11 +263,11 @@ function buildModelQueue(primaryModel, apiKeysByModel, validKeys) {
 }
 
 const OR_TEXT_FALLBACK_MODELS = [
-  "google/gemini-2.5-flash-preview:free",
-  "meta-llama/llama-4-maverick:free",
-  "qwen/qwen3-235b-a22b:free",
-  "mistralai/mistral-small-3.2-24b-instruct:free",
-  "deepseek/deepseek-chat-v3-0324:free",
+  "nvidia/nemotron-3-super-120b-a12b:free",
+  "qwen/qwen3-next-80b-a3b-instruct:free",
+  "openai/gpt-oss-120b:free",
+  "google/gemma-3-27b-it:free",
+  "stepfun/step-3.5-flash:free",
 ];
 
 const _orTextCache = { models: null, ts: 0 };

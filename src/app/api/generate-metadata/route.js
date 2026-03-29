@@ -138,9 +138,9 @@ async function tryGemini(geminiKeys, mimeType, base64Data, prompt, model) {
 // ── OpenRouter (dynamic free vision model discovery) ──────────────────────────
 // Fallback list only — actual models fetched dynamically from the API
 const OR_FALLBACK_MODELS = [
-  "google/gemini-2.5-flash-exp:free",
-  "qwen/qwen2.5-vl-72b-instruct:free",
-  "meta-llama/llama-3.2-11b-vision-instruct:free",
+  "google/gemma-3-27b-it:free",
+  "google/gemma-3-12b-it:free",
+  "nvidia/nemotron-nano-12b-v2-vl:free",
 ];
 
 const _orModelCache = new Map(); // key → { models, ts }
