@@ -62,7 +62,7 @@ Return ONLY a valid JSON object (no markdown, no code blocks, no explanations):
 TITLE:
 - Maximum 70 characters
 - Start with the most searchable term for this illustration's primary subject
-- Include "Vector" or "Illustration" when space permits (these are critical search terms)
+- MUST include "Vector" or "Illustration" in the title (these are critical search terms on stock platforms)
 - Structure: [Subject] + [Design Style] + [Format Type]
 - Title Case capitalization
 - Must be specific and descriptive — never generic
