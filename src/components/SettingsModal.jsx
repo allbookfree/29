@@ -25,6 +25,14 @@ const PROVIDER_MODELS = {
   mistral: [
     { value: "mistral", label: "Mixtral 8x22B", info: "Free tier" },
   ],
+  openrouter: [
+    { value: "or-auto", label: "Auto (Best Free)", info: "Auto-discovers best free model" },
+    { value: "or-gemini-flash", label: "Gemini 2.5 Flash", info: "Free · Google" },
+    { value: "or-maverick", label: "Llama 4 Maverick", info: "Free · 400K context" },
+    { value: "or-qwen3", label: "Qwen3 235B", info: "Free · Multilingual" },
+    { value: "or-deepseek-v3", label: "DeepSeek V3", info: "Free · Fast" },
+    { value: "or-mistral-small", label: "Mistral Small 3.2", info: "Free · 24B" },
+  ],
   huggingface: [
     { value: "hf-llama", label: "Llama 3.3 70B", info: "Best quality" },
     { value: "hf-qwen", label: "Qwen 2.5 72B", info: "Multilingual" },

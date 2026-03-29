@@ -1,4 +1,4 @@
-import { MODEL_IDS, PROVIDER_KEY_MAP, ALLOWED_MODELS, ALLOWED_TYPES } from "@/config/models";
+import { MODEL_IDS, OR_MODEL_MAP, PROVIDER_KEY_MAP, ALLOWED_MODELS, ALLOWED_TYPES } from "@/config/models";
 import { buildSystemPrompt } from "@/lib/promptBuilder";
 
 const MAX_PROMPT_CHARS = 4000;
@@ -317,8 +317,11 @@ export async function POST(request) {
       return await handleMarketResearch(geminiKeys, systemPrompt, userPrompt, type, quantity, { customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt });
     }
 
-    if (model === "openrouter") {
-      return await handleOpenRouter(validKeys, systemPrompt, userPrompt);
+    if (model === "openrouter" || model === "or-auto" || model.startsWith("or-")) {
+      const orKeys = apiKeysByModel ? sanitizeKeys(apiKeysByModel.openrouter) : validKeys;
+      if (!orKeys.length) return jsonError("No OpenRouter key configured.", 400, "NO_KEYS");
+      const specificModel = OR_MODEL_MAP[model] || null;
+      return await handleOpenRouter(orKeys, systemPrompt, userPrompt, specificModel);
     }
 
     if (model === "huggingface" || model.startsWith("hf-")) {
@@ -483,10 +486,10 @@ Begin with market research, then generate ${quantity} commercially optimized pro
   return jsonError("Market Research failed. Check Gemini API key.", 502, "ALL_KEYS_EXHAUSTED");
 }
 
-async function handleOpenRouter(keys, systemPrompt, userPrompt) {
+async function handleOpenRouter(keys, systemPrompt, userPrompt, specificModel = null) {
   let lastErr = null;
   for (const apiKey of keys) {
-    const models = await getOpenRouterTextModels(apiKey);
+    const models = specificModel ? [specificModel] : await getOpenRouterTextModels(apiKey);
     for (const model of models) {
       try {
         const res = await fetchWithTimeout("https://openrouter.ai/api/v1/chat/completions", {

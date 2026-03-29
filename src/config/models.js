@@ -11,6 +11,15 @@ export const MODEL_IDS = {
   huggingface: "meta-llama/Llama-3.3-70B-Instruct",
 };
 
+export const OR_MODEL_MAP = {
+  "or-auto": null,
+  "or-gemini-flash": "google/gemini-2.5-flash-preview:free",
+  "or-maverick": "meta-llama/llama-4-maverick:free",
+  "or-qwen3": "qwen/qwen3-235b-a22b:free",
+  "or-deepseek-v3": "deepseek/deepseek-chat-v3-0324:free",
+  "or-mistral-small": "mistralai/mistral-small-3.2-24b-instruct:free",
+};
+
 export const MODEL_LABELS = {
   gemini: "Gemini 2.5 Flash",
   "gemini-lite": "Gemini Flash-Lite",
@@ -18,6 +27,12 @@ export const MODEL_LABELS = {
   "groq-scout": "Llama 4 Scout",
   mistral: "Mixtral 8x22B",
   openrouter: "OpenRouter",
+  "or-auto": "OR: Auto (Best Free)",
+  "or-gemini-flash": "OR: Gemini Flash",
+  "or-maverick": "OR: Llama 4 Maverick",
+  "or-qwen3": "OR: Qwen3 235B",
+  "or-deepseek-v3": "OR: DeepSeek V3",
+  "or-mistral-small": "OR: Mistral Small 3.2",
   "hf-llama": "hf:Llama-3.3-70B",
   "hf-qwen": "hf:Qwen2.5-72B",
   "hf-mistral": "hf:Mistral-Small",
@@ -28,6 +43,12 @@ export const MODEL_LABELS = {
 export const PROVIDER_KEY_MAP = {
   "gemini-lite": "gemini",
   "groq-scout": "groq",
+  "or-auto": "openrouter",
+  "or-gemini-flash": "openrouter",
+  "or-maverick": "openrouter",
+  "or-qwen3": "openrouter",
+  "or-deepseek-v3": "openrouter",
+  "or-mistral-small": "openrouter",
   "hf-llama": "huggingface",
   "hf-qwen": "huggingface",
   "hf-mistral": "huggingface",
@@ -43,7 +64,8 @@ export const PROVIDERS_UI = [
 ];
 
 export const ALLOWED_MODELS = [
-  "gemini", "gemini-lite", "groq", "groq-scout", "mistral", "openrouter",
+  "gemini", "gemini-lite", "groq", "groq-scout", "mistral",
+  "openrouter", "or-auto", "or-gemini-flash", "or-maverick", "or-qwen3", "or-deepseek-v3", "or-mistral-small",
   "huggingface", "hf-llama", "hf-qwen", "hf-mistral", "hf-deepseek",
 ];
 

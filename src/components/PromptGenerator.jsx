@@ -168,7 +168,7 @@ export default function PromptGenerator({
 
   const providerInfo = PROVIDERS_UI.find((p) => p.value === model) || PROVIDERS_UI[0];
   const actualModelKey = model === "openrouter"
-    ? "openrouter"
+    ? (selectedModels?.openrouter || "or-auto")
     : model === "huggingface"
     ? (selectedModels?.huggingface || "hf-llama")
     : (selectedModels && selectedModels[providerInfo.apiKey]) || providerInfo.apiKey;

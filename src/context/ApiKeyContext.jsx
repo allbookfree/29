@@ -20,6 +20,7 @@ const DEFAULT_SELECTED_MODELS = {
   gemini: "gemini",
   groq: "groq",
   mistral: "mistral",
+  openrouter: "or-auto",
   huggingface: "hf-llama",
 };
 
@@ -27,6 +28,7 @@ const VALID_MODELS = {
   gemini: ["gemini", "gemini-lite"],
   groq: ["groq", "groq-scout"],
   mistral: ["mistral"],
+  openrouter: ["or-auto", "or-gemini-flash", "or-maverick", "or-qwen3", "or-deepseek-v3", "or-mistral-small"],
   huggingface: ["hf-llama", "hf-qwen", "hf-mistral", "hf-deepseek"],
 };
 
@@ -85,8 +87,9 @@ function getInitialSelectedModels() {
       const validGemini = VALID_MODELS.gemini.includes(parsed.gemini) ? parsed.gemini : "gemini";
       const validGroq = VALID_MODELS.groq.includes(parsed.groq) ? parsed.groq : "groq";
       const validMistral = VALID_MODELS.mistral.includes(parsed.mistral) ? parsed.mistral : "mistral";
+      const validOr = VALID_MODELS.openrouter.includes(parsed.openrouter) ? parsed.openrouter : "or-auto";
       const validHf = VALID_MODELS.huggingface.includes(parsed.huggingface) ? parsed.huggingface : "hf-llama";
-      return { gemini: validGemini, groq: validGroq, mistral: validMistral, huggingface: validHf };
+      return { gemini: validGemini, groq: validGroq, mistral: validMistral, openrouter: validOr, huggingface: validHf };
     }
   } catch (e) {}
   return DEFAULT_SELECTED_MODELS;
