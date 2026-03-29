@@ -29,19 +29,22 @@ No explanations, no markdown, no text — ONLY the JSON array.`;
 
 function parseScores(text, count) {
   try {
-    const cleaned = text.replace(/```[\s\S]*?```/g, "").replace(/```/g, "").trim();
+    const cleaned = text
+      .replace(/```(?:json)?\s*/gi, "")
+      .replace(/```/g, "")
+      .trim();
     const match = cleaned.match(/\[[\s\S]*?\]/);
     if (match) {
       const arr = JSON.parse(match[0]);
-      if (Array.isArray(arr)) {
+      if (Array.isArray(arr) && arr.length > 0) {
         return arr.slice(0, count).map(n => {
           const num = Number(n);
-          return Number.isFinite(num) ? Math.max(1, Math.min(10, Math.round(num))) : 5;
+          return Number.isFinite(num) ? Math.max(1, Math.min(10, Math.round(num))) : null;
         });
       }
     }
   } catch {}
-  return Array(count).fill(5);
+  return null;
 }
 
 async function callGeminiScore(apiKey, systemPrompt, userPrompt) {
@@ -152,40 +155,43 @@ export async function POST(request) {
     const systemPrompt = buildScoringPrompt(type);
     const userPrompt = `Score these ${prompts.length} ${type} prompts:\n\n${prompts.map((p, i) => `${i + 1}. ${p}`).join("\n")}`;
 
-    const providers = ["gemini", "groq", "mistral", "openrouter", "huggingface"];
     const providerKey = PROVIDER_KEY_MAP[model] || model;
-    const ordered = [providerKey, ...providers.filter(p => p !== providerKey)];
+    const keys = Array.isArray(apiKeys[providerKey]) ? apiKeys[providerKey].filter(k => k?.trim()) : [];
+    if (keys.length === 0) {
+      return Response.json({ error: `No API key for ${providerKey}` }, { status: 400 });
+    }
 
-    for (const provider of ordered) {
-      const keys = Array.isArray(apiKeys[provider]) ? apiKeys[provider].filter(k => k?.trim()) : [];
-      if (keys.length === 0) continue;
+    let lastError = "";
+    for (const key of keys) {
+      try {
+        let result = "";
+        if (providerKey === "gemini") {
+          result = await callGeminiScore(key, systemPrompt, userPrompt);
+        } else if (providerKey === "groq") {
+          result = await callGroqScore(key, systemPrompt, userPrompt);
+        } else if (providerKey === "mistral") {
+          result = await callMistralScore(key, systemPrompt, userPrompt);
+        } else if (providerKey === "openrouter") {
+          const orModel = OR_MODEL_MAP[selectedModel] || null;
+          result = await callOpenRouterScore(key, systemPrompt, userPrompt, orModel);
+        } else if (providerKey === "huggingface") {
+          result = await callHuggingFaceScore(key, systemPrompt, userPrompt);
+        }
 
-      for (const key of keys) {
-        try {
-          let result = "";
-          if (provider === "gemini") {
-            result = await callGeminiScore(key, systemPrompt, userPrompt);
-          } else if (provider === "groq") {
-            result = await callGroqScore(key, systemPrompt, userPrompt);
-          } else if (provider === "mistral") {
-            result = await callMistralScore(key, systemPrompt, userPrompt);
-          } else if (provider === "openrouter") {
-            const orModel = OR_MODEL_MAP[selectedModel] || null;
-            result = await callOpenRouterScore(key, systemPrompt, userPrompt, orModel);
-          } else if (provider === "huggingface") {
-            result = await callHuggingFaceScore(key, systemPrompt, userPrompt);
-          }
-
-          const scores = parseScores(result, prompts.length);
-          while (scores.length < prompts.length) scores.push(5);
-          return Response.json({ scores });
-        } catch {
+        const scores = parseScores(result, prompts.length);
+        if (!scores) {
+          lastError = "Unparseable scoring response";
           continue;
         }
+        while (scores.length < prompts.length) scores.push(5);
+        return Response.json({ scores });
+      } catch (e) {
+        lastError = e.message || "Provider call failed";
+        continue;
       }
     }
 
-    return Response.json({ error: "All providers failed" }, { status: 502 });
+    return Response.json({ error: lastError || "Scoring failed" }, { status: 502 });
   } catch {
     return Response.json({ error: "Scoring failed" }, { status: 500 });
   }
