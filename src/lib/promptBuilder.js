@@ -1,4 +1,4 @@
-export function buildSystemPrompt(type, quantity, customInstructions, { style, mood, lighting, camera, shot, speed, negativePrompt } = {}) {
+export function buildSystemPrompt(type, quantity, customInstructions, { style, mood, lighting, camera, shot, speed, negativePrompt, autoMode = false } = {}) {
   const typeLabel = type === "vector" ? "vector" : type === "video" ? "video" : "image";
 
   let modifierBlock = "";
@@ -18,6 +18,7 @@ export function buildSystemPrompt(type, quantity, customInstructions, { style, m
   }
   const negativeBlock = negativePrompt ? `\nExclude from all prompts: ${negativePrompt}` : "";
   const halalBlock = `\nHALAL CONTENT RULE: NEVER include human figures, human body parts, human faces, human hands, human silhouettes, or human shadows in any prompt. Focus exclusively on objects, nature, architecture, food, textures, patterns, landscapes, still life, and non-living subjects.`;
+  const autoCommercialBlock = autoMode ? `\nCOMMERCIAL MICROSTOCK EXPERTISE: You are generating prompts for commercial microstock platforms (Shutterstock, Adobe Stock, Dreamstime). Every prompt must describe content that real buyers would license for business, marketing, editorial, or design use. Prioritize universally sellable concepts with broad market appeal. Think about search volume, trending visual themes, and gaps in existing stock libraries.` : "";
 
   const qualityBlock = type === "video"
     ? `QUALITY RULE: Each prompt MUST be highly detailed (minimum 2-3 sentences). Every prompt must include: specific subject/action, detailed scene/setting, camera movement (pan, dolly, tracking, crane, etc.), lighting description (golden hour, neon, dramatic shadows, etc.), mood/atmosphere, and visual style. Write each prompt as if a professional cinematographer will use it directly. If the user concept is vague or says "random", YOU must invent creative, diverse, cinematic scenarios with rich detail — never generate short or generic prompts.`
@@ -61,7 +62,7 @@ STRICT RULES:
 2. Output ONLY numbered prompts. No introductions, explanations, or extra text.
 3. ${qualityBlock}
 4. ${diversityRule}
-${modifierBlock}${negativeBlock}${halalBlock}
+${modifierBlock}${negativeBlock}${halalBlock}${autoCommercialBlock}
 
 The user's request includes creative diversity inspiration angles — use them as loose jumping-off points, not rigid instructions. Mix and subvert them across prompts to maximize variety.
 
@@ -76,7 +77,7 @@ STRICT RULES:
 2. Output ONLY numbered prompts. No introductions, explanations, or extra text.
 3. ${qualityBlock}
 4. ${diversityRule}
-${modifierBlock}${negativeBlock}${halalBlock}
+${modifierBlock}${negativeBlock}${halalBlock}${autoCommercialBlock}
 
 The user's request includes creative diversity inspiration angles — use them as loose jumping-off points, not rigid instructions. Mix and subvert them across prompts to maximize variety.
 

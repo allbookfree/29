@@ -308,7 +308,7 @@ export async function POST(request) {
     }
 
     const { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoCategory, previousPrompts } = validation;
-    const systemPrompt = buildSystemPrompt(type, quantity, customInstructions, { style, mood, lighting, camera, shot, speed, negativePrompt });
+    const systemPrompt = buildSystemPrompt(type, quantity, customInstructions, { style, mood, lighting, camera, shot, speed, negativePrompt, autoMode: !!autoMode });
     const userPrompt = buildDiverseUserPrompt(concept, previousPrompts, { autoMode, autoCategory, type });
 
     if (marketResearch) {

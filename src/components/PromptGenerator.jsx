@@ -411,7 +411,7 @@ export default function PromptGenerator({
         : buildSystemPrompt(type, quantity, payload.customInstructions || "", {
             style: payload.style, mood: payload.mood, lighting: payload.lighting,
             camera: payload.camera, shot: payload.shot, speed: payload.speed,
-            negativePrompt: payload.negativePrompt,
+            negativePrompt: payload.negativePrompt, autoMode: true,
           });
       setDebugData({
         hasData: true,
