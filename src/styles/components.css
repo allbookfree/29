@@ -392,6 +392,16 @@ textarea.field {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
+@media (max-width: 768px) {
+  .toast {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    font-size: 12px;
+    padding: 10px 14px;
+  }
+}
+
 .toggle-btn {
   border: none;
   background: none;
@@ -986,6 +996,29 @@ textarea.field {
 }
 
 @media (max-width: 768px) {
+  .pipeline-wrap {
+    padding: 10px 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .pipeline-track {
+    min-width: 280px;
+  }
+  .pipeline-step {
+    min-width: 44px;
+  }
+  .pipeline-dot {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+  }
+  .pipeline-label {
+    font-size: 9px;
+  }
+  .pipeline-desc {
+    font-size: 9px;
+  }
+
   .toolbar-row {
     gap: 6px;
   }

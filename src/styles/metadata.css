@@ -545,17 +545,26 @@
 
 @media (max-width: 860px) {
   .mgc-grid { grid-template-columns: 1fr; }
-  .mg-bar { gap: 6px; }
+  .mg-bar { gap: 6px; flex-direction: column; align-items: stretch; }
   .mg-bar-actions { margin-left: 0; width: 100%; justify-content: flex-end; }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .mg-bar {
+    gap: 6px;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px 10px;
+  }
+  .ct-selector { width: 100%; }
+  .ct-selector .ct-btn { flex: 1; justify-content: center; }
+  .mg-upload-label { width: 100%; justify-content: center; }
   .mg-provider-selector {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     flex-wrap: nowrap;
-    padding-bottom: 2px;
+    padding-bottom: 4px;
     scrollbar-width: none;
   }
   .mg-provider-selector::-webkit-scrollbar { display: none; }
@@ -564,17 +573,31 @@
     font-size: 11.5px;
     padding: 5px 9px;
   }
-  .ct-selector { flex-shrink: 0; }
+  .mg-bar-actions {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .mg-bar-actions .btn {
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+  }
+  .mg-bar-progress { width: 100%; }
+  .mg-empty-main { padding: 40px 16px; }
+  .mg-empty-title { font-size: 15px; }
+  .mg-empty-desc { font-size: 13px; }
+  .info-box { font-size: 12px; padding: 8px 10px; }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 480px) {
+  .mg-bar { padding: 6px 8px; gap: 5px; }
+  .ct-btn { padding: 5px 8px; font-size: 12px; }
+  .mg-bar-actions .btn { padding: 6px 6px !important; font-size: 11.5px; gap: 4px; }
   .mgc-thumb-wrap { width: 52px; height: 52px; }
   .mgc { padding: 8px; gap: 8px; }
   .mgc-title { font-size: 12px; }
   .mgc-desc { font-size: 11px; -webkit-line-clamp: 1; }
   .mgc-footer { gap: 4px; }
-  .mg-bar { padding: 8px 10px; }
-  .mg-bar-actions { gap: 4px; flex-wrap: wrap; }
-  .mg-bar-actions .btn { padding: 6px 8px !important; font-size: 12px; }
-  .ct-btn { padding: 5px 8px; font-size: 12px; }
+  .mg-empty-main { padding: 28px 12px; }
 }
