@@ -28,7 +28,7 @@ const VALID_MODELS = {
   gemini: ["gemini", "gemini-lite"],
   groq: ["groq", "groq-scout"],
   mistral: ["mistral"],
-  openrouter: ["or-auto", "or-nemotron", "or-qwen3", "or-gpt-oss", "or-gemma", "or-stepfun"],
+  openrouter: ["or-auto", "or-nemotron", "or-qwen3", "or-gpt-oss", "or-llama", "or-hermes"],
   huggingface: ["hf-llama", "hf-qwen", "hf-mistral", "hf-deepseek"],
 };
 

@@ -12,12 +12,12 @@ export const MODEL_IDS = {
 };
 
 export const OR_MODEL_MAP = {
-  "or-auto": null,
+  "or-auto": "openrouter/free",
   "or-nemotron": "nvidia/nemotron-3-super-120b-a12b:free",
   "or-qwen3": "qwen/qwen3-next-80b-a3b-instruct:free",
   "or-gpt-oss": "openai/gpt-oss-120b:free",
-  "or-gemma": "google/gemma-3-27b-it:free",
-  "or-stepfun": "stepfun/step-3.5-flash:free",
+  "or-llama": "meta-llama/llama-3.3-70b-instruct:free",
+  "or-hermes": "nousresearch/hermes-3-llama-3.1-405b:free",
 };
 
 export const MODEL_LABELS = {
@@ -31,8 +31,8 @@ export const MODEL_LABELS = {
   "or-nemotron": "OR: Nemotron Super 120B",
   "or-qwen3": "OR: Qwen3 Next 80B",
   "or-gpt-oss": "OR: GPT-OSS 120B",
-  "or-gemma": "OR: Gemma 3 27B",
-  "or-stepfun": "OR: Step 3.5 Flash",
+  "or-llama": "OR: Llama 3.3 70B",
+  "or-hermes": "OR: Hermes 3 405B",
   "hf-llama": "hf:Llama-3.3-70B",
   "hf-qwen": "hf:Qwen2.5-72B",
   "hf-mistral": "hf:Mistral-Small",
@@ -47,8 +47,8 @@ export const PROVIDER_KEY_MAP = {
   "or-nemotron": "openrouter",
   "or-qwen3": "openrouter",
   "or-gpt-oss": "openrouter",
-  "or-gemma": "openrouter",
-  "or-stepfun": "openrouter",
+  "or-llama": "openrouter",
+  "or-hermes": "openrouter",
   "hf-llama": "huggingface",
   "hf-qwen": "huggingface",
   "hf-mistral": "huggingface",
@@ -65,7 +65,7 @@ export const PROVIDERS_UI = [
 
 export const ALLOWED_MODELS = [
   "gemini", "gemini-lite", "groq", "groq-scout", "mistral",
-  "openrouter", "or-auto", "or-nemotron", "or-qwen3", "or-gpt-oss", "or-gemma", "or-stepfun",
+  "openrouter", "or-auto", "or-nemotron", "or-qwen3", "or-gpt-oss", "or-llama", "or-hermes",
   "huggingface", "hf-llama", "hf-qwen", "hf-mistral", "hf-deepseek",
 ];
 

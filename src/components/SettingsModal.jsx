@@ -26,12 +26,12 @@ const PROVIDER_MODELS = {
     { value: "mistral", label: "Mixtral 8x22B", info: "Free tier" },
   ],
   openrouter: [
-    { value: "or-auto", label: "Auto (Best Free)", info: "Auto-discovers best free model" },
+    { value: "or-auto", label: "Auto (Best Free)", info: "Auto-routes to best free model · Vision" },
     { value: "or-nemotron", label: "Nemotron Super 120B", info: "Free · NVIDIA · 262K context" },
-    { value: "or-qwen3", label: "Qwen3 Next 80B", info: "Free · Multilingual" },
+    { value: "or-qwen3", label: "Qwen3 Next 80B", info: "Free · Multilingual · 262K context" },
     { value: "or-gpt-oss", label: "GPT-OSS 120B", info: "Free · OpenAI · 131K context" },
-    { value: "or-gemma", label: "Gemma 3 27B", info: "Free · Google · Vision" },
-    { value: "or-stepfun", label: "Step 3.5 Flash", info: "Free · Fast · 256K context" },
+    { value: "or-llama", label: "Llama 3.3 70B", info: "Free · Meta · Proven reliable" },
+    { value: "or-hermes", label: "Hermes 3 405B", info: "Free · 405B · Highest quality" },
   ],
   huggingface: [
     { value: "hf-llama", label: "Llama 3.3 70B", info: "Best quality" },

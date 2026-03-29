@@ -100,7 +100,7 @@ async function callMistralScore(apiKey, systemPrompt, userPrompt) {
 async function callOpenRouterScore(apiKey, systemPrompt, userPrompt, specificModel) {
   let modelId = specificModel;
   if (!modelId) {
-    modelId = "google/gemma-3-27b-it:free";
+    modelId = "openrouter/free";
   }
   const res = await fetchWithTimeout("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",

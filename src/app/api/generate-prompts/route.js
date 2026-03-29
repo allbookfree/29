@@ -263,11 +263,12 @@ function buildModelQueue(primaryModel, apiKeysByModel, validKeys) {
 }
 
 const OR_TEXT_FALLBACK_MODELS = [
+  "openrouter/free",
   "nvidia/nemotron-3-super-120b-a12b:free",
   "qwen/qwen3-next-80b-a3b-instruct:free",
   "openai/gpt-oss-120b:free",
-  "google/gemma-3-27b-it:free",
-  "stepfun/step-3.5-flash:free",
+  "meta-llama/llama-3.3-70b-instruct:free",
+  "nousresearch/hermes-3-llama-3.1-405b:free",
 ];
 
 const _orTextCache = { models: null, ts: 0 };
