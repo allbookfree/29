@@ -155,6 +155,7 @@ export default function PromptGenerator({
   const [marketResearch, setMarketResearch] = useState(false);
   const [selected, setSelected] = useState(new Set());
   const [debugData, setDebugData] = useState(null);
+  const [mounted, setMounted] = useState(false);
 
   const displayTitle = titleKey ? t(titleKey) : title;
   const displayDesc = descKey ? t(descKey) : description;
@@ -190,6 +191,7 @@ export default function PromptGenerator({
   }, [storagePrefix]);
 
   useEffect(() => () => { if (resetTimer.current) clearTimeout(resetTimer.current); }, []);
+  useEffect(() => { setMounted(true); }, []);
 
   const toggleAdvanced = () => {
     if (advancedOn) {
@@ -396,7 +398,7 @@ export default function PromptGenerator({
     : {};
 
   const hasActiveSettings = style || mood || lighting || camera || shot || speed || negativePrompt;
-  const hasGeminiKey = getAllKeys("gemini").some(k => k.trim());
+  const hasGeminiKey = mounted && getAllKeys("gemini").some(k => k.trim());
 
   return (
     <div className="page">
