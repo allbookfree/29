@@ -549,9 +549,26 @@
   .mg-bar-actions { margin-left: 0; width: 100%; justify-content: flex-end; }
 }
 
+@media (max-width: 640px) {
+  .mg-provider-selector {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  .mg-provider-selector::-webkit-scrollbar { display: none; }
+  .mg-provider-selector .ct-btn {
+    flex-shrink: 0;
+    font-size: 11.5px;
+    padding: 5px 9px;
+  }
+  .ct-selector { flex-shrink: 0; }
+}
+
 @media (max-width: 560px) {
   .mgc-thumb-wrap { width: 52px; height: 52px; }
-  .mg-provider-selector { display: none; }
   .mgc { padding: 8px; gap: 8px; }
   .mgc-title { font-size: 12px; }
   .mgc-desc { font-size: 11px; -webkit-line-clamp: 1; }

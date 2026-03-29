@@ -75,7 +75,15 @@ body {
 .main {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   background: transparent;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .main {
+    width: 100%;
+  }
 }
 
 ::selection {

@@ -315,7 +315,75 @@
     font-size: 22px;
   }
 
+  .page-desc {
+    font-size: 13.5px;
+  }
+
   .prompt-copy {
     opacity: 1;
+  }
+
+  .prompt {
+    gap: 8px;
+    padding: 12px 12px;
+  }
+
+  .prompt-text {
+    font-size: 13px;
+  }
+
+  .dropzone {
+    padding: 28px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 64px 12px 16px;
+  }
+
+  .page-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+  }
+
+  .page-head {
+    margin-bottom: 20px;
+  }
+
+  .page-title {
+    font-size: 19px;
+  }
+
+  .page-desc {
+    font-size: 13px;
+  }
+
+  .prompt {
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .prompt-num {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .prompt-text {
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+
+  .dropzone {
+    padding: 20px 12px;
+    gap: 8px;
+  }
+
+  .dropzone-icon {
+    width: 40px;
+    height: 40px;
   }
 }
