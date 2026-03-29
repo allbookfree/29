@@ -39,7 +39,7 @@ export function getUpcomingFestivals(daysAhead = 30) {
 
   for (const fest of FESTIVALS) {
     const startDate = new Date(currentYear, fest.month - 1, fest.startDay);
-    const endDate = new Date(currentYear, fest.month - 1, fest.endDay);
+    const endDate = new Date(currentYear, fest.month - 1, fest.endDay, 23, 59, 59);
 
     if (startDate < now && endDate < now) {
       startDate.setFullYear(currentYear + 1);
