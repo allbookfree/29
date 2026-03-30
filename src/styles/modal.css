@@ -383,3 +383,128 @@
     gap: 10px;
   }
 }
+
+.modal-reset-section {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+[data-theme="dark"] .modal-reset-section {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.modal-reset-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #dc2626;
+  margin-bottom: 8px;
+}
+
+[data-theme="dark"] .modal-reset-header {
+  color: #f87171;
+}
+
+.modal-reset-desc {
+  font-size: 12.5px;
+  color: #991b1b;
+  margin-bottom: 6px;
+}
+
+[data-theme="dark"] .modal-reset-desc {
+  color: #fca5a5;
+}
+
+.modal-reset-items {
+  font-size: 11px;
+  color: #b91c1c;
+  opacity: 0.7;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+[data-theme="dark"] .modal-reset-items {
+  color: #fca5a5;
+}
+
+.btn-danger-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 13px;
+  border: 1.5px solid #fca5a5;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-danger-outline:hover {
+  background: #dc2626;
+  color: white;
+  border-color: #dc2626;
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background: #dc2626;
+  color: white;
+  font-weight: 600;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-danger:hover {
+  opacity: 0.9;
+}
+
+.modal-reset-confirm {
+  margin-top: 4px;
+}
+
+.modal-reset-warning {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: #dc2626;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+[data-theme="dark"] .modal-reset-warning {
+  color: #f87171;
+}
+
+.modal-reset-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.modal-reset-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #059669;
+  padding: 8px 0;
+}
+
+[data-theme="dark"] .modal-reset-success {
+  color: #34d399;
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, KeyRound, Eye, EyeOff, Save, Shield, ExternalLink, Check, Lock, Loader2, AlertTriangle, Plus, Trash2, CheckCircle, ChevronDown } from "lucide-react";
+import { X, KeyRound, Eye, EyeOff, Save, Shield, ExternalLink, Check, Lock, Loader2, AlertTriangle, Plus, Trash2, CheckCircle, ChevronDown, RotateCcw } from "lucide-react";
 import { useApiKeys } from "@/context/ApiKeyContext";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -52,6 +52,8 @@ export default function SettingsModal({ isOpen, onClose }) {
   const { t } = useLanguage();
   const [vis, setVis] = useState({});
   const [saved, setSaved] = useState(false);
+  const [resetConfirm, setResetConfirm] = useState(false);
+  const [resetDone, setResetDone] = useState(false);
 
   const modalRef = useRef(null);
 
@@ -81,6 +83,13 @@ export default function SettingsModal({ isOpen, onClose }) {
   };
 
   const handleSave = () => { saveKeys(form); setSaved(true); setTimeout(() => { setSaved(false); onClose(); }, 800); };
+  const handleResetAll = () => {
+    try { localStorage.clear(); } catch {}
+    try { sessionStorage.clear(); } catch {}
+    setResetDone(true);
+    setResetConfirm(false);
+    setTimeout(() => { window.location.reload(); }, 1200);
+  };
   const addKey = (provider) => { const current = [...(form[provider] || [""])]; saveKeys({ ...keys, [provider]: [...current, ""] }); };
   const updateKey = (provider, index, value) => {
     const current = [...(form[provider] || [""])];
@@ -207,6 +216,32 @@ export default function SettingsModal({ isOpen, onClose }) {
 
             <div className="modal-info">
               <p className="modal-info-text"><CheckCircle size={15} /><strong>{t("settings.autoFailover")}</strong> {t("settings.autoFailoverDesc")}</p>
+            </div>
+
+            <div className="modal-reset-section">
+              <div className="modal-reset-header">
+                <RotateCcw size={16} />
+                <strong>{t("settings.resetTitle")}</strong>
+              </div>
+              <p className="modal-reset-desc">{t("settings.resetDesc")}</p>
+              <p className="modal-reset-items">{t("settings.resetItems")}</p>
+              {resetDone ? (
+                <div className="modal-reset-success">
+                  <CheckCircle size={16} /> {t("settings.resetSuccess")}
+                </div>
+              ) : resetConfirm ? (
+                <div className="modal-reset-confirm">
+                  <p className="modal-reset-warning"><AlertTriangle size={14} /> {t("settings.resetConfirm")}</p>
+                  <div className="modal-reset-actions">
+                    <button className="btn btn-danger" onClick={handleResetAll}><Trash2 size={14} /> {t("settings.resetConfirmBtn")}</button>
+                    <button className="btn btn-secondary" onClick={() => setResetConfirm(false)}>{t("settings.resetCancelBtn")}</button>
+                  </div>
+                </div>
+              ) : (
+                <button className="btn btn-danger-outline" onClick={() => setResetConfirm(true)}>
+                  <Trash2 size={14} /> {t("settings.resetBtn")}
+                </button>
+              )}
             </div>
           </div>
 
