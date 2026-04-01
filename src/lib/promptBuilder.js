@@ -89,6 +89,10 @@ export const MODEL_REQUEST_INFO = {
   "gemini-2.5-flash":   { providerName: "Google Gemini", endpoint: "generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse", modelId: "gemini-2.5-flash", temperature: 1.0, maxTokens: 8192, requestFormat: "Gemini API (system_instruction + contents)", extra: "topP: 0.95 · thinkingBudget: 0 (Gemini 2.5)" },
   "gemini-lite":        { providerName: "Google Gemini", endpoint: "generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:streamGenerateContent?alt=sse", modelId: "gemini-2.5-flash-lite", temperature: 1.0, maxTokens: 8192, requestFormat: "Gemini API (system_instruction + contents)", extra: "topP: 0.95" },
   "gemini-2.5-flash-lite": { providerName: "Google Gemini", endpoint: "generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:streamGenerateContent?alt=sse", modelId: "gemini-2.5-flash-lite", temperature: 1.0, maxTokens: 8192, requestFormat: "Gemini API (system_instruction + contents)", extra: "topP: 0.95" },
+  "gemini-3":           { providerName: "Google Gemini 3", endpoint: "generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:streamGenerateContent?alt=sse", modelId: "gemini-3-flash-preview", temperature: 1.0, maxTokens: 16384, requestFormat: "Gemini API (system_instruction + contents)", extra: "topP: 0.95 · Gemini 3 Preview · Deep reasoning" },
+  "gemini-3-flash-preview": { providerName: "Google Gemini 3", endpoint: "generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:streamGenerateContent?alt=sse", modelId: "gemini-3-flash-preview", temperature: 1.0, maxTokens: 16384, requestFormat: "Gemini API (system_instruction + contents)", extra: "topP: 0.95 · Gemini 3 Preview · Deep reasoning" },
+  "gemini-3-lite":      { providerName: "Google Gemini 3", endpoint: "generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:streamGenerateContent?alt=sse", modelId: "gemini-3.1-flash-lite-preview", temperature: 1.0, maxTokens: 16384, requestFormat: "Gemini API (system_instruction + contents)", extra: "topP: 0.95 · Gemini 3.1 Preview · Fast" },
+  "gemini-3.1-flash-lite-preview": { providerName: "Google Gemini 3", endpoint: "generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:streamGenerateContent?alt=sse", modelId: "gemini-3.1-flash-lite-preview", temperature: 1.0, maxTokens: 16384, requestFormat: "Gemini API (system_instruction + contents)", extra: "topP: 0.95 · Gemini 3.1 Preview · Fast" },
   "groq":               { providerName: "Groq", endpoint: "api.groq.com/openai/v1/chat/completions", modelId: "llama-3.3-70b-versatile", temperature: 0.9, maxTokens: 8192, requestFormat: "OpenAI-compatible (messages array)" },
   "llama-3.3-70b-versatile": { providerName: "Groq", endpoint: "api.groq.com/openai/v1/chat/completions", modelId: "llama-3.3-70b-versatile", temperature: 0.9, maxTokens: 8192, requestFormat: "OpenAI-compatible (messages array)" },
   "groq-scout":         { providerName: "Groq", endpoint: "api.groq.com/openai/v1/chat/completions", modelId: "meta-llama/llama-4-scout-17b-16e-instruct", temperature: 0.9, maxTokens: 8192, requestFormat: "OpenAI-compatible (messages array)" },
@@ -174,15 +178,16 @@ export function buildRequestBodyPreview(usedModel, systemPrompt, userMessage) {
 
   const isGemini = key.startsWith("gemini") || key === "gemini-2.5-flash" || key === "gemini-2.5-flash-lite";
   if (isGemini) {
-    const isFlashLite = key === "gemini-lite" || key === "gemini-2.5-flash-lite";
+    const isGemini3 = key.startsWith("gemini-3") || key.startsWith("gemini-3.");
+    const is25Flash = key === "gemini" || key === "gemini-2.5-flash";
     return JSON.stringify({
       system_instruction: { parts: [{ text: systemPrompt }] },
       contents: [{ role: "user", parts: [{ text: userMessage }] }],
       generationConfig: {
         temperature: 1.0,
         topP: 0.95,
-        maxOutputTokens: 8192,
-        ...(!isFlashLite ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+        maxOutputTokens: isGemini3 ? 16384 : 8192,
+        ...(is25Flash ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
       }
     }, null, 2);
   }

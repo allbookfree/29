@@ -1,6 +1,8 @@
 export const MODEL_IDS = {
   gemini: "gemini-2.5-flash",
   "gemini-lite": "gemini-2.5-flash-lite",
+  "gemini-3": "gemini-3-flash-preview",
+  "gemini-3-lite": "gemini-3.1-flash-lite-preview",
   groq: "llama-3.3-70b-versatile",
   "groq-scout": "meta-llama/llama-4-scout-17b-16e-instruct",
   mistral: "open-mixtral-8x22b",
@@ -25,6 +27,10 @@ export const MODEL_LABELS = {
   "gemini-lite": "Gemini Flash-Lite",
   "gemini-2.5-flash": "Gemini 2.5 Flash",
   "gemini-2.5-flash-lite": "Gemini Flash-Lite",
+  "gemini-3": "Gemini 3 Flash",
+  "gemini-3-lite": "Gemini 3 Flash-Lite",
+  "gemini-3-flash-preview": "Gemini 3 Flash",
+  "gemini-3.1-flash-lite-preview": "Gemini 3 Flash-Lite",
   groq: "Llama 3.3 70B",
   "groq-scout": "Llama 4 Scout",
   "llama-3.3-70b-versatile": "Llama 3.3 70B",
@@ -47,6 +53,8 @@ export const MODEL_LABELS = {
 
 export const PROVIDER_KEY_MAP = {
   "gemini-lite": "gemini",
+  "gemini-3": "gemini",
+  "gemini-3-lite": "gemini",
   "groq-scout": "groq",
   "or-auto": "openrouter",
   "or-nemotron": "openrouter",
@@ -69,7 +77,7 @@ export const PROVIDERS_UI = [
 ];
 
 export const ALLOWED_MODELS = [
-  "gemini", "gemini-lite", "groq", "groq-scout", "mistral",
+  "gemini", "gemini-lite", "gemini-3", "gemini-3-lite", "groq", "groq-scout", "mistral",
   "openrouter", "or-auto", "or-nemotron", "or-qwen3", "or-gpt-oss", "or-llama", "or-hermes",
   "huggingface", "hf-llama", "hf-qwen", "hf-mistral", "hf-deepseek",
 ];

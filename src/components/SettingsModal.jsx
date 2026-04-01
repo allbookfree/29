@@ -15,7 +15,9 @@ const PROVIDERS = [
 
 const PROVIDER_MODELS = {
   gemini: [
-    { value: "gemini", label: "Gemini 2.5 Flash", info: "10 RPM · 250/day · Best" },
+    { value: "gemini-3", label: "Gemini 3 Flash", info: "Free · Deep reasoning · Preview" },
+    { value: "gemini-3-lite", label: "Gemini 3 Flash-Lite", info: "Free · High volume · Preview" },
+    { value: "gemini", label: "Gemini 2.5 Flash", info: "10 RPM · 250/day · Stable" },
     { value: "gemini-lite", label: "Gemini 2.5 Flash-Lite", info: "15 RPM · 1,000/day · Fast" },
   ],
   groq: [

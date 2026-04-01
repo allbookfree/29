@@ -25,7 +25,7 @@ const DEFAULT_SELECTED_MODELS = {
 };
 
 const VALID_MODELS = {
-  gemini: ["gemini", "gemini-lite"],
+  gemini: ["gemini", "gemini-lite", "gemini-3", "gemini-3-lite"],
   groq: ["groq", "groq-scout"],
   mistral: ["mistral"],
   openrouter: ["or-auto", "or-nemotron", "or-qwen3", "or-gpt-oss", "or-llama", "or-hermes"],

@@ -427,6 +427,8 @@ export async function POST(request) {
           let response;
           if (modelItem.model === "gemini") response = await callGemini(apiKey, systemPrompt, userPrompt, MODEL_IDS.gemini);
           else if (modelItem.model === "gemini-lite") response = await callGemini(apiKey, systemPrompt, userPrompt, MODEL_IDS["gemini-lite"]);
+          else if (modelItem.model === "gemini-3") response = await callGemini(apiKey, systemPrompt, userPrompt, MODEL_IDS["gemini-3"]);
+          else if (modelItem.model === "gemini-3-lite") response = await callGemini(apiKey, systemPrompt, userPrompt, MODEL_IDS["gemini-3-lite"]);
           else if (modelItem.model === "groq") response = await callGroq(apiKey, systemPrompt, userPrompt, MODEL_IDS.groq);
           else if (modelItem.model === "groq-scout") response = await callGroq(apiKey, systemPrompt, userPrompt, MODEL_IDS["groq-scout"]);
           else if (modelItem.model === "mistral") response = await callMistral(apiKey, systemPrompt, userPrompt);
@@ -436,7 +438,7 @@ export async function POST(request) {
           }
 
           if (response.headers.get("X-Model-Used")) return response;
-          if (response.body && modelItem.model !== "gemini") {
+          if (response.body && !modelItem.model.startsWith("gemini")) {
             const text = await response.text();
             return createTextResponse(text, modelItem.model);
           }
@@ -695,7 +697,7 @@ async function callGemini(apiKey, systemPrompt, userPrompt, modelId) {
       generationConfig: {
         temperature: 1.0,
         topP: 0.95,
-        maxOutputTokens: 8192,
+        maxOutputTokens: modelId.startsWith("gemini-3") ? 16384 : 8192,
         ...(modelId === MODEL_IDS.gemini ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
       },
     }),
