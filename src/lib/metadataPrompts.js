@@ -10,6 +10,13 @@ Return ONLY a valid JSON object (no markdown, no code blocks, no explanations):
   "keywords": "..."
 }
 
+ANTI-HALLUCINATION (ZERO TOLERANCE):
+- ONLY describe what is ACTUALLY VISIBLE in this image — never assume, guess, or infer
+- NEVER tag objects, people, animals, locations, or elements that are NOT present in the image
+- If you cannot clearly identify something, use a general term — do NOT guess specifics (e.g., if unsure of a city, say "urban skyline" not "Manhattan")
+- NEVER invent a location, season, time of day, or emotion unless clearly evident from the image itself
+- Platforms REJECT and SUPPRESS images with inaccurate metadata — one wrong keyword can bury an entire portfolio
+
 TITLE (SEO-OPTIMIZED):
 - Maximum 70 characters
 - Front-load the primary keyword — the most searchable term MUST come first
@@ -18,6 +25,7 @@ TITLE (SEO-OPTIMIZED):
 - Title Case capitalization
 - Write like a buyer would search — specific, natural-sounding, not keyword-stuffed
 - Must be unique and descriptive — never generic
+- NEVER include brand names, trademark names, real person names, or fictional character names in the title
 
 DESCRIPTION (SEO-RICH):
 - 150-200 characters, one natural flowing sentence
@@ -43,10 +51,11 @@ KEYWORDS (CRITICAL — THIS IS WHERE SALES ARE WON OR LOST):
   Slots 11-20: Colors, textures, materials, composition, lighting style
   Slots 21-35: Secondary objects, seasonal terms, related concepts, broader themes
   Slots 36-49: Long-tail variations, alternative phrasings, niche use cases
-- USE MULTI-WORD PHRASES alongside single words — "business meeting" as one keyword is stronger than "business" and "meeting" separately, because buyers search in phrases. Include both the phrase AND individual terms for maximum coverage.
+- KEYWORD FORMAT: For important compound concepts (e.g., "arctic fox"), include BOTH the phrase AND the individual words as separate keywords — e.g., "arctic fox", "arctic", "fox". This maximizes matching on all platforms. Place related words adjacent in the list so platforms can detect phrase relevance from keyword order.
 - COPY SPACE AWARENESS: If the image has significant empty/negative space suitable for text overlay, include relevant terms like "copy space", "text space", "negative space", or "background with space" — designers actively filter for this when creating ads, banners, and social media posts
 - Think BUYER INTENT, not just visual description — buyers search by CONCEPTS ("sustainable living", "morning routine") not just objects ("cup", "tree")
 - BANNED WORDS — NEVER include these as keywords: "photo", "image", "stock", "picture", "photograph", "photography", "stock photo", "royalty free", "clip art", "artwork", "digital art", "AI generated", "high quality", "high resolution", "HD", "4K", "beautiful", "nice", "good" — the platform already knows the file type, and generic quality terms waste slots
+- NEVER include brand names, trademark names, company names, real person names, celebrity names, or fictional character names as keywords — this causes INSTANT REJECTION on all platforms
 - Include singular and plural for the 2-3 most important terms
 
 Think like a stock photo buyer with a budget: what would they type to find and LICENSE this exact image?`,
@@ -62,6 +71,13 @@ Return ONLY a valid JSON object (no markdown, no code blocks, no explanations):
   "keywords": "..."
 }
 
+ANTI-HALLUCINATION (ZERO TOLERANCE):
+- ONLY describe what is ACTUALLY VISIBLE in this illustration — never assume, guess, or infer
+- NEVER tag elements, objects, styles, or concepts that are NOT present in the design
+- If you cannot clearly identify a design style, use a general term — do NOT guess specifics
+- NEVER invent a theme, purpose, or context unless clearly evident from the illustration itself
+- Platforms REJECT and SUPPRESS assets with inaccurate metadata — one wrong keyword can bury an entire portfolio
+
 TITLE (SEO-OPTIMIZED):
 - Maximum 70 characters
 - Front-load the primary keyword — the most searchable design term MUST come first
@@ -70,6 +86,7 @@ TITLE (SEO-OPTIMIZED):
 - Title Case capitalization
 - Write naturally — as a designer would search for this asset
 - Must be specific and descriptive — never generic
+- NEVER include brand names, trademark names, real person names, or fictional character names in the title
 
 DESCRIPTION (SEO-RICH):
 - 150-200 characters, one natural flowing sentence
@@ -96,12 +113,13 @@ KEYWORDS (CRITICAL — THIS IS WHERE SALES ARE WON OR LOST):
   Slots 11-20: Colors, specific elements, composition style, design details
   Slots 21-35: Related concepts, alternative use cases, broader themes
   Slots 36-49: Long-tail variations, niche design terms, trending concepts
-- USE MULTI-WORD PHRASES alongside single words — "social media template" as one keyword is stronger than the words separately, because designers search in phrases. Include both the phrase AND individual terms for maximum coverage.
+- KEYWORD FORMAT: For important compound concepts (e.g., "flat design"), include BOTH the phrase AND the individual words as separate keywords — e.g., "flat design", "flat", "design". This maximizes matching on all platforms. Place related words adjacent in the list so platforms can detect phrase relevance from keyword order.
 - COPY SPACE AWARENESS: If the illustration has significant empty/negative space suitable for text overlay, include relevant terms like "copy space", "text space", "template background", or "space for text" — designers actively filter for this when creating presentations, social posts, and marketing materials
 - CONCEPTUAL keywords are MORE important for illustrations than photos — lean heavily into abstract concepts, themes, and use cases
 - Think BUYER INTENT — designers search by PROJECT NEED ("onboarding illustration", "dashboard icon") not just visual description
 - BANNED WORDS — NEVER include these as keywords: "vector", "illustration", "clip art", "stock", "artwork", "digital art", "AI generated", "royalty free", "high quality", "high resolution", "HD", "4K", "beautiful", "nice", "good", "image", "picture", "graphic design" — the platform already knows the file type, and generic quality terms waste slots
-- NO duplicates, NO brand names, NO irrelevant filler
+- NEVER include brand names, trademark names, company names, real person names, celebrity names, or fictional character names as keywords — this causes INSTANT REJECTION on all platforms
+- NO duplicates, NO irrelevant filler
 
 Think like a designer with a deadline searching for the perfect asset: what would they type to find and LICENSE this exact illustration?`,
 };
