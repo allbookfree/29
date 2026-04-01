@@ -57,34 +57,53 @@ function buildDiverseUserPrompt(concept, previousPrompts = [], { autoMode = fals
     const trans = pickRandom(pool.transition, 2).join(" or ");
     const pace = pickRandom(pool.pacing, 2).join(" or ");
     const grade = pickRandom(pool.colorGrade, 2).join(" or ");
-    const atmo = pickRandom(pool.atmosphere, 2).join(" or ");
-    typeSpecificHint = `- Camera movement: ${cam}
+    if (engineerMode) {
+      const atmo = pickRandom(pool.atmosphere, 2).join(" or ");
+      typeSpecificHint = `- Camera movement: ${cam}
 - Transition style: ${trans}
 - Pacing/speed: ${pace}
 - Color grading: ${grade}
 - Atmosphere: ${atmo}`;
+    } else {
+      typeSpecificHint = `- Camera movement: ${cam}
+- Transition style: ${trans}
+- Pacing/speed: ${pace}
+- Color grading: ${grade}`;
+    }
   } else if (type === "vector") {
     const pool = DIVERSITY_POOLS.vector;
     const style = pickRandom(pool.style, 2).join(" or ");
     const palette = pickRandom(pool.palette, 2).join(" or ");
     const use = pickRandom(pool.useCase, 2).join(" or ");
-    const render = pickRandom(pool.rendering, 2).join(" or ");
-    typeSpecificHint = `- Art style: ${style}
+    if (engineerMode) {
+      const render = pickRandom(pool.rendering, 2).join(" or ");
+      typeSpecificHint = `- Art style: ${style}
 - Color palette: ${palette}
 - Use case: ${use}
 - Rendering: ${render}`;
+    } else {
+      typeSpecificHint = `- Art style: ${style}
+- Color palette: ${palette}
+- Use case: ${use}`;
+    }
   } else {
     const pool = DIVERSITY_POOLS.image;
     const style = pickRandom(pool.style, 2).join(" or ");
     const light = pickRandom(pool.lighting, 2).join(" or ");
     const comp = pickRandom(pool.composition, 2).join(" or ");
-    const lens = pickRandom(pool.lens, 1)[0];
-    const qual = pickRandom(pool.quality, 1)[0];
-    typeSpecificHint = `- Photography style: ${style}
+    if (engineerMode) {
+      const lens = pickRandom(pool.lens, 1)[0];
+      const qual = pickRandom(pool.quality, 1)[0];
+      typeSpecificHint = `- Photography style: ${style}
 - Lighting: ${light}
 - Composition: ${comp}
 - Lens/camera: ${lens}
 - Quality reference: ${qual}`;
+    } else {
+      typeSpecificHint = `- Photography style: ${style}
+- Lighting: ${light}
+- Composition: ${comp}`;
+    }
   }
 
   const diversityHint = `Creative inspiration angles (interpret freely — mix, combine, or subvert these):
