@@ -371,7 +371,7 @@ export default function MetadataGeneratorPage() {
     const mod = await import("xlsx");
     const XLSX = mod.default || mod;
     const rows = [
-      ["Filename", "Title", "Description", "Keywords"],
+      ["FileName", "Title", "Description", "Keywords"],
       ...doneResults.map(r => [r.filename, r.title, r.description, r.keywords]),
     ];
     const ws = XLSX.utils.aoa_to_sheet(rows);
@@ -384,7 +384,7 @@ export default function MetadataGeneratorPage() {
   const downloadCsv = () => {
     if (!doneResults.length) return;
     const escape = (s) => `"${(s || "").replace(/"/g, '""')}"`;
-    const header = "Filename,Title,Description,Keywords";
+    const header = "FileName,Title,Description,Keywords";
     const rows = doneResults.map(r =>
       [escape(r.filename), escape(r.title), escape(r.description), escape(r.keywords)].join(",")
     );
