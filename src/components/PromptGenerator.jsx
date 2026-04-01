@@ -571,7 +571,7 @@ export default function PromptGenerator({
     const list = selected.size > 0
       ? prompts.filter((_, i) => selected.has(i))
       : [...prompts];
-    await copyToClipboard(list.join("\n\n"));
+    await copyToClipboard(list.join("\n"));
     setCopiedAll(true);
     setTimeout(() => setCopiedAll(false), 1800);
   };
@@ -777,7 +777,7 @@ export default function PromptGenerator({
             {prompts.length > 0 && !loading && (
               <>
                 <button className="btn btn-secondary" onClick={copyAll}>
-                  {copiedAll ? <><Check size={16} />{t("prompt.copied")}</> : <><ClipboardList size={16} />{selected.size > 0 ? `${t("prompt.copyCount")} ${selected.size}` : t("prompt.copyAll")}</>}
+                  {copiedAll ? <><Check size={16} />{t("prompt.copied")}</> : <><Copy size={16} />{selected.size > 0 ? `${t("prompt.copyCount")} ${selected.size}` : t("prompt.copyAll")}</>}
                 </button>
                 <button className="btn btn-secondary" onClick={downloadCSV}><Download size={16} />{t("prompt.csv")}</button>
                 <button className="btn btn-secondary" onClick={downloadTXT}><FileText size={16} />{t("prompt.txt")}</button>
