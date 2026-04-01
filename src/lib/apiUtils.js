@@ -2,6 +2,9 @@ const MAX_API_KEYS = 10;
 
 export const DEFAULT_REQUEST_TIMEOUT_MS = 60000;
 
+export const APP_REFERER = process.env.NEXT_PUBLIC_APP_URL || "https://ai-prompt-studio.replit.app";
+export const APP_TITLE = "AI Prompt Studio";
+
 export function jsonError(message, status, code) {
   return Response.json({ error: message, code }, { status });
 }

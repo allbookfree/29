@@ -1,6 +1,6 @@
 import { MODEL_IDS, OR_MODEL_MAP, PROVIDER_KEY_MAP, ALLOWED_MODELS, ALLOWED_TYPES } from "@/config/models";
 import { buildSystemPrompt } from "@/lib/promptBuilder";
-import { jsonError, sanitizeKeys, fetchWithTimeout } from "@/lib/apiUtils";
+import { jsonError, sanitizeKeys, fetchWithTimeout, APP_REFERER, APP_TITLE } from "@/lib/apiUtils";
 import { AUTO_DIVERSITY_POOLS, ENGINEER_DIVERSITY_POOLS } from "@/lib/diversityPools";
 
 const MAX_PROMPT_CHARS = 4000;
@@ -579,8 +579,8 @@ async function handleOpenRouter(keys, systemPrompt, userPrompt, specificModel = 
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${apiKey}`,
-            "HTTP-Referer": "https://ai-prompt-studio.replit.app",
-            "X-Title": "AI Prompt Studio",
+            "HTTP-Referer": APP_REFERER,
+            "X-Title": APP_TITLE,
           },
           body: JSON.stringify({
             model,

@@ -1,5 +1,5 @@
 import { MODEL_IDS, OR_MODEL_MAP, PROVIDER_KEY_MAP } from "@/config/models";
-import { fetchWithTimeout } from "@/lib/apiUtils";
+import { fetchWithTimeout, APP_REFERER } from "@/lib/apiUtils";
 
 function buildScoringPrompt(type) {
   const typeLabel = type === "vector" ? "vector illustration" : type === "video" ? "stock video" : "stock photo";
@@ -96,7 +96,7 @@ async function callOpenRouterScore(apiKey, systemPrompt, userPrompt, specificMod
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://ai-prompt-studio.replit.app",
+      "HTTP-Referer": APP_REFERER,
     },
     body: JSON.stringify({
       model: modelId,

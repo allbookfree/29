@@ -8,20 +8,34 @@ A professional AI prompt workspace for microstock creators. Generate image, vect
 - **Image Prompt Generator** — AI-powered prompts for stock photography
 - **Vector Prompt Generator** — Prompts for illustrations and vector graphics
 - **Video Prompt Generator** — Cinematic video prompt creation
-- **50,000+ unique prompts** possible with 6-month non-repetition guarantee
+- **15M+ unique seed combinations** with AI-free-choice subject generation
 
 ### Content Intelligence
-- **1,502 halal subjects** across 59 categories (no human figures — Islamic ruling enforced)
-- **Anti-repeat system** — Tracks generated prompts to prevent duplication
-- **Festival Mode** — Seasonal content suggestions (Eid, Ramadan, etc.)
-- **Market Research** — Google Search integration for trending topics
-- **Quality Scoring** — AI-based prompt quality assessment
+- **Halal content filtering** — No human figures (Islamic ruling enforced via blacklist approach)
+- **Seed-based generation** — ~500 nouns × ~200 adjectives × ~150 contexts = 15M+ unique seeds; AI has full creative freedom over any halal subject
+- **Anti-repeat system** — Reads prompt history to prevent duplication
+- **Festival Mode** — 30+ seasonal events (Eid, Ramadan, Christmas, etc.) as optional toggle
+- **Market Research** — Google Search integration for trending topics (Gemini only)
+- **Quality Scoring** — AI-based commercial viability assessment (1-10 scale)
 
-### Metadata & Analytics
-- **Metadata Generator** — Extract SEO-optimized titles, descriptions, and keywords from images
-- **Batch processing** — Up to 500 images at once with Excel export
-- **Analytics Dashboard** — Track usage patterns and category coverage
-- **Prompt History** — Browse, search, and reuse all previously generated prompts
+### Three Generation Modes
+- **Generate Prompts** — Manual mode with user-provided concept
+- **Auto Generate** — One-click autonomous generation from seed pool
+- **Engineer** — Professional prompt formulas with platform intelligence and repeat buyer strategy
+
+### Metadata Generator
+- **SEO-optimized metadata** — Extract titles, descriptions, and keywords from images
+- **Anti-hallucination** — Zero tolerance for guessed content; only tags what's visible
+- **Keyword priority** — First 10 keywords weighted by buyer intent
+- **Title-keyword alignment** — Title terms reinforced in top keywords
+- **Brand/trademark ban** — Auto-rejects trademarked content
+- **Batch processing** — Unlimited images with Excel/CSV export
+- **Multi-provider** — Gemini Flash, Flash Lite, Groq Scout, Pixtral, OpenRouter, HuggingFace
+
+### Analytics & History
+- **Analytics Dashboard** — Total prompts, type distribution donut chart, seed system stats
+- **Prompt History** — Browse, search, copy, and delete all previously generated prompts
+- **Clear All History** — One-click cleanup from "All" tab
 
 ### Multi-Provider AI
 - **Google Gemini** — 2.5 Flash & Flash-Lite
@@ -32,10 +46,12 @@ A professional AI prompt workspace for microstock creators. Generate image, vect
 - **Automatic failover** between multiple API keys per provider
 
 ### Export & Security
-- **CSV & TXT export** for generated prompts
+- **Copy All** — Clean prompt text (no numbering), single newline separated for Excel compatibility
+- **CSV export** — UTF-8 BOM for proper Unicode in Excel
+- **TXT export** — Numbered prompt list
 - **Local-first security** — API keys stored in your browser, never on server
 - **Session or persistent storage** — Choose your key storage mode
-- **Dark/Light theme** with Bengali (বাংলা) & English UI
+- **Dark/Light theme** with Bengali and English UI
 
 ## Tech Stack
 
@@ -50,7 +66,7 @@ A professional AI prompt workspace for microstock creators. Generate image, vect
 
 ### Prerequisites
 - Node.js 18+
-- npm or pnpm
+- npm
 
 ### Installation
 
@@ -86,9 +102,19 @@ npm start
    - [HuggingFace](https://huggingface.co/settings/tokens) (Free tier available)
 3. Keys are stored locally in your browser — never sent to any server except the AI provider
 
+## Environment Variables (Optional)
+
+| Variable | Description | Default |
+|---|---|---|
+| `PORT` | Dev server port | `5000` |
+| `NEXT_PUBLIC_APP_URL` | App URL for OpenRouter referer header | `https://ai-prompt-studio.replit.app` |
+
 ## Deployment
 
-### Vercel (Recommended)
+### Replit
+Click **Publish** to deploy directly from Replit.
+
+### Vercel
 1. Push to GitHub
 2. Import repository on [vercel.com](https://vercel.com)
 3. Deploy — zero configuration needed

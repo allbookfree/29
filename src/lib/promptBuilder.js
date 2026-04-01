@@ -118,7 +118,7 @@ export function getRequestInfo(modelKey) {
       temperature: 0.9,
       maxTokens: 8192,
       requestFormat: "OpenAI-compatible (messages array)",
-      extra: "HTTP-Referer: ai-prompt-studio.replit.app · X-Title: AI Prompt Studio",
+      extra: "HTTP-Referer: (app URL) · X-Title: AI Prompt Studio",
     };
   }
 

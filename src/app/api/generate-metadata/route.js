@@ -1,5 +1,5 @@
 import { METADATA_PROMPTS } from "@/lib/metadataPrompts";
-import { jsonError, sanitizeKeys, fetchWithTimeout } from "@/lib/apiUtils";
+import { jsonError, sanitizeKeys, fetchWithTimeout, APP_REFERER, APP_TITLE } from "@/lib/apiUtils";
 
 const PROMPTS = METADATA_PROMPTS;
 
@@ -219,8 +219,8 @@ async function tryOpenRouter(orKeys, mimeType, base64Data, prompt, contentType =
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${apiKey}`,
-            "HTTP-Referer": "https://ai-prompt-studio.replit.app",
-            "X-Title": "AI Prompt Studio",
+            "HTTP-Referer": APP_REFERER,
+            "X-Title": APP_TITLE,
           },
           body: JSON.stringify({
             model,
