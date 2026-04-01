@@ -8,14 +8,59 @@ const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 90000;
 const MAX_TITLE_CHARS = 70;
 const MAX_DESCRIPTION_CHARS = 250;
-const MAX_KEYWORDS = 50;
+const MAX_KEYWORDS = 49;
+const MIN_QUALITY_KEYWORDS = 25;
+
+const BANNED_KEYWORDS_COMMON = new Set([
+  "photo", "image", "stock", "picture", "photograph", "photography",
+  "stock photo", "stock image", "royalty free", "royalty-free",
+  "clip art", "clipart", "ai generated", "ai-generated",
+  "high quality", "high-quality", "high resolution", "high-resolution",
+  "hd", "4k", "8k", "beautiful", "nice", "good",
+  "amazing", "stunning", "gorgeous", "wonderful", "awesome", "best",
+]);
+
+const BANNED_KEYWORDS_VECTOR = new Set([
+  ...BANNED_KEYWORDS_COMMON,
+  "vector", "illustration", "graphic design", "design element",
+  "stock vector", "stock illustration", "eps", "svg", "artwork",
+]);
+
+const BANNED_KEYWORDS_IMAGE = new Set([
+  ...BANNED_KEYWORDS_COMMON,
+  "stock photo", "stock photography", "digital art", "artwork",
+]);
 
 function estimateBase64Bytes(base64Data) {
   const padding = (base64Data.match(/=+$/) || [""])[0].length;
   return Math.floor((base64Data.length * 3) / 4) - padding;
 }
 
-function normalizeKeywords(input) {
+function smartTruncateTitle(title, maxLen) {
+  if (title.length <= maxLen) return title;
+  const truncated = title.slice(0, maxLen);
+  const lastSpace = truncated.lastIndexOf(" ");
+  if (lastSpace > maxLen * 0.6) {
+    let result = truncated.slice(0, lastSpace).trim();
+    result = result.replace(/[,\-–—:;|/\\]+$/, "").trim();
+    return result;
+  }
+  return truncated.trim();
+}
+
+function isBannedKeyword(keyword, bannedSet) {
+  const norm = keyword.toLowerCase().trim()
+    .replace(/[.,;:!?'"]+$/, "")
+    .replace(/^[.,;:!?'"]+/, "");
+  if (bannedSet.has(norm)) return true;
+  const noDash = norm.replace(/-/g, " ");
+  if (noDash !== norm && bannedSet.has(noDash)) return true;
+  if (norm.endsWith("s") && bannedSet.has(norm.slice(0, -1))) return true;
+  return false;
+}
+
+function normalizeKeywords(input, contentType = "image") {
+  const bannedSet = contentType === "vector" ? BANNED_KEYWORDS_VECTOR : BANNED_KEYWORDS_IMAGE;
   const raw = typeof input === "string" ? input : Array.isArray(input) ? input.join(", ") : "";
   const list = raw
     .split(",")
@@ -24,8 +69,9 @@ function normalizeKeywords(input) {
   const unique = [];
   const seen = new Set();
   for (const key of list) {
-    const normalized = key.toLowerCase();
+    const normalized = key.toLowerCase().trim();
     if (seen.has(normalized)) continue;
+    if (isBannedKeyword(key, bannedSet)) continue;
     seen.add(normalized);
     unique.push(key);
     if (unique.length >= MAX_KEYWORDS) break;
@@ -33,15 +79,15 @@ function normalizeKeywords(input) {
   return unique;
 }
 
-function normalizeMetadata(metadata) {
+function normalizeMetadata(metadata, contentType = "image") {
   const titleRaw = typeof metadata?.title === "string" ? metadata.title.trim() : "";
   const descriptionRaw = typeof metadata?.description === "string" ? metadata.description.trim() : "";
-  const keywordsList = normalizeKeywords(metadata?.keywords);
-  const title = titleRaw.slice(0, MAX_TITLE_CHARS);
+  const keywordsList = normalizeKeywords(metadata?.keywords, contentType);
+  const title = smartTruncateTitle(titleRaw, MAX_TITLE_CHARS);
   const description = descriptionRaw.slice(0, MAX_DESCRIPTION_CHARS);
   const keywords = keywordsList.join(", ");
   const keywordCount = keywordsList.length;
-  const hasMinimumContent = title.length > 0 && description.length > 0 && keywordsList.length >= 5;
+  const hasMinimumContent = title.length > 0 && description.length > 0 && keywordsList.length >= 10;
   return { title, description, keywords, keywordCount, hasMinimumContent };
 }
 
@@ -60,7 +106,7 @@ function parseJsonResponse(rawText) {
 }
 
 // ── Gemini (Flash or Flash-Lite) ──────────────────────────────────────────────
-async function tryGemini(geminiKeys, mimeType, base64Data, prompt, model) {
+async function tryGemini(geminiKeys, mimeType, base64Data, prompt, model, contentType = "image") {
   const effectiveMime = mimeType === "image/svg+xml" ? "image/png" : mimeType;
   for (const apiKey of geminiKeys) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
@@ -99,7 +145,7 @@ async function tryGemini(geminiKeys, mimeType, base64Data, prompt, model) {
       const metadata = parseJsonResponse(rawText);
       if (!metadata) continue;
 
-      const normalized = normalizeMetadata(metadata);
+      const normalized = normalizeMetadata(metadata, contentType);
       if (normalized.hasMinimumContent) return { ok: true, data: normalized, provider: model };
     } catch (err) {
       const msg = String(err?.message || "");
@@ -159,7 +205,7 @@ async function getFreeVisionModels(apiKey) {
   }
 }
 
-async function tryOpenRouter(orKeys, mimeType, base64Data, prompt) {
+async function tryOpenRouter(orKeys, mimeType, base64Data, prompt, contentType = "image") {
   const effectiveMime = mimeType === "image/svg+xml" ? "image/png" : mimeType;
   const dataUrl = `data:${effectiveMime};base64,${base64Data}`;
   let lastErr = "";
@@ -217,7 +263,7 @@ async function tryOpenRouter(orKeys, mimeType, base64Data, prompt) {
         const metadata = parseJsonResponse(rawText);
         if (!metadata) { lastErr = "No valid JSON in response"; continue; }
 
-        const normalized = normalizeMetadata(metadata);
+        const normalized = normalizeMetadata(metadata, contentType);
         if (normalized.hasMinimumContent) {
           return { ok: true, data: normalized, provider: `openrouter:${model.split("/")[1].split(":")[0]}` };
         }
@@ -234,7 +280,7 @@ async function tryOpenRouter(orKeys, mimeType, base64Data, prompt) {
 }
 
 // ── Groq Scout (vision) ───────────────────────────────────────────────────────
-async function tryGroq(groqKeys, mimeType, base64Data, prompt) {
+async function tryGroq(groqKeys, mimeType, base64Data, prompt, contentType = "image") {
   const dataUrl = `data:${mimeType === "image/svg+xml" ? "image/png" : mimeType};base64,${base64Data}`;
   for (const apiKey of groqKeys) {
     try {
@@ -274,7 +320,7 @@ async function tryGroq(groqKeys, mimeType, base64Data, prompt) {
       const metadata = parseJsonResponse(rawText);
       if (!metadata) continue;
 
-      const normalized = normalizeMetadata(metadata);
+      const normalized = normalizeMetadata(metadata, contentType);
       if (normalized.hasMinimumContent) return { ok: true, data: normalized, provider: "groq-scout" };
     } catch (err) {
       const msg = String(err?.message || "");
@@ -287,7 +333,7 @@ async function tryGroq(groqKeys, mimeType, base64Data, prompt) {
 // ── Mistral Pixtral (vision) ──────────────────────────────────────────────────
 const PIXTRAL_MODELS = ["pixtral-12b-2409", "pixtral-large-latest"];
 
-async function tryMistral(mistralKeys, mimeType, base64Data, prompt) {
+async function tryMistral(mistralKeys, mimeType, base64Data, prompt, contentType = "image") {
   const effectiveMime = mimeType === "image/svg+xml" ? "image/png" : mimeType;
   const dataUrl = `data:${effectiveMime};base64,${base64Data}`;
   let lastErr = "";
@@ -338,7 +384,7 @@ async function tryMistral(mistralKeys, mimeType, base64Data, prompt) {
         const metadata = parseJsonResponse(rawText);
         if (!metadata) { lastErr = "No valid JSON in response"; continue; }
 
-        const normalized = normalizeMetadata(metadata);
+        const normalized = normalizeMetadata(metadata, contentType);
         if (normalized.hasMinimumContent) {
           return { ok: true, data: normalized, provider: `pixtral-${model.includes("large") ? "large" : "12b"}` };
         }
@@ -359,7 +405,7 @@ const HF_VISION_MODELS = [
   "meta-llama/Llama-3.2-11B-Vision-Instruct",
 ];
 
-async function tryHuggingFace(hfKeys, mimeType, base64Data, prompt) {
+async function tryHuggingFace(hfKeys, mimeType, base64Data, prompt, contentType = "image") {
   const effectiveMime = mimeType === "image/svg+xml" ? "image/png" : mimeType;
   const dataUrl = `data:${effectiveMime};base64,${base64Data}`;
   let lastErr = "";
@@ -413,7 +459,7 @@ async function tryHuggingFace(hfKeys, mimeType, base64Data, prompt) {
         const metadata = parseJsonResponse(rawText);
         if (!metadata) { lastErr = "No valid JSON in response"; continue; }
 
-        const normalized = normalizeMetadata(metadata);
+        const normalized = normalizeMetadata(metadata, contentType);
         if (normalized.hasMinimumContent) {
           const shortName = model.split("/")[1] || model;
           return { ok: true, data: normalized, provider: `hf:${shortName}` };
@@ -472,7 +518,7 @@ export async function POST(request) {
         ? [preferredProvider]
         : ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
       for (const model of modelsToTry) {
-        const r = await tryGemini(geminiKeys, mimeType, base64Data, prompt, model);
+        const r = await tryGemini(geminiKeys, mimeType, base64Data, prompt, model, contentType);
         if (r.ok) return Response.json({ ...r.data, provider: r.provider });
         if (!r.retry && r.error) return jsonError(r.error, 502, "PROVIDER_ERROR");
       }
@@ -481,28 +527,28 @@ export async function POST(request) {
 
     if (preferredProvider === "groq") {
       if (!groqKeys.length) return jsonError("No Groq keys configured.", 400, "NO_KEYS");
-      const r = await tryGroq(groqKeys, mimeType, base64Data, prompt);
+      const r = await tryGroq(groqKeys, mimeType, base64Data, prompt, contentType);
       if (r.ok) return Response.json({ ...r.data, provider: r.provider });
       return jsonError(r.error || "Groq failed. Try another provider.", 502, "PROVIDER_ERROR");
     }
 
     if (preferredProvider === "mistral") {
       if (!mistralKeys.length) return jsonError("No Mistral keys configured.", 400, "NO_KEYS");
-      const r = await tryMistral(mistralKeys, mimeType, base64Data, prompt);
+      const r = await tryMistral(mistralKeys, mimeType, base64Data, prompt, contentType);
       if (r.ok) return Response.json({ ...r.data, provider: r.provider });
       return jsonError(r.error || "Mistral Pixtral failed. Try another provider.", 502, "PROVIDER_ERROR");
     }
 
     if (preferredProvider === "openrouter") {
       if (!orKeys.length) return jsonError("No OpenRouter keys configured.", 400, "NO_KEYS");
-      const r = await tryOpenRouter(orKeys, mimeType, base64Data, prompt);
+      const r = await tryOpenRouter(orKeys, mimeType, base64Data, prompt, contentType);
       if (r.ok) return Response.json({ ...r.data, provider: r.provider });
       return jsonError(r.error || "OpenRouter failed. Try another provider.", 502, "PROVIDER_ERROR");
     }
 
     if (preferredProvider === "huggingface") {
       if (!hfKeys.length) return jsonError("No HuggingFace keys configured.", 400, "NO_KEYS");
-      const r = await tryHuggingFace(hfKeys, mimeType, base64Data, prompt);
+      const r = await tryHuggingFace(hfKeys, mimeType, base64Data, prompt, contentType);
       if (r.ok) return Response.json({ ...r.data, provider: r.provider });
       return jsonError(r.error || "HuggingFace failed. Try another provider.", 502, "PROVIDER_ERROR");
     }
@@ -510,42 +556,42 @@ export async function POST(request) {
     // Auto mode: try all in order
     // 1. Gemini Flash
     if (geminiKeys.length > 0) {
-      const result = await tryGemini(geminiKeys, mimeType, base64Data, prompt, "gemini-2.5-flash");
+      const result = await tryGemini(geminiKeys, mimeType, base64Data, prompt, "gemini-2.5-flash", contentType);
       if (result.ok) return Response.json({ ...result.data, provider: result.provider });
       if (!result.retry && result.error) return jsonError(result.error, 502, "PROVIDER_ERROR");
     }
 
     // 2. Gemini Flash-Lite (same keys, higher rate limit)
     if (geminiKeys.length > 0) {
-      const result = await tryGemini(geminiKeys, mimeType, base64Data, prompt, "gemini-2.5-flash-lite");
+      const result = await tryGemini(geminiKeys, mimeType, base64Data, prompt, "gemini-2.5-flash-lite", contentType);
       if (result.ok) return Response.json({ ...result.data, provider: result.provider });
       if (!result.retry && result.error) return jsonError(result.error, 502, "PROVIDER_ERROR");
     }
 
     // 3. Groq Scout (vision)
     if (groqKeys.length > 0) {
-      const result = await tryGroq(groqKeys, mimeType, base64Data, prompt);
+      const result = await tryGroq(groqKeys, mimeType, base64Data, prompt, contentType);
       if (result.ok) return Response.json({ ...result.data, provider: result.provider });
       if (result.error) return jsonError(result.error, 502, "PROVIDER_ERROR");
     }
 
     // 4. Mistral Pixtral (vision)
     if (mistralKeys.length > 0) {
-      const result = await tryMistral(mistralKeys, mimeType, base64Data, prompt);
+      const result = await tryMistral(mistralKeys, mimeType, base64Data, prompt, contentType);
       if (result.ok) return Response.json({ ...result.data, provider: result.provider });
       if (result.error) return jsonError(result.error, 502, "PROVIDER_ERROR");
     }
 
     // 5. OpenRouter (free vision models)
     if (orKeys.length > 0) {
-      const result = await tryOpenRouter(orKeys, mimeType, base64Data, prompt);
+      const result = await tryOpenRouter(orKeys, mimeType, base64Data, prompt, contentType);
       if (result.ok) return Response.json({ ...result.data, provider: result.provider });
       if (result.error) return jsonError(result.error, 502, "PROVIDER_ERROR");
     }
 
     // 6. HuggingFace (vision models)
     if (hfKeys.length > 0) {
-      const result = await tryHuggingFace(hfKeys, mimeType, base64Data, prompt);
+      const result = await tryHuggingFace(hfKeys, mimeType, base64Data, prompt, contentType);
       if (result.ok) return Response.json({ ...result.data, provider: result.provider });
       if (result.error) return jsonError(result.error, 502, "PROVIDER_ERROR");
     }

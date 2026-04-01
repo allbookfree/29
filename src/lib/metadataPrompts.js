@@ -27,7 +27,7 @@ DESCRIPTION (SEO-RICH):
 - Write like professional editorial copy — imagine a news caption or art director brief
 
 KEYWORDS (CRITICAL — THIS IS WHERE SALES ARE WON OR LOST):
-- Provide EXACTLY 45-49 keywords, comma-separated
+- Provide 25-49 high-quality keywords, comma-separated — QUALITY OVER QUANTITY. Every single keyword must be 100% relevant. It is BETTER to give 30 perfect keywords than 49 with filler. Never pad with irrelevant terms.
 - THE FIRST 10 KEYWORDS ARE THE MOST IMPORTANT — platforms give them the highest search weight
 - Keyword ordering MUST follow this priority structure:
   Slots 1-2: Primary concept / commercial use case (what a buyer needs this for — e.g., "sustainability", "remote work", "wellness")
@@ -39,7 +39,7 @@ KEYWORDS (CRITICAL — THIS IS WHERE SALES ARE WON OR LOST):
   Slots 21-35: Secondary objects, seasonal terms, related concepts, broader themes
   Slots 36-49: Long-tail variations, alternative phrasings, niche use cases
 - Think BUYER INTENT, not just visual description — buyers search by CONCEPTS ("sustainable living", "morning routine") not just objects ("cup", "tree")
-- NO duplicates, NO brand names, NO "photo", NO "image", NO "stock" — the platform already knows the file type
+- BANNED WORDS — NEVER include these as keywords: "photo", "image", "stock", "picture", "photograph", "photography", "stock photo", "royalty free", "clip art", "artwork", "digital art", "AI generated", "high quality", "high resolution", "HD", "4K", "beautiful", "nice", "good" — the platform already knows the file type, and generic quality terms waste slots
 - Include singular and plural for the 2-3 most important terms
 
 Think like a stock photo buyer with a budget: what would they type to find and LICENSE this exact image?`,
@@ -72,9 +72,9 @@ DESCRIPTION (SEO-RICH):
 - Write like a professional design portfolio description
 
 KEYWORDS (CRITICAL — THIS IS WHERE SALES ARE WON OR LOST):
-- Provide EXACTLY 45-49 keywords, comma-separated
+- Provide 25-49 high-quality keywords, comma-separated — QUALITY OVER QUANTITY. Every single keyword must be 100% relevant. It is BETTER to give 30 perfect keywords than 49 with filler. Never pad with irrelevant terms.
 - THE FIRST 10 KEYWORDS ARE THE MOST IMPORTANT — platforms give them the highest search weight
-- DO NOT waste keyword slots on "vector", "illustration", "clip art", "stock" — the platform already categorizes the file type automatically
+- DO NOT waste keyword slots on file type or generic quality terms — the platform already categorizes the file type automatically
 - Keyword ordering MUST follow this priority structure:
   Slots 1-2: Primary concept / commercial use case (e.g., "business growth", "social media template", "eco friendly")
   Slots 3-4: Main subject (e.g., "chart", "icon set", "workspace")
@@ -86,6 +86,7 @@ KEYWORDS (CRITICAL — THIS IS WHERE SALES ARE WON OR LOST):
   Slots 36-49: Long-tail variations, niche design terms, trending concepts
 - CONCEPTUAL keywords are MORE important for illustrations than photos — lean heavily into abstract concepts, themes, and use cases
 - Think BUYER INTENT — designers search by PROJECT NEED ("onboarding illustration", "dashboard icon") not just visual description
+- BANNED WORDS — NEVER include these as keywords: "vector", "illustration", "clip art", "stock", "artwork", "digital art", "AI generated", "royalty free", "high quality", "high resolution", "HD", "4K", "beautiful", "nice", "good", "image", "picture", "graphic design" — the platform already knows the file type, and generic quality terms waste slots
 - NO duplicates, NO brand names, NO irrelevant filler
 
 Think like a designer with a deadline searching for the perfect asset: what would they type to find and LICENSE this exact illustration?`,
