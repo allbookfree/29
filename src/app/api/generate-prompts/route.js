@@ -166,6 +166,12 @@ COMMERCIAL REQUIREMENTS:
 - Prioritize universally sellable concepts with broad market appeal — think search volume, trending themes, and gaps in stock libraries.
 - Each prompt must feel like it was created by a different creative director — explore COMPLETELY different angles.
 - AVOID generating content that already floods stock marketplaces. Be original, unexpected, and fresh while remaining commercially viable.
+ANTI-SIMILARITY RULE (CRITICAL — prevents marketplace rejection):
+- Each prompt MUST describe a COMPLETELY DIFFERENT subject from a DIFFERENT category — never two prompts about the same type of object, scene, or theme.
+- Vary EVERY visual dimension across prompts: different subject, different setting/environment, different color palette (warm vs cool vs neutral), different composition/angle (close-up vs wide vs overhead vs eye-level), different lighting mood, and different commercial use case.
+- Think of each prompt as if it will be uploaded to a marketplace that rejects similar-looking content — no two images from this batch should look even remotely alike.
+- Avoid oversaturated subjects that already exist in millions on stock platforms (generic sunsets, basic flower close-ups, simple coffee cups). Instead, find unique angles on common subjects OR choose uncommon subjects with commercial demand.
+- If describing the same broad category (e.g., food), each prompt must show a COMPLETELY different food item, different preparation style, different cultural context, and different photographic approach.
 ${engineerMode ? `TIMELESS CONTENT RULE:
 - Every prompt MUST describe content that is EVERGREEN — it should sell equally well today, next year, and 5 years from now.
 - Do NOT reference specific dates, current events, trending memes, or time-bound concepts that will become outdated.
