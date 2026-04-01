@@ -45,8 +45,14 @@ export default function HistoryPage() {
     loadData();
   };
 
-  const handleClearAll = (type) => {
+  const handleClearType = (type) => {
     clearPromptHistory(type);
+    setConfirmClear(null);
+    loadData();
+  };
+
+  const handleClearAll = () => {
+    ["image", "vector", "video"].forEach(type => clearPromptHistory(type));
     setConfirmClear(null);
     loadData();
   };
@@ -78,6 +84,8 @@ export default function HistoryPage() {
     const map = { image: "badge-image", vector: "badge-vector", video: "badge-video" };
     return map[type] || "";
   };
+
+  const currentCount = activeType === "all" ? totalAll : (data[activeType]?.length || 0);
 
   return (
     <div className="page">
@@ -115,18 +123,23 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      {activeType !== "all" && data[activeType]?.length > 0 && (
+      {currentCount > 0 && (
         <div className="history-actions-bar">
-          <span className="history-count">{t("history.totalPrompts")}: {data[activeType].length}</span>
-          {confirmClear === activeType ? (
+          <span className="history-count">{t("history.totalPrompts")}: {currentCount}</span>
+          {confirmClear === "pending" ? (
             <div className="history-confirm">
-              <span><AlertTriangle size={14} />{t("history.clearConfirm")}</span>
-              <button className="btn btn-danger-sm" onClick={() => handleClearAll(activeType)}>{t("history.clearYes")}</button>
-              <button className="btn btn-ghost-sm" onClick={() => setConfirmClear(null)}>{t("history.clearNo")}</button>
+              <span><AlertTriangle size={14} />{activeType === "all" ? (t("history.clearAllConfirm") || "Delete ALL history?") : t("history.clearConfirm")}</span>
+              <button className="btn btn-danger-sm" onClick={() => activeType === "all" ? handleClearAll() : handleClearType(activeType)}>
+                {t("history.clearYes")}
+              </button>
+              <button className="btn btn-ghost-sm" onClick={() => setConfirmClear(null)}>
+                {t("history.clearNo")}
+              </button>
             </div>
           ) : (
-            <button className="btn btn-ghost-sm" onClick={() => setConfirmClear(activeType)}>
-              <Trash2 size={13} />{t("history.clearAll")}
+            <button className="btn btn-ghost-sm" onClick={() => setConfirmClear("pending")}>
+              <Trash2 size={13} />
+              {activeType === "all" ? (t("history.clearAllHistory") || "Clear All History") : t("history.clearAll")}
             </button>
           )}
         </div>
