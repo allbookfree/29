@@ -107,30 +107,35 @@ ${previousPrompts.slice(0, 12).map((p, i) => `${i + 1}. ${String(p).slice(0, 150
 - Focus on images that work as stock photos: versatile compositions with copy space, clean backgrounds, and universal appeal.`;
 
   const engineerGuidance = type === "video"
-    ? `- Follow this prompt structure: [Subject + Action] + [Setting] + [Camera Movement] + [Lighting] + [Color Grade] + [Atmosphere].
+    ? `- Follow this prompt structure: [Subject + Action] + [Setting] + [Camera Movement] + [Lighting] + [Color Grade] + [Atmosphere] + [Quality].
 - Every prompt MUST describe a scene with inherent MOTION and temporal change — things moving, flowing, changing, growing, or transforming over time.
-- Include SPECIFIC camera movements using professional terms (dolly, crane, tracking, orbit, steadicam, FPV, drone ascending).
-- Describe the scene's natural flow: wind through leaves, water rippling, light shifting, shadows moving, clouds drifting, flames flickering.
-- Specify atmosphere and mood: misty, crisp, hazy, moody, warm, cold.
-- Include quality modifiers: 4K cinematic, slow motion, natural motion, realistic physics.
-- Avoid static compositions — stock video buyers need dynamic content with visual energy.`
+- Include SPECIFIC camera movements using professional terms (dolly, crane, tracking, orbit, steadicam, FPV, drone ascending, slider, jib).
+- Describe the scene's natural flow: wind through leaves, water rippling, light shifting, shadows moving, clouds drifting, flames flickering, steam rising, rain falling.
+- Specify atmosphere and mood: misty, crisp, hazy, moody, warm, cold, ethereal, dramatic.
+- Include quality modifiers: 4K cinematic, slow motion 120fps, natural motion, realistic physics, shallow depth of field.
+- Avoid static compositions — stock video buyers need dynamic content with visual energy.
+- Focus on PRACTICAL content that people actually use: business backgrounds, nature loops, food preparation, crafting processes, seasonal atmosphere, workspace activity, product showcases, abstract motion graphics.
+- Each video prompt must feel like a scene a real production company would shoot for a commercial client.`
     : type === "vector"
     ? `- Follow this prompt structure: [Subject] + [Art Style] + [Colors/Palette] + [Composition] + [Rendering Rules] + [Use Case].
-- Every prompt MUST describe content suitable for VECTOR illustration — clean lines, simple geometries, scalable graphics.
-- Specify the exact art style: flat 2D, isometric, line art, low-poly, geometric, hand-drawn sketch, paper-cut, or retro poster.
-- Define rendering rules: flat solid fills OR subtle gradients, clean crisp outlines, limited color palette (3-5 colors).
-- Specify composition: isolated on white background, centered, or full-bleed seamless pattern.
-- Include the intended use case: icon, infographic, social media asset, web illustration, packaging, pattern, or badge.
-- Avoid photographic realism — vector art must be clean, simple, and commercially versatile for web, print, and app use.
-- Where the design naturally allows it, include space for text placement — but never sacrifice the artwork's visual balance.`
+- Every prompt MUST describe content suitable for VECTOR conversion — the image will be converted to vector format using automated tools, so clean edges and solid colors are critical.
+- VECTOR CONVERSION RULES (CRITICAL): Designs MUST have clean sharp edges, high contrast between elements, solid flat color fills (no noisy gradients), minimal texture/grain, and clear separation between foreground and background. Avoid photographic noise, subtle color transitions, and fine detail that breaks during vectorization.
+- Specify the exact art style: flat 2D, isometric, line art, low-poly, geometric, hand-drawn sketch, paper-cut, silhouette, or retro poster.
+- Define rendering rules: flat solid fills with 3-5 bold distinct colors, clean crisp outlines, strong contrast, no blurry edges.
+- Specify composition: isolated on pure white background (#FFFFFF), centered, or seamless pattern tile.
+- Include the intended use case: app icon, web icon set, infographic element, logo concept, social media asset, presentation graphic, UI illustration, packaging design, badge, sticker, or seamless pattern.
+- Focus on what people ACTUALLY buy and use daily: business icons, UI elements, social media graphics, presentation illustrations, logo concepts, holiday decorations, educational diagrams, food illustrations, nature icons, technology symbols.
+- Each design must be commercially practical — something a designer, marketer, or developer would search for and license for their project.`
     : `- Follow this prompt structure: [Shot Type] + [Subject + Details] + [Setting] + [Lighting] + [Camera/Lens] + [Style/Mood] + [Color Palette].
-- Think like a professional photographer — specify the complete visual brief as if directing a real photo shoot.
-- Include specific lens and camera references (85mm f/1.4, wide-angle 24mm, macro lens, medium format) for precise visual control.
-- Specify lighting setup: golden hour, chiaroscuro, softbox, rembrandt, rim lighting, volumetric fog, window light.
-- Describe composition and framing: rule of thirds, symmetrical, leading lines, flat-lay, extreme close-up, panoramic.
-- Include quality modifiers: 8K resolution, DSLR quality, film stock tones (Kodak Portra, Fuji Velvia), high dynamic range.
-- Focus on images that work as stock photos: versatile compositions, clean backgrounds, and universal appeal.
-- When the composition naturally allows it, include areas of soft focus, open sky, blurred background, or clean surface that could serve as copy space — but NEVER force empty space that ruins the image's beauty. The image must look stunning on its own first.`;
+- Every image MUST look like a REAL photograph — photorealistic, believable, and professionally shot. No illustrations, no paintings, no artistic interpretations. Pure realistic photography only.
+- Think like a professional photographer — specify the complete visual brief as if directing a real photo shoot with real equipment.
+- Include specific lens and camera references (85mm f/1.4, wide-angle 24mm, macro lens, 50mm prime, telephoto 200mm, medium format Hasselblad) for precise visual control.
+- Specify lighting setup: golden hour, chiaroscuro, softbox, rembrandt, rim lighting, volumetric fog, window light, studio strobe, natural ambient.
+- Describe composition and framing: rule of thirds, symmetrical, leading lines, flat-lay, extreme close-up, panoramic, overhead, eye-level.
+- Include quality modifiers: 8K resolution, DSLR quality, film stock tones (Kodak Portra 400, Fuji Velvia 50, Kodak Ektar 100), high dynamic range, sharp focus.
+- Focus on images that work as premium stock photos: versatile compositions, clean backgrounds, and universal commercial appeal.
+- When the composition naturally allows it, include areas of soft focus, open sky, blurred background, or clean surface that could serve as copy space — but NEVER force empty space that ruins the image's beauty. The image must look stunning on its own first.
+- Each prompt must describe a scene that a real buyer would pay premium price for — think magazine covers, advertising campaigns, website heroes, and editorial features.`;
 
   const typeSpecificGuidance = engineerMode ? engineerGuidance : simpleGuidance;
 
@@ -161,7 +166,12 @@ ${engineerMode ? `TIMELESS CONTENT RULE:
 MICROSTOCK PLATFORM INTELLIGENCE:
 - Shutterstock buyers love: isolated objects on clean backgrounds, conceptual imagery, workspace flat-lays, food photography, nature close-ups, and abstract textures.
 - Adobe Stock buyers love: editorial-style scenes, creative compositions, artistic lighting, lifestyle vignettes (without humans), and high-end product styling.
-- Top-selling content across all platforms: clean minimalism, warm natural lighting, authentic textures, bold color contrasts, and subjects photographed from unexpected angles.` : `- Think about trending themes: AI/technology, sustainability, authentic lifestyle, cultural diversity, food styling, workspace, wellness, education, finance, travel.`}`
+- Top-selling content across all platforms: clean minimalism, warm natural lighting, authentic textures, bold color contrasts, and subjects photographed from unexpected angles.
+REPEAT BUYER STRATEGY:
+- Create content so high-quality that a buyer who purchases one asset will return to buy more from the same portfolio.
+- Maintain consistent professional quality across all prompts — every single output must be portfolio-worthy.
+- Think in terms of COLLECTIONS: related themes, matching styles, complementary color palettes that work together as a set.
+- Prioritize subjects with RECURRING demand: seasonal themes, business needs, social media trends, educational content, marketing materials.` : `- Think about trending themes: AI/technology, sustainability, authentic lifestyle, cultural diversity, food styling, workspace, wellness, education, finance, travel.`}`
     : "";
 
   const outputFormat = engineerMode ? `\nOUTPUT FORMAT (STRICT):
