@@ -569,9 +569,9 @@ export default function PromptGenerator({
 
   const copyAll = async () => {
     const list = selected.size > 0
-      ? prompts.filter((_, i) => selected.has(i)).map((p, i) => `${i + 1}. ${p}`)
-      : prompts.map((p, i) => `${i + 1}. ${p}`);
-    await copyToClipboard(list.join("\n"));
+      ? prompts.filter((_, i) => selected.has(i))
+      : [...prompts];
+    await copyToClipboard(list.join("\n\n"));
     setCopiedAll(true);
     setTimeout(() => setCopiedAll(false), 1800);
   };

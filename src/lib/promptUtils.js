@@ -68,16 +68,22 @@ export function downloadPromptsCsv(prompts, filenamePrefix = "prompts") {
   const csv =
     "Number,Prompt\n" +
     prompts.map((prompt, index) => `${index + 1},"${prompt.replace(/"/g, '""')}"`).join("\n");
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+  a.href = url;
   a.download = `${filenamePrefix}_${Date.now()}.csv`;
   a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 export function downloadPromptsTxt(prompts, filenamePrefix = "prompts") {
   const txt = prompts.map((prompt, index) => `${index + 1}. ${prompt}`).join("\n\n");
+  const blob = new Blob([txt], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([txt], { type: "text/plain" }));
+  a.href = url;
   a.download = `${filenamePrefix}_${Date.now()}.txt`;
   a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
