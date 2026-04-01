@@ -366,13 +366,17 @@ export default function MetadataGeneratorPage() {
     await runBatch(failedFiles);
   };
 
+  const xlsxRef = useRef(null);
+  useEffect(() => {
+    import("xlsx").then(mod => { xlsxRef.current = mod.default || mod; });
+  }, []);
+
   const downloadExcel = async () => {
     if (!doneResults.length) return;
-    const mod = await import("xlsx");
-    const XLSX = mod.default || mod;
+    const XLSX = xlsxRef.current || (await import("xlsx").then(m => m.default || m));
     const rows = [
       ["FileName", "Title", "Description", "Keywords"],
-      ...doneResults.map(r => [r.filename, r.title, r.description, r.keywords]),
+      ...doneResults.map(r => [r.filename || "", r.title || "", r.description || "", r.keywords || ""]),
     ];
     const ws = XLSX.utils.aoa_to_sheet(rows);
     ws["!cols"] = [{ wch: 30 }, { wch: 40 }, { wch: 60 }, { wch: 80 }];
@@ -389,10 +393,13 @@ export default function MetadataGeneratorPage() {
       [escape(r.filename), escape(r.title), escape(r.description), escape(r.keywords)].join(",")
     );
     const csv = [header, ...rows].join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }));
+    a.href = url;
     a.download = `metadata_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   return (
