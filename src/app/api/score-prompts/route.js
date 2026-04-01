@@ -1,16 +1,5 @@
 import { MODEL_IDS, OR_MODEL_MAP, PROVIDER_KEY_MAP } from "@/config/models";
-
-const REQUEST_TIMEOUT_MS = 60000;
-
-async function fetchWithTimeout(url, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort("timeout"), timeoutMs);
-  try {
-    return await fetch(url, { ...options, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
-}
+import { fetchWithTimeout } from "@/lib/apiUtils";
 
 function buildScoringPrompt(type) {
   const typeLabel = type === "vector" ? "vector illustration" : type === "video" ? "stock video" : "stock photo";
@@ -107,7 +96,7 @@ async function callOpenRouterScore(apiKey, systemPrompt, userPrompt, specificMod
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://promptstudio.app",
+      "HTTP-Referer": "https://ai-prompt-studio.replit.app",
     },
     body: JSON.stringify({
       model: modelId,

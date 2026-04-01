@@ -1,44 +1,18 @@
 import { METADATA_PROMPTS } from "@/lib/metadataPrompts";
+import { jsonError, sanitizeKeys, fetchWithTimeout } from "@/lib/apiUtils";
 
 const PROMPTS = METADATA_PROMPTS;
 
 const ALLOWED_MIME_TYPES = new Set(["image/png", "image/jpeg", "image/jpg", "image/webp", "image/svg+xml"]);
-const MAX_API_KEYS = 10;
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 90000;
 const MAX_TITLE_CHARS = 70;
 const MAX_DESCRIPTION_CHARS = 250;
 const MAX_KEYWORDS = 50;
 
-function jsonError(message, status, code) {
-  return Response.json({ error: message, code }, { status });
-}
-
-function sanitizeKeys(apiKeys) {
-  if (!Array.isArray(apiKeys)) return [];
-  const deduped = new Set();
-  for (const key of apiKeys) {
-    const normalized = typeof key === "string" ? key.trim() : "";
-    if (!normalized || normalized.length > 256) continue;
-    deduped.add(normalized);
-    if (deduped.size >= MAX_API_KEYS) break;
-  }
-  return [...deduped];
-}
-
 function estimateBase64Bytes(base64Data) {
   const padding = (base64Data.match(/=+$/) || [""])[0].length;
   return Math.floor((base64Data.length * 3) / 4) - padding;
-}
-
-async function fetchWithTimeout(url, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort("timeout"), timeoutMs);
-  try {
-    return await fetch(url, { ...options, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
 }
 
 function normalizeKeywords(input) {
@@ -105,7 +79,7 @@ async function tryGemini(geminiKeys, mimeType, base64Data, prompt, model) {
           ],
           generationConfig: { temperature: 0.4, topP: 0.8, maxOutputTokens: 1024 },
         }),
-      });
+      }, REQUEST_TIMEOUT_MS);
 
       if (res.status === 429) {
         let errMsg = "";
@@ -216,7 +190,7 @@ async function tryOpenRouter(orKeys, mimeType, base64Data, prompt) {
             temperature: 0.4,
             max_tokens: 1024,
           }),
-        });
+        }, REQUEST_TIMEOUT_MS);
 
         if (!res.ok) {
           let errBody = "";
@@ -284,7 +258,7 @@ async function tryGroq(groqKeys, mimeType, base64Data, prompt) {
           temperature: 0.4,
           max_tokens: 1024,
         }),
-      });
+      }, REQUEST_TIMEOUT_MS);
 
       if (res.status === 429) continue;
       if (!res.ok) {
@@ -341,7 +315,7 @@ async function tryMistral(mistralKeys, mimeType, base64Data, prompt) {
             temperature: 0.4,
             max_tokens: 1024,
           }),
-        });
+        }, REQUEST_TIMEOUT_MS);
 
         if (!res.ok) {
           let errBody = "";
@@ -413,7 +387,7 @@ async function tryHuggingFace(hfKeys, mimeType, base64Data, prompt) {
             temperature: 0.4,
             max_tokens: 1024,
           }),
-        });
+        }, REQUEST_TIMEOUT_MS);
 
         if (!res.ok) {
           let errBody = "";

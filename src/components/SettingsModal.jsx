@@ -84,8 +84,21 @@ export default function SettingsModal({ isOpen, onClose }) {
 
   const handleSave = () => { saveKeys(form); setSaved(true); setTimeout(() => { setSaved(false); onClose(); }, 800); };
   const handleResetAll = () => {
-    try { localStorage.clear(); } catch {}
-    try { sessionStorage.clear(); } catch {}
+    const APP_PREFIXES = [
+      "ai-prompt-studio-keys",
+      "ai-prompt-studio-storage-mode",
+      "ai-prompt-studio-models",
+      "ai-prompt-studio-theme",
+      "ai-prompt-studio-lang",
+      "ph_image", "ph_vector", "ph_video",
+      "cat_tracker_image", "cat_tracker_vector", "cat_tracker_video",
+    ];
+    try {
+      for (const key of APP_PREFIXES) {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
+      }
+    } catch {}
     setResetDone(true);
     setResetConfirm(false);
     setTimeout(() => { window.location.reload(); }, 1200);

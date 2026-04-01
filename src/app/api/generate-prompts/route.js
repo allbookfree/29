@@ -1,8 +1,8 @@
 import { MODEL_IDS, OR_MODEL_MAP, PROVIDER_KEY_MAP, ALLOWED_MODELS, ALLOWED_TYPES } from "@/config/models";
 import { buildSystemPrompt } from "@/lib/promptBuilder";
+import { jsonError, sanitizeKeys, fetchWithTimeout } from "@/lib/apiUtils";
 
 const MAX_PROMPT_CHARS = 4000;
-const MAX_API_KEYS = 10;
 const REQUEST_TIMEOUT_MS = 60000;
 
 const DIVERSITY_POOLS = {
@@ -30,7 +30,11 @@ const DIVERSITY_POOLS = {
 };
 
 function pickRandom(arr, n) {
-  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
   return shuffled.slice(0, n);
 }
 
@@ -133,10 +137,6 @@ function shortenError(msg) {
   return "Provider request failed.";
 }
 
-function jsonError(message, status, code) {
-  return Response.json({ error: message, code }, { status });
-}
-
 function createTextResponse(text, modelUsed) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
@@ -152,18 +152,6 @@ function createTextResponse(text, modelUsed) {
       "X-Model-Used": modelUsed,
     },
   });
-}
-
-function sanitizeKeys(apiKeys) {
-  if (!Array.isArray(apiKeys)) return [];
-  const deduped = new Set();
-  for (const key of apiKeys) {
-    const normalized = typeof key === "string" ? key.trim() : "";
-    if (!normalized || normalized.length > 256) continue;
-    deduped.add(normalized);
-    if (deduped.size >= MAX_API_KEYS) break;
-  }
-  return [...deduped];
 }
 
 function validateRequest(body) {
@@ -209,16 +197,6 @@ function validateRequest(body) {
   return { concept: effectiveConcept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoSubject, autoCategory, festivalContext, previousPrompts };
 }
 
-
-async function fetchWithTimeout(url, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort("timeout"), timeoutMs);
-  try {
-    return await fetch(url, { ...options, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
-}
 
 function parseProviderError(status, message, provider) {
   const safeMessage = shortenError(message || `${provider} error (${status})`);

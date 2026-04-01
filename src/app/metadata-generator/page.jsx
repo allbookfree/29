@@ -254,110 +254,105 @@ export default function MetadataGeneratorPage() {
   const updateResult = (id, patch) =>
     setResults(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r));
 
-  const start = async () => {
-    if (!hasApiKey) return setGlobalError(t("metadata.noKeysWarning"));
-    if (!files.length) return setGlobalError(t("metadata.uploadWarning"));
+  const processOneFile = async (entry, totalCount) => {
+    updateResult(entry.id, { status: "processing", error: "" });
+    try {
+      const base64 = await compressImage(entry.file);
+      const res = await fetch("/api/generate-metadata", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          image: base64,
+          apiKeys,
+          groqKeys,
+          mistralKeys,
+          orKeys,
+          hfKeys,
+          preferredProvider: preferredProvider === "auto" ? undefined : preferredProvider,
+          contentType,
+        }),
+      });
+      if (!res.ok) {
+        let errMsg = t("metadata.analysisFailed");
+        try {
+          const text = await res.text();
+          if (text.trim().startsWith("{")) errMsg = mapApiError(JSON.parse(text), t);
+        } catch {}
+        updateResult(entry.id, { status: "error", error: errMsg });
+      } else {
+        const meta = await res.json();
+        updateResult(entry.id, {
+          status: "done",
+          title: meta.title,
+          description: meta.description,
+          keywords: meta.keywords,
+          keywordCount: meta.keywordCount,
+          provider: meta.provider || "gemini-2.5-flash",
+        });
+        const usedProvider = meta.provider || "gemini-2.5-flash";
+        const reqInfo = getRequestInfo(usedProvider);
+        setDebugData({
+          hasData: true,
+          userInput: { concept: entry.file.name, contentType, imageCount: totalCount, preferredProvider },
+          systemPrompt: METADATA_PROMPTS[contentType] || METADATA_PROMPTS.image,
+          userMessage: `[Base64 image: ${entry.file.name} (${(entry.file.size / 1024).toFixed(1)} KB, ${entry.file.type})] + contentType: ${contentType}`,
+          requestBody: JSON.stringify({
+            image: "(base64-encoded image data — omitted for display, sent as inlineData.data)",
+            mimeType: entry.file.type,
+            contentType,
+            preferredProvider: preferredProvider === "auto" ? undefined : preferredProvider,
+          }, null, 2),
+          requestInfo: { ...reqInfo, responseStatus: "200 OK", responseModel: usedProvider },
+          rawResponse: JSON.stringify(meta, null, 2),
+          parsedOutput: `Title: ${meta.title || "-"}\n\nDescription: ${meta.description || "-"}\n\nKeywords (${meta.keywordCount || 0}): ${Array.isArray(meta.keywords) ? meta.keywords.join(", ") : meta.keywords || "-"}`,
+        });
+      }
+    } catch (err) {
+      updateResult(entry.id, { status: "error", error: err.message || "Network error." });
+    }
+  };
+
+  const runBatch = async (fileList, { skipDone = false } = {}) => {
     setGlobalError(""); setRunning(true); stopRef.current = false;
     batchStartRef.current = Date.now();
     setEta("");
-
     let processedSoFar = 0;
 
-    for (let i = 0; i < files.length; i++) {
+    for (let i = 0; i < fileList.length; i++) {
       if (stopRef.current) {
-        files.slice(i).forEach(f => updateResult(f.id, { status: "skipped" }));
+        fileList.slice(i).forEach(f => updateResult(f.id, { status: "skipped" }));
         break;
       }
-      const entry = files[i];
-      const result = results.find(r => r.id === entry.id);
-      if (result?.status === "done") { processedSoFar++; continue; }
-
-      setCurrentIdx(i);
-      updateResult(entry.id, { status: "processing", error: "" });
-
-      try {
-        const base64 = await compressImage(entry.file);
-        const res = await fetch("/api/generate-metadata", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            image: base64,
-            apiKeys,
-            groqKeys,
-            mistralKeys,
-            orKeys,
-            hfKeys,
-            preferredProvider: preferredProvider === "auto" ? undefined : preferredProvider,
-            contentType,
-          }),
-        });
-        if (!res.ok) {
-          let errMsg = t("metadata.analysisFailed");
-          try {
-            const text = await res.text();
-            if (text.trim().startsWith("{")) errMsg = mapApiError(JSON.parse(text), t);
-          } catch {}
-          updateResult(entry.id, { status: "error", error: errMsg });
-        } else {
-          const meta = await res.json();
-          updateResult(entry.id, {
-            status: "done",
-            title: meta.title,
-            description: meta.description,
-            keywords: meta.keywords,
-            keywordCount: meta.keywordCount,
-            provider: meta.provider || "gemini-2.5-flash",
-          });
-          const metaProvider = meta.provider || "gemini-2.5-flash";
-          const metaReqInfo = getRequestInfo(metaProvider);
-          setDebugData({
-            hasData: true,
-            userInput: {
-              concept: entry.file.name,
-              contentType,
-              imageCount: files.length,
-              preferredProvider,
-            },
-            systemPrompt: METADATA_PROMPTS[contentType] || METADATA_PROMPTS.image,
-            userMessage: `[Base64 image: ${entry.file.name} (${(entry.file.size / 1024).toFixed(1)} KB, ${entry.file.type})] + contentType: ${contentType}`,
-            requestBody: JSON.stringify({
-              image: "(base64-encoded image data — omitted for display, sent as inlineData.data)",
-              mimeType: entry.file.type,
-              contentType,
-              preferredProvider: preferredProvider === "auto" ? undefined : preferredProvider,
-            }, null, 2),
-            requestInfo: {
-              ...metaReqInfo,
-              responseStatus: "200 OK",
-              responseModel: metaProvider,
-            },
-            rawResponse: JSON.stringify(meta, null, 2),
-            parsedOutput: `Title: ${meta.title || "-"}\n\nDescription: ${meta.description || "-"}\n\nKeywords (${meta.keywordCount || 0}): ${Array.isArray(meta.keywords) ? meta.keywords.join(", ") : meta.keywords || "-"}`,
-          });
-        }
-      } catch (err) {
-        updateResult(entry.id, { status: "error", error: err.message || "Network error." });
+      const entry = fileList[i];
+      if (skipDone) {
+        const result = results.find(r => r.id === entry.id);
+        if (result?.status === "done") { processedSoFar++; continue; }
       }
+
+      setCurrentIdx(files.indexOf(entry));
+      await processOneFile(entry, fileList.length);
 
       processedSoFar++;
       const elapsed = Date.now() - batchStartRef.current;
-      const remaining = files.length - processedSoFar;
+      const remaining = fileList.length - processedSoFar;
       if (processedSoFar > 0 && remaining > 0) {
         const avgMs = elapsed / processedSoFar;
         const etaSec = Math.ceil((avgMs * remaining) / 1000);
-        if (etaSec >= 60) {
-          setEta(`~${Math.ceil(etaSec / 60)}m left`);
-        } else {
-          setEta(`~${etaSec}s left`);
-        }
+        setEta(etaSec >= 60 ? `~${Math.ceil(etaSec / 60)}m left` : `~${etaSec}s left`);
       } else {
         setEta("");
       }
 
-      if (i < files.length - 1 && !stopRef.current)
+      if (i < fileList.length - 1 && !stopRef.current)
         await new Promise(r => setTimeout(r, 500));
     }
     setRunning(false); setCurrentIdx(null); setEta("");
+  };
+
+  const start = async () => {
+    if (!hasApiKey) return setGlobalError(t("metadata.noKeysWarning"));
+    if (!files.length) return setGlobalError(t("metadata.uploadWarning"));
+    await runBatch(files, { skipDone: true });
   };
 
   const stop = () => { stopRef.current = true; };
@@ -366,83 +361,9 @@ export default function MetadataGeneratorPage() {
 
   const retryFailed = async () => {
     if (!hasApiKey || failedResults.length === 0) return;
-    setGlobalError(""); setRunning(true); stopRef.current = false;
-    batchStartRef.current = Date.now();
-    setEta("");
-    let processedSoFar = 0;
     const failedIds = new Set(failedResults.map(r => r.id));
     const failedFiles = files.filter(f => failedIds.has(f.id));
-
-    for (let i = 0; i < failedFiles.length; i++) {
-      if (stopRef.current) {
-        failedFiles.slice(i).forEach(f => updateResult(f.id, { status: "skipped" }));
-        break;
-      }
-      const entry = failedFiles[i];
-      setCurrentIdx(files.indexOf(entry));
-      updateResult(entry.id, { status: "processing", error: "" });
-
-      try {
-        const base64 = await compressImage(entry.file);
-        const res = await fetch("/api/generate-metadata", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            image: base64, apiKeys, groqKeys, mistralKeys, orKeys, hfKeys,
-            preferredProvider: preferredProvider === "auto" ? undefined : preferredProvider,
-            contentType,
-          }),
-        });
-        if (!res.ok) {
-          let errMsg = t("metadata.analysisFailed");
-          try { const text = await res.text(); if (text.trim().startsWith("{")) errMsg = mapApiError(JSON.parse(text), t); } catch {}
-          updateResult(entry.id, { status: "error", error: errMsg });
-        } else {
-          const meta = await res.json();
-          updateResult(entry.id, {
-            status: "done", title: meta.title, description: meta.description,
-            keywords: meta.keywords, keywordCount: meta.keywordCount,
-            provider: meta.provider || "gemini-2.5-flash",
-          });
-          const retryProvider = meta.provider || "gemini-2.5-flash";
-          const retryReqInfo = getRequestInfo(retryProvider);
-          setDebugData({
-            hasData: true,
-            userInput: { concept: entry.file.name, contentType, imageCount: failedFiles.length, preferredProvider },
-            systemPrompt: METADATA_PROMPTS[contentType] || METADATA_PROMPTS.image,
-            userMessage: `[Base64 image: ${entry.file.name} (${(entry.file.size / 1024).toFixed(1)} KB, ${entry.file.type})] + contentType: ${contentType}`,
-            requestBody: JSON.stringify({
-              image: "(base64-encoded image data — omitted for display, sent as inlineData.data)",
-              mimeType: entry.file.type,
-              contentType,
-              preferredProvider: preferredProvider === "auto" ? undefined : preferredProvider,
-            }, null, 2),
-            requestInfo: {
-              ...retryReqInfo,
-              responseStatus: "200 OK",
-              responseModel: retryProvider,
-            },
-            rawResponse: JSON.stringify(meta, null, 2),
-            parsedOutput: `Title: ${meta.title || "-"}\n\nDescription: ${meta.description || "-"}\n\nKeywords (${meta.keywordCount || 0}): ${Array.isArray(meta.keywords) ? meta.keywords.join(", ") : meta.keywords || "-"}`,
-          });
-        }
-      } catch (err) {
-        updateResult(entry.id, { status: "error", error: err.message || "Network error." });
-      }
-
-      processedSoFar++;
-      const elapsed = Date.now() - batchStartRef.current;
-      const remaining = failedFiles.length - processedSoFar;
-      if (processedSoFar > 0 && remaining > 0) {
-        const avgMs = elapsed / processedSoFar;
-        const etaSec = Math.ceil((avgMs * remaining) / 1000);
-        setEta(etaSec >= 60 ? `~${Math.ceil(etaSec / 60)}m left` : `~${etaSec}s left`);
-      } else { setEta(""); }
-
-      if (i < failedFiles.length - 1 && !stopRef.current)
-        await new Promise(r => setTimeout(r, 500));
-    }
-    setRunning(false); setCurrentIdx(null); setEta("");
+    await runBatch(failedFiles);
   };
 
   const downloadExcel = async () => {
