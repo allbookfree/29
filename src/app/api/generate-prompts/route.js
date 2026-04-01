@@ -96,18 +96,15 @@ ${previousPrompts.slice(0, 12).map((p, i) => `${i + 1}. ${String(p).slice(0, 150
   const simpleGuidance = type === "video"
     ? `- Every prompt MUST describe a scene with inherent MOTION and temporal change — things moving, flowing, changing, growing, or transforming over time.
 - Include specific camera movements (dolly, crane, tracking, orbit) and describe the motion within the scene itself.
-- Avoid static compositions — stock video buyers need dynamic content with visual energy.
-- Describe the scene's natural flow: wind, water, light changes, growing plants, shifting shadows, drifting clouds, flickering flames.`
+- Avoid static compositions — stock video buyers need dynamic content with visual energy.`
     : type === "vector"
     ? `- Every prompt MUST describe content suitable for VECTOR illustration — clean lines, flat or gradient fills, scalable graphics.
 - Focus on icons, patterns, infographic elements, simple illustrations, logo concepts, UI elements, badges, and decorative designs.
 - Avoid photographic realism — vector art must be clean, simple, and commercially versatile for web, print, and app use.
-- Specify art style (flat, isometric, line art, geometric, hand-drawn, etc.) and intended use case.
-- Where appropriate, design with space for text placement — but never sacrifice the artwork's visual balance.`
+- Specify art style (flat, isometric, line art, geometric, hand-drawn, etc.) and intended use case.`
     : `- Every prompt MUST describe a photographically compelling scene with specific lighting, composition, and mood.
 - Include camera angle, depth of field, color palette, and environment details.
-- Focus on images that work as stock photos: versatile compositions, clean backgrounds, and universal appeal.
-- When the composition naturally allows it, include areas of soft focus, open sky, blurred background, or clean surface that could serve as copy space — but NEVER force empty space that ruins the image's beauty. The image must look stunning on its own first.`;
+- Focus on images that work as stock photos: versatile compositions with copy space, clean backgrounds, and universal appeal.`;
 
   const engineerGuidance = type === "video"
     ? `- Follow this prompt structure: [Subject + Action] + [Setting] + [Camera Movement] + [Lighting] + [Color Grade] + [Atmosphere].
@@ -157,15 +154,22 @@ COMMERCIAL REQUIREMENTS:
 - Prioritize universally sellable concepts with broad market appeal — think search volume, trending themes, and gaps in stock libraries.
 - Each prompt must feel like it was created by a different creative director — explore COMPLETELY different angles.
 - AVOID generating content that already floods stock marketplaces. Be original, unexpected, and fresh while remaining commercially viable.
-TIMELESS CONTENT RULE:
+${engineerMode ? `TIMELESS CONTENT RULE:
 - Every prompt MUST describe content that is EVERGREEN — it should sell equally well today, next year, and 5 years from now.
 - Do NOT reference specific dates, current events, trending memes, or time-bound concepts that will become outdated.
 - Focus on universal themes that have permanent commercial value: nature, food, workspace, wellness, education, architecture, crafts, textures, patterns, and abstract concepts.
 MICROSTOCK PLATFORM INTELLIGENCE:
 - Shutterstock buyers love: isolated objects on clean backgrounds, conceptual imagery, workspace flat-lays, food photography, nature close-ups, and abstract textures.
 - Adobe Stock buyers love: editorial-style scenes, creative compositions, artistic lighting, lifestyle vignettes (without humans), and high-end product styling.
-- Top-selling content across all platforms: clean minimalism, warm natural lighting, authentic textures, bold color contrasts, and subjects photographed from unexpected angles.`
+- Top-selling content across all platforms: clean minimalism, warm natural lighting, authentic textures, bold color contrasts, and subjects photographed from unexpected angles.` : `- Think about trending themes: AI/technology, sustainability, authentic lifestyle, cultural diversity, food styling, workspace, wellness, education, finance, travel.`}`
     : "";
+
+  const outputFormat = engineerMode ? `\nOUTPUT FORMAT (STRICT):
+- Output ONLY numbered prompts (1. 2. 3. etc.)
+- Each prompt must be 2-3 detailed sentences minimum with specific visual descriptions.
+- Do NOT include any introduction, explanation, commentary, summary, or sign-off text.
+- Do NOT say "Here are your prompts" or "I hope these help" or anything similar.
+- Start directly with "1." and end after the last numbered prompt. Nothing else.\n` : "";
 
   return `[Session seed: ${seed}]
 
@@ -175,14 +179,7 @@ ${antiRepeatBlock}${autoBlock}
 ${diversityHint}
 
 HALAL CONTENT RULE: Do NOT include any human figures, human body parts, human faces, human hands, human silhouettes, or human shadows in any prompt. Focus on objects, nature, architecture, food, textures, patterns, landscapes, and still life. This is a strict requirement.
-
-OUTPUT FORMAT (STRICT):
-- Output ONLY numbered prompts (1. 2. 3. etc.)
-- Each prompt must be 2-3 detailed sentences minimum with specific visual descriptions.
-- Do NOT include any introduction, explanation, commentary, summary, or sign-off text.
-- Do NOT say "Here are your prompts" or "I hope these help" or anything similar.
-- Start directly with "1." and end after the last numbered prompt. Nothing else.
-
+${outputFormat}
 Generate prompts that feel completely fresh and unexpected. Each prompt must explore a DIFFERENT combination of the inspiration angles above — and must be nothing like the previously generated prompts.`;
 }
 
