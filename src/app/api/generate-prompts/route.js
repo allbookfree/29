@@ -42,7 +42,7 @@ function pickRandom(arr, n) {
   return shuffled.slice(0, n);
 }
 
-function buildDiverseUserPrompt(concept, previousPrompts = [], { autoMode = false, autoCategory = "", autoContext = "", type = "image" } = {}) {
+function buildDiverseUserPrompt(concept, previousPrompts = [], { autoMode = false, autoCategory = "", autoContext = "", type = "image", engineerMode = false } = {}) {
   const seed = Math.floor(Math.random() * 999983);
   const shared = DIVERSITY_POOLS.shared;
   const era = pickRandom(shared.era, 2).join(" or ");
@@ -99,7 +99,21 @@ ${previousPrompts.slice(0, 12).map((p, i) => `${i + 1}. ${String(p).slice(0, 150
     : "";
 
   const contextHint = autoContext ? `\nCreative direction: ${autoContext}` : "";
-  const typeSpecificGuidance = type === "video"
+
+  const simpleGuidance = type === "video"
+    ? `- Every prompt MUST describe a scene with inherent MOTION and temporal change — things moving, flowing, changing, growing, or transforming over time.
+- Include specific camera movements (dolly, crane, tracking, orbit) and describe the motion within the scene itself.
+- Avoid static compositions — stock video buyers need dynamic content with visual energy.`
+    : type === "vector"
+    ? `- Every prompt MUST describe content suitable for VECTOR illustration — clean lines, flat or gradient fills, scalable graphics.
+- Focus on icons, patterns, infographic elements, simple illustrations, logo concepts, UI elements, badges, and decorative designs.
+- Avoid photographic realism — vector art must be clean, simple, and commercially versatile for web, print, and app use.
+- Specify art style (flat, isometric, line art, geometric, hand-drawn, etc.) and intended use case.`
+    : `- Every prompt MUST describe a photographically compelling scene with specific lighting, composition, and mood.
+- Include camera angle, depth of field, color palette, and environment details.
+- Focus on images that work as stock photos: versatile compositions, clean backgrounds, and universal appeal.`;
+
+  const engineerGuidance = type === "video"
     ? `- Follow this prompt structure: [Subject + Action] + [Setting] + [Camera Movement] + [Lighting] + [Color Grade] + [Atmosphere].
 - Every prompt MUST describe a scene with inherent MOTION and temporal change — things moving, flowing, changing, growing, or transforming over time.
 - Include SPECIFIC camera movements using professional terms (dolly, crane, tracking, orbit, steadicam, FPV, drone ascending).
@@ -124,6 +138,8 @@ ${previousPrompts.slice(0, 12).map((p, i) => `${i + 1}. ${String(p).slice(0, 150
 - Include quality modifiers: 8K resolution, DSLR quality, film stock tones (Kodak Portra, Fuji Velvia), high dynamic range.
 - Focus on images that work as stock photos: versatile compositions, clean backgrounds, and universal appeal.
 - When the composition naturally allows it, include areas of soft focus, open sky, blurred background, or clean surface that could serve as copy space — but NEVER force empty space that ruins the image's beauty. The image must look stunning on its own first.`;
+
+  const typeSpecificGuidance = engineerMode ? engineerGuidance : simpleGuidance;
 
   const isAiFreeChoice = autoMode && autoCategory === "ai-free-choice";
 
@@ -257,8 +273,9 @@ function validateRequest(body) {
     return "No API key. Add one via API Keys.";
   }
 
+  const engineerMode = body.engineerMode === true;
   const effectiveConcept = autoMode && autoSubject ? autoSubject : concept;
-  return { concept: effectiveConcept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoSubject, autoCategory, autoContext, festivalContext, previousPrompts };
+  return { concept: effectiveConcept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoSubject, autoCategory, autoContext, festivalContext, previousPrompts, engineerMode };
 }
 
 
@@ -351,9 +368,9 @@ export async function POST(request) {
       return jsonError(validation, 400, "VALIDATION_ERROR");
     }
  
-    const { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoCategory, autoContext, festivalContext, previousPrompts } = validation;
+    const { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoCategory, autoContext, festivalContext, previousPrompts, engineerMode } = validation;
     const systemPrompt = buildSystemPrompt(type, quantity, customInstructions, { style, mood, lighting, camera, shot, speed, negativePrompt, autoMode: !!autoMode });
-    let userPrompt = buildDiverseUserPrompt(concept, previousPrompts, { autoMode, autoCategory, autoContext, type });
+    let userPrompt = buildDiverseUserPrompt(concept, previousPrompts, { autoMode, autoCategory, autoContext, type, engineerMode: !!engineerMode });
     if (festivalContext) {
       userPrompt += festivalContext;
     }

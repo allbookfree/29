@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Sparkles, Download, Hash, Type, Cpu, AlertCircle, FileText, Copy, Check, Settings, Lightbulb, Lock, Save, Edit3, ChevronDown, ChevronUp, Zap, ClipboardList, SlidersHorizontal, Ban, CheckSquare, Square, Globe, Wand2, Star, CalendarDays } from "lucide-react";
+import { Sparkles, Download, Hash, Type, Cpu, AlertCircle, FileText, Copy, Check, Settings, Lightbulb, Lock, Save, Edit3, ChevronDown, ChevronUp, Zap, ClipboardList, SlidersHorizontal, Ban, CheckSquare, Square, Globe, Wand2, Star, CalendarDays, Wrench } from "lucide-react";
 
 import { useApiKeys } from "@/context/ApiKeyContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -414,7 +414,7 @@ export default function PromptGenerator({
     }
   };
 
-  const autoGenerate = async () => {
+  const autoGenerate = async (useEngineerMode = false) => {
     if (marketResearch && !hasGeminiKey) return setError(t("prompt.marketResearchRequires"));
     const useMarketResearch = marketResearch && hasGeminiKey;
     if (!useMarketResearch && !hasApiKey) return setError(t("errors.addApiKey"));
@@ -448,6 +448,7 @@ export default function PromptGenerator({
         autoSubject,
         autoCategory,
         autoContext: autoContext || "",
+        ...(useEngineerMode && { engineerMode: true }),
       };
       if (advancedOn && customInstructions.trim()) {
         payload.customInstructions = customInstructions.trim();
@@ -475,8 +476,8 @@ export default function PromptGenerator({
       setDebugData({
         hasData: true,
         userInput: {
-          concept: `[AUTO] ${autoSubject}`, quantity, provider: useMarketResearch ? "google" : model, model: useMarketResearch ? "gemini" : actualModelKey, type,
-          autoMode: true, autoCategory,
+          concept: `[${useEngineerMode ? "ENGINEER" : "AUTO"}] ${autoSubject}`, quantity, provider: useMarketResearch ? "google" : model, model: useMarketResearch ? "gemini" : actualModelKey, type,
+          autoMode: true, autoCategory, ...(useEngineerMode && { engineerMode: true }),
           ...(useMarketResearch && { marketResearch: true }),
           ...(payload.style && { style: payload.style }),
           ...(payload.mood && { mood: payload.mood }),
@@ -759,11 +760,19 @@ export default function PromptGenerator({
             </button>
             <button
               className="btn btn-auto"
-              onClick={autoGenerate}
+              onClick={() => autoGenerate(false)}
               disabled={loading || !hasApiKey}
               title={t("prompt.autoGenerateTip")}
             >
               {loading ? <><span className="spinner spinner-sm" />{t("prompt.autoGenerating")}</> : <><Wand2 size={16} />{t("prompt.autoGenerate")}</>}
+            </button>
+            <button
+              className="btn btn-engineer"
+              onClick={() => autoGenerate(true)}
+              disabled={loading || !hasApiKey}
+              title={t("prompt.engineerTip")}
+            >
+              {loading ? <><span className="spinner spinner-sm" />{t("prompt.engineering")}</> : <><Wrench size={16} />{t("prompt.engineer")}</>}
             </button>
             {prompts.length > 0 && !loading && (
               <>

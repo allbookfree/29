@@ -198,6 +198,33 @@ textarea.field {
   background: #2a3548;
 }
 
+.btn-engineer {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+}
+
+.btn-engineer:hover {
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-engineer:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.btn-engineer:disabled {
+  background: var(--border);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+[data-theme="dark"] .btn-engineer:disabled {
+  background: #2a3548;
+}
+
 .btn-secondary {
   background: var(--card);
   color: var(--text2);
@@ -584,10 +611,11 @@ textarea.field {
   }
 
   .actions .btn-primary,
-  .actions .btn-auto {
-    flex: 1 1 calc(50% - 4px);
+  .actions .btn-auto,
+  .actions .btn-engineer {
+    flex: 1 1 calc(33% - 6px);
     justify-content: center;
-    min-width: 120px;
+    min-width: 110px;
   }
 
   .actions .btn-secondary,
@@ -622,7 +650,8 @@ textarea.field {
   }
 
   .actions .btn-primary,
-  .actions .btn-auto {
+  .actions .btn-auto,
+  .actions .btn-engineer {
     flex: 1 1 100%;
     justify-content: center;
   }
