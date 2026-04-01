@@ -100,9 +100,17 @@ ${previousPrompts.slice(0, 12).map((p, i) => `${i + 1}. ${String(p).slice(0, 150
 - Include camera angle, depth of field, color palette, and environment details.
 - Focus on images that work as stock photos: versatile compositions with copy space, clean backgrounds, and universal appeal.`;
 
-  const autoBlock = autoMode && autoCategory
+  const isAiFreeChoice = autoMode && autoCategory === "ai-free-choice";
+
+  const autoBlock = autoMode
     ? `\n\n[AUTO MODE — COMMERCIAL MICROSTOCK INTELLIGENCE]
-Category: ${autoCategory} | Subject: "${concept}"${contextHint}
+${isAiFreeChoice
+  ? `CREATIVE SEED (use as INSPIRATION only — you have FULL FREEDOM to choose ANY subject):
+"${concept}"${contextHint}
+These seed words are just a creative nudge to spark your imagination. You may use them, combine them, or COMPLETELY IGNORE them.
+You can think of ANY halal subject in the entire world — fruits, tools, architecture, nature, technology, crafts, textiles, minerals, instruments, food, landscapes, patterns, textures, abstract concepts, cultural artifacts, or ANYTHING else.
+Your goal: pick a commercially brilliant subject that stock photo/vector/video buyers would search for and license.`
+  : `Category: ${autoCategory} | Subject: "${concept}"${contextHint}`}
 You are generating for commercial microstock platforms (Shutterstock, Adobe Stock, Dreamstime).
 TYPE-SPECIFIC REQUIREMENTS (${type.toUpperCase()}):
 ${typeSpecificGuidance}
@@ -110,8 +118,9 @@ COMMERCIAL REQUIREMENTS:
 - Every prompt MUST describe content that real buyers would license for business, marketing, editorial, or design use.
 - Each prompt should target a DIFFERENT buyer persona (marketer, blogger, designer, educator, publisher).
 - Prioritize universally sellable concepts with broad market appeal — think search volume, trending themes, and gaps in stock libraries.
-- Show "${concept}" from COMPLETELY different commercial angles — each prompt must feel like it was created by a different creative director.
-- AVOID generating content that already floods stock marketplaces. Be original, unexpected, and fresh while remaining commercially viable.`
+- Each prompt must feel like it was created by a different creative director — explore COMPLETELY different angles.
+- AVOID generating content that already floods stock marketplaces. Be original, unexpected, and fresh while remaining commercially viable.
+- Think about trending themes: AI/technology, sustainability, authentic lifestyle, cultural diversity, food styling, workspace, wellness, education, finance, travel.`
     : "";
 
   return `[Session seed: ${seed}]

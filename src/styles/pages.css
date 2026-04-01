@@ -598,200 +598,74 @@
   text-align: right;
 }
 
-.analytics-bars {
+.analytics-seed-info {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 16px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--card);
-  max-height: 420px;
-  overflow-y: auto;
+  flex-wrap: wrap;
 }
 
-[data-theme="light"] .analytics-bars {
+[data-theme="light"] .analytics-seed-info {
   background: linear-gradient(180deg, #ffffff, #fafbff);
 }
 
-.analytics-bar-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.analytics-bar-name {
-  width: 140px;
-  font-size: 12px;
-  color: var(--text2);
-  font-weight: 500;
-  flex-shrink: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.analytics-bar-track {
-  flex: 1;
-  height: 20px;
-  background: var(--bg2);
-  border-radius: 5px;
-  overflow: hidden;
-}
-
-[data-theme="dark"] .analytics-bar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.analytics-bar-fill {
-  height: 100%;
-  border-radius: 5px;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  transition: width 0.4s ease;
-  min-width: 4px;
-}
-
-.analytics-bar-fill-high {
-  background: linear-gradient(90deg, #10b981, #059669);
-}
-
-.analytics-bar-fill-medium {
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-}
-
-.analytics-bar-fill-low {
-  background: linear-gradient(90deg, #f59e0b, #d97706);
-}
-
-.analytics-bar-unused .analytics-bar-name {
-  color: var(--text3);
-  opacity: 0.6;
-}
-
-.analytics-bar-unused .analytics-bar-count {
-  color: var(--text3);
-  opacity: 0.5;
-}
-
-.analytics-bar-count {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text);
-  min-width: 28px;
-  text-align: right;
-}
-
-.analytics-no-data {
-  text-align: center;
-  color: var(--text3);
-  font-size: 13px;
-  padding: 16px;
-}
-
-.analytics-coverage-bar-wrap {
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.analytics-coverage-bar-bg {
-  flex: 1;
-  height: 8px;
-  border-radius: 4px;
-  background: var(--bg2);
-  overflow: hidden;
-}
-
-[data-theme="dark"] .analytics-coverage-bar-bg {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.analytics-coverage-bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, var(--accent), #10b981);
-  transition: width 0.5s ease;
-}
-
-.analytics-coverage-bar-text {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text2);
-  white-space: nowrap;
-}
-
-.analytics-coverage-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 6px;
-}
-
-.analytics-coverage-cell {
+.analytics-seed-stat {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 10px 6px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  text-align: center;
-  transition: transform 0.15s, box-shadow 0.15s;
-  min-height: 52px;
+  gap: 4px;
 }
 
-.analytics-coverage-cell.unused {
-  background: var(--bg2);
-  opacity: 0.5;
+.analytics-seed-stat.analytics-seed-total {
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(99, 102, 241, 0.05));
+  border: 1px solid rgba(79, 70, 229, 0.15);
 }
 
-[data-theme="dark"] .analytics-coverage-cell.unused {
-  background: rgba(255, 255, 255, 0.03);
+[data-theme="dark"] .analytics-seed-stat.analytics-seed-total {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(129, 140, 248, 0.08));
+  border-color: rgba(129, 140, 248, 0.2);
 }
 
-.analytics-coverage-cell.used {
-  background: linear-gradient(
-    135deg,
-    rgba(79, 70, 229, calc(0.06 + var(--heat, 0) * 0.18)),
-    rgba(99, 102, 241, calc(0.04 + var(--heat, 0) * 0.12))
-  );
-  border-color: rgba(79, 70, 229, calc(0.15 + var(--heat, 0) * 0.25));
-}
-
-[data-theme="dark"] .analytics-coverage-cell.used {
-  background: linear-gradient(
-    135deg,
-    rgba(99, 102, 241, calc(0.08 + var(--heat, 0) * 0.2)),
-    rgba(129, 140, 248, calc(0.05 + var(--heat, 0) * 0.15))
-  );
-  border-color: rgba(129, 140, 248, calc(0.15 + var(--heat, 0) * 0.25));
-}
-
-.analytics-coverage-cell:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.analytics-coverage-cell-name {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--text2);
-  line-height: 1.3;
-}
-
-.analytics-coverage-cell.used .analytics-coverage-cell-name {
-  color: var(--accent);
-}
-
-[data-theme="dark"] .analytics-coverage-cell.used .analytics-coverage-cell-name {
-  color: var(--accent-light, var(--accent));
-}
-
-.analytics-coverage-cell-count {
-  font-size: 14px;
+.analytics-seed-number {
+  font-size: 22px;
   font-weight: 800;
   color: var(--text);
-  margin-top: 2px;
+}
+
+.analytics-seed-total .analytics-seed-number {
+  color: var(--accent);
+  font-size: 18px;
+}
+
+.analytics-seed-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.analytics-seed-op {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text3);
+  margin: 0 2px;
+}
+
+.analytics-seed-note {
+  font-size: 12.5px;
+  color: var(--text2);
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.6;
+  padding: 0 12px;
 }
 
 .analytics-actions {
@@ -880,13 +754,13 @@
     height: 120px;
   }
 
-  .analytics-bar-name {
-    width: 100px;
-    font-size: 11px;
+  .analytics-seed-info {
+    gap: 8px;
+    padding: 14px;
   }
 
-  .analytics-coverage-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  .analytics-seed-number {
+    font-size: 18px;
   }
 
   .analytics-confirm {
@@ -920,27 +794,17 @@
     height: 100px;
   }
 
-  .analytics-bar-name {
-    width: 80px;
-    font-size: 10px;
+  .analytics-seed-info {
+    gap: 6px;
+    padding: 12px;
   }
 
-  .analytics-coverage-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 4px;
+  .analytics-seed-number {
+    font-size: 16px;
   }
 
-  .analytics-coverage-cell {
-    padding: 8px 4px;
-    min-height: 44px;
-  }
-
-  .analytics-coverage-cell-name {
-    font-size: 9px;
-  }
-
-  .analytics-coverage-cell-count {
-    font-size: 12px;
+  .analytics-seed-op {
+    font-size: 16px;
   }
 
   .analytics-actions {

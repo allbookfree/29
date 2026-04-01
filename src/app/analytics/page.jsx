@@ -1,101 +1,22 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { BarChart3, TrendingUp, Grid3X3, Image, Palette, Video, Trash2, RefreshCw, Sparkles, ArrowRight } from "lucide-react";
+import { BarChart3, TrendingUp, Image, Palette, Video, Trash2, RefreshCw, Sparkles, ArrowRight, Infinity } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
-import { getCategoryUsage, resetCategoryUsage } from "@/lib/categoryTracker";
 import { getPromptHistory, clearPromptHistory } from "@/lib/promptHistory";
-
-const ALL_CATEGORIES = [
-  "fruits","vegetables","spicesAndHerbs","cookedFood","flowers","trees",
-  "landscapes","weather","water","architecture","islamicArt","textiles",
-  "ceramics","stationery","technology","transport","tools","minerals",
-  "astronomy","agriculture","marine","insects","seasons","abstractNature",
-  "gardens","kitchenItems","lightAndShadow","officeAndBusiness","music",
-  "education","crafts","containers","texturesAndPatterns","colorStudies",
-  "miniatures","naturalMaterials","markets","timeAndClocks","doors","windows",
-  "bridges","stairs","jewelry","clothing","toysAndGames","sportsEquipment",
-  "medicalEquipment","kitchenAppliances","eidAndSeasonal","historicalArtifacts",
-  "packagingAndBranding","foodPreparation","constructionMaterials",
-  "calligraphyStyles","mapsAndCartography","boardGamesAndPuzzles",
-  "vintageAndRetro","dessertsAndSweets","outdoorScenes"
-];
-
-const CATEGORY_LABELS = {
-  en: {
-    fruits: "Fruits", vegetables: "Vegetables", spicesAndHerbs: "Spices & Herbs",
-    cookedFood: "Cooked Food", flowers: "Flowers", trees: "Trees",
-    landscapes: "Landscapes", weather: "Weather", water: "Water",
-    architecture: "Architecture", islamicArt: "Islamic Art", textiles: "Textiles",
-    ceramics: "Ceramics", stationery: "Stationery", technology: "Technology",
-    transport: "Transport", tools: "Tools", minerals: "Minerals",
-    astronomy: "Astronomy", agriculture: "Agriculture", marine: "Marine",
-    insects: "Insects", seasons: "Seasons", abstractNature: "Abstract Nature",
-    gardens: "Gardens", kitchenItems: "Kitchen Items", lightAndShadow: "Light & Shadow",
-    officeAndBusiness: "Office & Business", music: "Music", education: "Education",
-    crafts: "Crafts", containers: "Containers", texturesAndPatterns: "Textures & Patterns",
-    colorStudies: "Color Studies", miniatures: "Miniatures", naturalMaterials: "Natural Materials",
-    markets: "Markets", timeAndClocks: "Time & Clocks", doors: "Doors", windows: "Windows",
-    bridges: "Bridges", stairs: "Stairs", jewelry: "Jewelry", clothing: "Clothing",
-    toysAndGames: "Toys & Games", sportsEquipment: "Sports Equipment",
-    medicalEquipment: "Medical Equipment", kitchenAppliances: "Kitchen Appliances",
-    eidAndSeasonal: "Eid & Seasonal", historicalArtifacts: "Historical Artifacts",
-    packagingAndBranding: "Packaging & Branding", foodPreparation: "Food Preparation",
-    constructionMaterials: "Construction Materials", calligraphyStyles: "Calligraphy Styles",
-    mapsAndCartography: "Maps & Cartography", boardGamesAndPuzzles: "Board Games & Puzzles",
-    vintageAndRetro: "Vintage & Retro", dessertsAndSweets: "Desserts & Sweets",
-    outdoorScenes: "Outdoor Scenes"
-  },
-  bn: {
-    fruits: "ফল", vegetables: "সবজি", spicesAndHerbs: "মশলা ও ভেষজ",
-    cookedFood: "রান্না করা খাবার", flowers: "ফুল", trees: "গাছ",
-    landscapes: "প্রাকৃতিক দৃশ্য", weather: "আবহাওয়া", water: "পানি",
-    architecture: "স্থাপত্য", islamicArt: "ইসলামিক আর্ট", textiles: "বস্ত্র",
-    ceramics: "সিরামিক", stationery: "স্টেশনারি", technology: "প্রযুক্তি",
-    transport: "পরিবহন", tools: "যন্ত্রপাতি", minerals: "খনিজ",
-    astronomy: "জ্যোতির্বিদ্যা", agriculture: "কৃষি", marine: "সামুদ্রিক",
-    insects: "পোকামাকড়", seasons: "ঋতু", abstractNature: "বিমূর্ত প্রকৃতি",
-    gardens: "বাগান", kitchenItems: "রান্নাঘরের জিনিস", lightAndShadow: "আলো ও ছায়া",
-    officeAndBusiness: "অফিস ও ব্যবসা", music: "সংগীত", education: "শিক্ষা",
-    crafts: "কারুশিল্প", containers: "পাত্র", texturesAndPatterns: "টেক্সচার ও প্যাটার্ন",
-    colorStudies: "রঙের অধ্যয়ন", miniatures: "মিনিয়েচার", naturalMaterials: "প্রাকৃতিক উপাদান",
-    markets: "বাজার", timeAndClocks: "সময় ও ঘড়ি", doors: "দরজা", windows: "জানালা",
-    bridges: "সেতু", stairs: "সিঁড়ি", jewelry: "গহনা", clothing: "পোশাক",
-    toysAndGames: "খেলনা ও গেম", sportsEquipment: "খেলার সরঞ্জাম",
-    medicalEquipment: "চিকিৎসা সরঞ্জাম", kitchenAppliances: "রান্নাঘরের যন্ত্রপাতি",
-    eidAndSeasonal: "ঈদ ও মৌসুমী", historicalArtifacts: "ঐতিহাসিক নিদর্শন",
-    packagingAndBranding: "প্যাকেজিং ও ব্র্যান্ডিং", foodPreparation: "খাদ্য প্রস্তুতি",
-    constructionMaterials: "নির্মাণ সামগ্রী", calligraphyStyles: "ক্যালিগ্রাফি",
-    mapsAndCartography: "মানচিত্র", boardGamesAndPuzzles: "বোর্ড গেম ও পাজল",
-    vintageAndRetro: "ভিন্টেজ ও রেট্রো", dessertsAndSweets: "মিষ্টি ও ডেজার্ট",
-    outdoorScenes: "বহিরাঙ্গন দৃশ্য"
-  }
-};
+import { getSeedStats } from "@/lib/subjectPool";
 
 function loadData() {
   const types = ["image", "vector", "video"];
-  const catUsage = {};
   const promptCounts = {};
   let total = 0;
 
   for (const type of types) {
-    const usage = getCategoryUsage(type);
-    catUsage[type] = usage;
     const history = getPromptHistory(type);
     promptCounts[type] = history.length;
     total += history.length;
   }
-
-  const merged = {};
-  for (const type of types) {
-    for (const [cat, count] of Object.entries(catUsage[type])) {
-      merged[cat] = (merged[cat] || 0) + count;
-    }
-  }
-
-  const usedCategories = new Set(Object.keys(merged));
-  const categoriesUsed = usedCategories.size;
 
   let mostActiveType = "image";
   let maxCount = 0;
@@ -106,34 +27,18 @@ function loadData() {
     }
   }
 
-  let leastUsedCategory = null;
-  if (categoriesUsed > 0) {
-    let minCount = Infinity;
-    for (const [cat, count] of Object.entries(merged)) {
-      if (count < minCount) {
-        minCount = count;
-        leastUsedCategory = cat;
-      }
-    }
-  }
-
-  const maxCatCount = Math.max(1, ...Object.values(merged));
+  const seedStats = getSeedStats();
 
   return {
     total,
     promptCounts,
-    categoriesUsed,
     mostActiveType,
-    leastUsedCategory,
-    merged,
-    maxCatCount,
-    usedCategories
+    seedStats
   };
 }
 
 export default function AnalyticsPage() {
-  const { t, lang } = useLanguage();
-  const catLabel = (key) => (CATEGORY_LABELS[lang] || CATEGORY_LABELS.en)[key] || key;
+  const { t } = useLanguage();
   const [data, setData] = useState(null);
   const [confirmReset, setConfirmReset] = useState(false);
 
@@ -145,8 +50,8 @@ export default function AnalyticsPage() {
 
   if (!data) return null;
 
-  const { total, promptCounts, categoriesUsed, mostActiveType, leastUsedCategory, merged, maxCatCount, usedCategories } = data;
-  const isEmpty = total === 0 && categoriesUsed === 0;
+  const { total, promptCounts, mostActiveType, seedStats } = data;
+  const isEmpty = total === 0;
 
   const typeLabels = { image: t("analytics.image"), vector: t("analytics.vector"), video: t("analytics.video") };
   const typeIcons = { image: Image, vector: Palette, video: Video };
@@ -154,15 +59,11 @@ export default function AnalyticsPage() {
 
   const handleReset = () => {
     ["image", "vector", "video"].forEach(type => {
-      resetCategoryUsage(type);
       clearPromptHistory(type);
     });
     setConfirmReset(false);
     refresh();
   };
-
-  const sortedCategories = [...ALL_CATEGORIES].sort((a, b) => (merged[b] || 0) - (merged[a] || 0));
-  const coveragePercent = Math.round((categoriesUsed / ALL_CATEGORIES.length) * 100);
 
   const totalDistribution = promptCounts.image + promptCounts.vector + promptCounts.video;
 
@@ -199,11 +100,11 @@ export default function AnalyticsPage() {
             </div>
             <div className="analytics-card">
               <div className="analytics-card-icon" style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}>
-                <Grid3X3 size={18} />
+                <Infinity size={18} />
               </div>
               <div className="analytics-card-body">
-                <span className="analytics-card-value">{categoriesUsed} <span className="analytics-card-sub">/ {ALL_CATEGORIES.length}</span></span>
-                <span className="analytics-card-label">{t("analytics.categoriesUsed")}</span>
+                <span className="analytics-card-value">{(seedStats.totalCombinations / 1000000).toFixed(1)}M</span>
+                <span className="analytics-card-label">{t("analytics.seedCombinations") || "Seed Combinations"}</span>
               </div>
             </div>
             <div className="analytics-card">
@@ -220,8 +121,8 @@ export default function AnalyticsPage() {
                 <BarChart3 size={18} />
               </div>
               <div className="analytics-card-body">
-                <span className="analytics-card-value analytics-card-value-sm">{leastUsedCategory ? catLabel(leastUsedCategory) : "—"}</span>
-                <span className="analytics-card-label">{t("analytics.leastUsed")}</span>
+                <span className="analytics-card-value">{seedStats.totalNouns + seedStats.totalAdjectives + seedStats.totalContexts}</span>
+                <span className="analytics-card-label">{t("analytics.seedWords") || "Seed Words"}</span>
               </div>
             </div>
           </div>
@@ -272,55 +173,31 @@ export default function AnalyticsPage() {
           )}
 
           <div className="analytics-section">
-            <h3 className="analytics-section-title">
-              {t("analytics.categoryUsage")}
-              <span className="analytics-section-badge">{categoriesUsed} {t("analytics.of")} {ALL_CATEGORIES.length}</span>
-            </h3>
-            <div className="analytics-bars">
-              {sortedCategories.map(cat => {
-                const count = merged[cat] || 0;
-                const level = count === 0 ? "unused" : count >= maxCatCount * 0.7 ? "high" : count >= maxCatCount * 0.3 ? "medium" : "low";
-                return (
-                  <div key={cat} className={`analytics-bar-row analytics-bar-${level}`}>
-                    <span className="analytics-bar-name">{catLabel(cat)}</span>
-                    <div className="analytics-bar-track">
-                      {count > 0 && <div className={`analytics-bar-fill analytics-bar-fill-${level}`}
-                        style={{ width: `${Math.max(4, (count / maxCatCount) * 100)}%` }} />}
-                    </div>
-                    <span className="analytics-bar-count">{count}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="analytics-section">
-            <h3 className="analytics-section-title">
-              {t("analytics.coverageMap")}
-              <span className="analytics-section-badge">{coveragePercent}%</span>
-            </h3>
-            <div className="analytics-coverage-bar-wrap">
-              <div className="analytics-coverage-bar-bg">
-                <div className="analytics-coverage-bar-fill" style={{ width: `${coveragePercent}%` }} />
+            <h3 className="analytics-section-title">{t("analytics.seedSystem") || "AI Freedom Seed System"}</h3>
+            <div className="analytics-seed-info">
+              <div className="analytics-seed-stat">
+                <span className="analytics-seed-number">{seedStats.totalNouns}</span>
+                <span className="analytics-seed-label">{t("analytics.nouns") || "Nouns"}</span>
               </div>
-              <span className="analytics-coverage-bar-text">{coveragePercent}% {t("analytics.explored")}</span>
+              <span className="analytics-seed-op">&times;</span>
+              <div className="analytics-seed-stat">
+                <span className="analytics-seed-number">{seedStats.totalAdjectives}</span>
+                <span className="analytics-seed-label">{t("analytics.adjectives") || "Adjectives"}</span>
+              </div>
+              <span className="analytics-seed-op">&times;</span>
+              <div className="analytics-seed-stat">
+                <span className="analytics-seed-number">{seedStats.totalContexts}</span>
+                <span className="analytics-seed-label">{t("analytics.contexts") || "Contexts"}</span>
+              </div>
+              <span className="analytics-seed-op">=</span>
+              <div className="analytics-seed-stat analytics-seed-total">
+                <span className="analytics-seed-number">{seedStats.totalCombinations.toLocaleString()}</span>
+                <span className="analytics-seed-label">{t("analytics.combinations") || "Combinations"}</span>
+              </div>
             </div>
-            <div className="analytics-coverage-grid">
-              {ALL_CATEGORIES.map(cat => {
-                const used = usedCategories.has(cat);
-                const count = merged[cat] || 0;
-                const heat = count > 0 ? Math.min(1, count / maxCatCount) : 0;
-                return (
-                  <div key={cat}
-                    className={`analytics-coverage-cell ${used ? "used" : "unused"}`}
-                    style={used ? { "--heat": heat } : undefined}
-                    title={`${catLabel(cat)}: ${count}`}>
-                    <span className="analytics-coverage-cell-name">{catLabel(cat)}</span>
-                    {used && <span className="analytics-coverage-cell-count">{count}</span>}
-                  </div>
-                );
-              })}
-            </div>
+            <p className="analytics-seed-note">
+              {t("analytics.seedNote") || "These seed words are just creative nudges — AI has full freedom to choose ANY halal subject in the world. True diversity is unlimited."}
+            </p>
           </div>
 
           <div className="analytics-actions">
