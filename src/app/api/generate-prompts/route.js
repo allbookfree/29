@@ -302,7 +302,7 @@ export async function POST(request) {
     if (typeof validation === "string") {
       return jsonError(validation, 400, "VALIDATION_ERROR");
     }
-
+ 
     const { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoCategory, autoContext, festivalContext, previousPrompts } = validation;
     const systemPrompt = buildSystemPrompt(type, quantity, customInstructions, { style, mood, lighting, camera, shot, speed, negativePrompt, autoMode: !!autoMode });
     let userPrompt = buildDiverseUserPrompt(concept, previousPrompts, { autoMode, autoCategory, autoContext, type });
