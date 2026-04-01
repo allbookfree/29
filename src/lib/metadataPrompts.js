@@ -13,10 +13,10 @@ Return ONLY a valid JSON object (no markdown, no code blocks, no explanations):
 TITLE (SEO-OPTIMIZED):
 - Maximum 70 characters
 - Front-load the primary keyword — the most searchable term MUST come first
-- Structure: [Primary Subject] + [Action/State] + [Setting/Context] + [Style or Mood]
+- Structure: [Primary Subject] + [Action/State] + [Setting/Context] + [Concept or Use-Case]
+- End with the commercial concept or buyer use-case when possible — buyers search by need, not just object
 - Title Case capitalization
 - Write like a buyer would search — specific, natural-sounding, not keyword-stuffed
-- Good: "Fresh Organic Vegetables on Rustic Wooden Table, Farm Kitchen" — Bad: "Photo of food"
 - Must be unique and descriptive — never generic
 
 DESCRIPTION (SEO-RICH):
@@ -26,18 +26,25 @@ DESCRIPTION (SEO-RICH):
 - Include a commercial use context (advertising, website, editorial, social media)
 - Write like professional editorial copy — imagine a news caption or art director brief
 
+TITLE-KEYWORD ALIGNMENT (CRITICAL FOR RANKING):
+- The most important words from your title MUST also appear within the first 10 keywords
+- This reinforces the algorithm's confidence — when title and top keywords tell the same story, the image ranks higher
+- Do NOT just copy the title into keywords — break it into individual searchable terms and concepts
+
 KEYWORDS (CRITICAL — THIS IS WHERE SALES ARE WON OR LOST):
 - Provide 25-49 high-quality keywords, comma-separated — QUALITY OVER QUANTITY. Every single keyword must be 100% relevant. It is BETTER to give 30 perfect keywords than 49 with filler. Never pad with irrelevant terms.
 - THE FIRST 10 KEYWORDS ARE THE MOST IMPORTANT — platforms give them the highest search weight
 - Keyword ordering MUST follow this priority structure:
-  Slots 1-2: Primary concept / commercial use case (what a buyer needs this for — e.g., "sustainability", "remote work", "wellness")
-  Slots 3-4: Main subject (the hero of the image — e.g., "wooden table", "autumn leaves", "coffee cup")
-  Slots 5-6: Setting / environment (e.g., "rustic kitchen", "outdoor garden", "studio shot")
-  Slots 7-8: Mood / emotion / abstract concept (e.g., "cozy", "tranquil", "freshness", "natural beauty")
-  Slots 9-10: Industry / commercial vertical (e.g., "food photography", "home decor", "lifestyle")
+  Slots 1-2: Primary concept / commercial use case (what a buyer needs this for)
+  Slots 3-4: Main subject (the hero of the image)
+  Slots 5-6: Setting / environment
+  Slots 7-8: Mood / emotion / abstract concept
+  Slots 9-10: Industry / commercial vertical
   Slots 11-20: Colors, textures, materials, composition, lighting style
   Slots 21-35: Secondary objects, seasonal terms, related concepts, broader themes
   Slots 36-49: Long-tail variations, alternative phrasings, niche use cases
+- USE MULTI-WORD PHRASES alongside single words — "business meeting" as one keyword is stronger than "business" and "meeting" separately, because buyers search in phrases. Include both the phrase AND individual terms for maximum coverage.
+- COPY SPACE AWARENESS: If the image has significant empty/negative space suitable for text overlay, include relevant terms like "copy space", "text space", "negative space", or "background with space" — designers actively filter for this when creating ads, banners, and social media posts
 - Think BUYER INTENT, not just visual description — buyers search by CONCEPTS ("sustainable living", "morning routine") not just objects ("cup", "tree")
 - BANNED WORDS — NEVER include these as keywords: "photo", "image", "stock", "picture", "photograph", "photography", "stock photo", "royalty free", "clip art", "artwork", "digital art", "AI generated", "high quality", "high resolution", "HD", "4K", "beautiful", "nice", "good" — the platform already knows the file type, and generic quality terms waste slots
 - Include singular and plural for the 2-3 most important terms
@@ -58,10 +65,10 @@ Return ONLY a valid JSON object (no markdown, no code blocks, no explanations):
 TITLE (SEO-OPTIMIZED):
 - Maximum 70 characters
 - Front-load the primary keyword — the most searchable design term MUST come first
-- Structure: [Subject] + [Design Style] + [Use Case or Context]
+- Structure: [Subject] + [Design Style] + [Concept or Use-Case]
+- End with the commercial concept or project use-case when possible — designers search by what they need the asset for
 - Title Case capitalization
 - Write naturally — as a designer would search for this asset
-- Good: "Business Growth Chart Isometric Illustration, Finance Concept" — Bad: "Vector drawing"
 - Must be specific and descriptive — never generic
 
 DESCRIPTION (SEO-RICH):
@@ -71,19 +78,26 @@ DESCRIPTION (SEO-RICH):
 - Include commercial application context (app design, presentation, social media, web, packaging)
 - Write like a professional design portfolio description
 
+TITLE-KEYWORD ALIGNMENT (CRITICAL FOR RANKING):
+- The most important words from your title MUST also appear within the first 10 keywords
+- This reinforces the algorithm's confidence — when title and top keywords tell the same story, the asset ranks higher
+- Do NOT just copy the title into keywords — break it into individual searchable design terms and concepts
+
 KEYWORDS (CRITICAL — THIS IS WHERE SALES ARE WON OR LOST):
 - Provide 25-49 high-quality keywords, comma-separated — QUALITY OVER QUANTITY. Every single keyword must be 100% relevant. It is BETTER to give 30 perfect keywords than 49 with filler. Never pad with irrelevant terms.
 - THE FIRST 10 KEYWORDS ARE THE MOST IMPORTANT — platforms give them the highest search weight
 - DO NOT waste keyword slots on file type or generic quality terms — the platform already categorizes the file type automatically
 - Keyword ordering MUST follow this priority structure:
-  Slots 1-2: Primary concept / commercial use case (e.g., "business growth", "social media template", "eco friendly")
-  Slots 3-4: Main subject (e.g., "chart", "icon set", "workspace")
-  Slots 5-6: Design style (e.g., "flat design", "isometric", "minimalist", "line art")
-  Slots 7-8: Abstract concept / theme (e.g., "success", "teamwork", "technology", "education")
-  Slots 9-10: Industry / application (e.g., "infographic", "web design", "app icon", "presentation")
+  Slots 1-2: Primary concept / commercial use case
+  Slots 3-4: Main subject
+  Slots 5-6: Design style
+  Slots 7-8: Abstract concept / theme
+  Slots 9-10: Industry / application
   Slots 11-20: Colors, specific elements, composition style, design details
   Slots 21-35: Related concepts, alternative use cases, broader themes
   Slots 36-49: Long-tail variations, niche design terms, trending concepts
+- USE MULTI-WORD PHRASES alongside single words — "social media template" as one keyword is stronger than the words separately, because designers search in phrases. Include both the phrase AND individual terms for maximum coverage.
+- COPY SPACE AWARENESS: If the illustration has significant empty/negative space suitable for text overlay, include relevant terms like "copy space", "text space", "template background", or "space for text" — designers actively filter for this when creating presentations, social posts, and marketing materials
 - CONCEPTUAL keywords are MORE important for illustrations than photos — lean heavily into abstract concepts, themes, and use cases
 - Think BUYER INTENT — designers search by PROJECT NEED ("onboarding illustration", "dashboard icon") not just visual description
 - BANNED WORDS — NEVER include these as keywords: "vector", "illustration", "clip art", "stock", "artwork", "digital art", "AI generated", "royalty free", "high quality", "high resolution", "HD", "4K", "beautiful", "nice", "good", "image", "picture", "graphic design" — the platform already knows the file type, and generic quality terms waste slots
