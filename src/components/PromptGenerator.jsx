@@ -9,7 +9,7 @@ import { copyToClipboard, downloadPromptsCsv, downloadPromptsTxt, parseNumberedP
 import { mapApiError } from "@/lib/apiErrors";
 import { getAntiRepeatSample, saveToPromptHistory } from "@/lib/promptHistory";
 import { getRandomSeeds } from "@/lib/subjectPool";
-import { getUpcomingFestivals, getFestivalSubjects, getFestivalContext } from "@/lib/festivalCalendar";
+import { getUpcomingFestivals, getFestivalContext } from "@/lib/festivalCalendar";
 import { PROVIDERS_UI, MODEL_LABELS } from "@/config/models";
 import { PROMPT_TEMPLATES } from "@/config/templates";
 import DebugPanel from "@/components/DebugPanel";
@@ -429,21 +429,11 @@ export default function PromptGenerator({
 
     try {
       let autoSubject, autoCategory, autoContext;
-      const freshFestivals = festivalMode ? getUpcomingFestivals(30) : [];
-      if (festivalMode && freshFestivals.length > 0) {
-        setUpcomingFestivals(freshFestivals);
-        const fest = freshFestivals[Math.floor(Math.random() * Math.min(freshFestivals.length, 3))];
-        const subjects = getFestivalSubjects(fest);
-        autoSubject = subjects[Math.floor(Math.random() * subjects.length)];
-        autoCategory = fest.name;
-        autoContext = "";
-      } else {
-        const seeds = getRandomSeeds(1);
-        const seed = seeds[0];
-        autoSubject = seed.seedPhrase;
-        autoCategory = "ai-free-choice";
-        autoContext = seed.context;
-      }
+      const seeds = getRandomSeeds(1);
+      const seed = seeds[0];
+      autoSubject = seed.seedPhrase;
+      autoCategory = "ai-free-choice";
+      autoContext = seed.context;
 
       const antiRepeat = getAntiRepeatSample(type);
       const payload = {
@@ -459,9 +449,6 @@ export default function PromptGenerator({
         autoCategory,
         autoContext: autoContext || "",
       };
-      if (festivalMode && freshFestivals.length > 0) {
-        payload.festivalContext = getFestivalContext(freshFestivals);
-      }
       if (advancedOn && customInstructions.trim()) {
         payload.customInstructions = customInstructions.trim();
       }
