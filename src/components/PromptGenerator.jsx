@@ -10,7 +10,7 @@ import { mapApiError } from "@/lib/apiErrors";
 import { getAntiRepeatSample, saveToPromptHistory } from "@/lib/promptHistory";
 import { getRandomSubjects } from "@/lib/subjectPool";
 import { getUpcomingFestivals, getFestivalSubjects, getFestivalContext } from "@/lib/festivalCalendar";
-import { getCategoryUsage, recordMultipleCategoryUsage } from "@/lib/categoryTracker";
+import { getCategoryUsage, getUsedSubjects, recordMultipleCategoryUsage, recordUsedSubjects } from "@/lib/categoryTracker";
 import { PROVIDERS_UI, MODEL_LABELS } from "@/config/models";
 import { PROMPT_TEMPLATES } from "@/config/templates";
 import DebugPanel from "@/components/DebugPanel";
@@ -429,7 +429,7 @@ export default function PromptGenerator({
     setGenStep(1);
 
     try {
-      let autoSubject, autoCategory;
+      let autoSubject, autoCategory, autoContext, autoSubjectKey;
       const freshFestivals = festivalMode ? getUpcomingFestivals(30) : [];
       if (festivalMode && freshFestivals.length > 0) {
         setUpcomingFestivals(freshFestivals);
@@ -437,12 +437,17 @@ export default function PromptGenerator({
         const subjects = getFestivalSubjects(fest);
         autoSubject = subjects[Math.floor(Math.random() * subjects.length)];
         autoCategory = fest.name;
+        autoContext = "";
+        autoSubjectKey = `festival::${autoSubject}`;
       } else {
         const usage = getCategoryUsage(type);
-        const picks = getRandomSubjects(usage, 1);
+        const usedSubjects = getUsedSubjects(type);
+        const picks = getRandomSubjects(type, usage, usedSubjects, 1);
         const pick = picks[0];
-        autoSubject = pick.subject;
+        autoSubject = pick.fullConcept;
         autoCategory = pick.category;
+        autoContext = pick.context;
+        autoSubjectKey = pick.subjectKey;
       }
 
       const antiRepeat = getAntiRepeatSample(type);
@@ -457,9 +462,10 @@ export default function PromptGenerator({
         autoMode: true,
         autoSubject,
         autoCategory,
+        autoContext: autoContext || "",
       };
-      if (festivalMode && upcomingFestivals.length > 0) {
-        payload.festivalContext = getFestivalContext(upcomingFestivals);
+      if (festivalMode && freshFestivals.length > 0) {
+        payload.festivalContext = getFestivalContext(freshFestivals);
       }
       if (advancedOn && customInstructions.trim()) {
         payload.customInstructions = customInstructions.trim();
@@ -560,6 +566,7 @@ export default function PromptGenerator({
         setPrompts(final);
         saveToPromptHistory(type, final);
         recordMultipleCategoryUsage(type, [autoCategory]);
+        if (autoSubjectKey) recordUsedSubjects(type, [autoSubjectKey]);
         if (qualityScoring) runScoring(final);
         setDebugData(prev => prev ? { ...prev, rawResponse: buf.slice(0, 3000), parsedOutput: final } : prev);
       }

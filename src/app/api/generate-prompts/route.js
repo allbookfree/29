@@ -38,7 +38,7 @@ function pickRandom(arr, n) {
   return shuffled.slice(0, n);
 }
 
-function buildDiverseUserPrompt(concept, previousPrompts = [], { autoMode = false, autoCategory = "", type = "image" } = {}) {
+function buildDiverseUserPrompt(concept, previousPrompts = [], { autoMode = false, autoCategory = "", autoContext = "", type = "image" } = {}) {
   const seed = Math.floor(Math.random() * 999983);
   const shared = DIVERSITY_POOLS.shared;
   const era = pickRandom(shared.era, 2).join(" or ");
@@ -86,17 +86,32 @@ ${typeSpecificHint}`;
 ${previousPrompts.slice(0, 12).map((p, i) => `${i + 1}. ${String(p).slice(0, 150)}`).join("\n")}`
     : "";
 
+  const contextHint = autoContext ? `\nCreative direction: ${autoContext}` : "";
+  const typeSpecificGuidance = type === "video"
+    ? `- Every prompt MUST describe a scene with inherent MOTION and temporal change — things moving, flowing, changing, growing, or transforming over time.
+- Include specific camera movements (dolly, crane, tracking, orbit) and describe the motion within the scene itself.
+- Avoid static compositions — stock video buyers need dynamic content with visual energy.`
+    : type === "vector"
+    ? `- Every prompt MUST describe content suitable for VECTOR illustration — clean lines, flat or gradient fills, scalable graphics.
+- Focus on icons, patterns, infographic elements, simple illustrations, logo concepts, UI elements, badges, and decorative designs.
+- Avoid photographic realism — vector art must be clean, simple, and commercially versatile for web, print, and app use.
+- Specify art style (flat, isometric, line art, geometric, hand-drawn, etc.) and intended use case.`
+    : `- Every prompt MUST describe a photographically compelling scene with specific lighting, composition, and mood.
+- Include camera angle, depth of field, color palette, and environment details.
+- Focus on images that work as stock photos: versatile compositions with copy space, clean backgrounds, and universal appeal.`;
+
   const autoBlock = autoMode && autoCategory
     ? `\n\n[AUTO MODE — COMMERCIAL MICROSTOCK INTELLIGENCE]
-Category: ${autoCategory} | Subject: "${concept}"
+Category: ${autoCategory} | Subject: "${concept}"${contextHint}
 You are generating for commercial microstock platforms (Shutterstock, Adobe Stock, Dreamstime).
+TYPE-SPECIFIC REQUIREMENTS (${type.toUpperCase()}):
+${typeSpecificGuidance}
 COMMERCIAL REQUIREMENTS:
-- Every prompt MUST describe an image/vector/video that buyers would purchase for business, marketing, or editorial use.
-- Focus on high-demand commercial themes: business concepts, seasonal events, trending topics, universal emotions, abstract concepts, food styling, travel destinations, technology, nature beauty, luxury lifestyle, wellness, education.
+- Every prompt MUST describe content that real buyers would license for business, marketing, editorial, or design use.
 - Each prompt should target a DIFFERENT buyer persona (marketer, blogger, designer, educator, publisher).
-- Include specific commercial details: clean backgrounds for text overlay space, versatile compositions for cropping, trending color palettes, on-trend visual styles.
-- Think like a stock contributor: what sells? What has search volume? What fills gaps in existing stock libraries?
-- Show "${concept}" in ${type === "video" ? "cinematic motion contexts" : type === "vector" ? "scalable design contexts" : "photographically compelling contexts"} — each prompt must present a COMPLETELY different commercial angle, setting, and artistic vision.`
+- Prioritize universally sellable concepts with broad market appeal — think search volume, trending themes, and gaps in stock libraries.
+- Show "${concept}" from COMPLETELY different commercial angles — each prompt must feel like it was created by a different creative director.
+- AVOID generating content that already floods stock marketplaces. Be original, unexpected, and fresh while remaining commercially viable.`
     : "";
 
   return `[Session seed: ${seed}]
@@ -173,8 +188,9 @@ function validateRequest(body) {
   const negativePrompt = typeof body.negativePrompt === "string" ? body.negativePrompt.trim().slice(0, 200) : "";
   const marketResearch = body.marketResearch === true;
   const autoMode = body.autoMode === true;
-  const autoSubject = typeof body.autoSubject === "string" ? body.autoSubject.trim().slice(0, 200) : "";
+  const autoSubject = typeof body.autoSubject === "string" ? body.autoSubject.trim().slice(0, 400) : "";
   const autoCategory = typeof body.autoCategory === "string" ? body.autoCategory.trim().slice(0, 100) : "";
+  const autoContext = typeof body.autoContext === "string" ? body.autoContext.trim().slice(0, 200) : "";
   const festivalContext = typeof body.festivalContext === "string" ? body.festivalContext.trim().slice(0, 2000) : "";
   const previousPrompts = Array.isArray(body.previousPrompts)
     ? body.previousPrompts.filter(p => typeof p === "string" && p.trim().length > 10).slice(0, 15)
@@ -194,7 +210,7 @@ function validateRequest(body) {
   }
 
   const effectiveConcept = autoMode && autoSubject ? autoSubject : concept;
-  return { concept: effectiveConcept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoSubject, autoCategory, festivalContext, previousPrompts };
+  return { concept: effectiveConcept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoSubject, autoCategory, autoContext, festivalContext, previousPrompts };
 }
 
 
@@ -287,9 +303,9 @@ export async function POST(request) {
       return jsonError(validation, 400, "VALIDATION_ERROR");
     }
 
-    const { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoCategory, festivalContext, previousPrompts } = validation;
+    const { concept, quantity, model, type, validKeys, apiKeysByModel, customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, marketResearch, autoMode, autoCategory, autoContext, festivalContext, previousPrompts } = validation;
     const systemPrompt = buildSystemPrompt(type, quantity, customInstructions, { style, mood, lighting, camera, shot, speed, negativePrompt, autoMode: !!autoMode });
-    let userPrompt = buildDiverseUserPrompt(concept, previousPrompts, { autoMode, autoCategory, type });
+    let userPrompt = buildDiverseUserPrompt(concept, previousPrompts, { autoMode, autoCategory, autoContext, type });
     if (festivalContext) {
       userPrompt += festivalContext;
     }

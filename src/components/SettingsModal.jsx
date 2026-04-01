@@ -92,6 +92,7 @@ export default function SettingsModal({ isOpen, onClose }) {
       "ai-prompt-studio-lang",
       "ph_image", "ph_vector", "ph_video",
       "cat_tracker_image", "cat_tracker_vector", "cat_tracker_video",
+      "subj_tracker_image", "subj_tracker_vector", "subj_tracker_video",
     ];
     try {
       for (const key of APP_PREFIXES) {
