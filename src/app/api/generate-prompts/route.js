@@ -117,7 +117,8 @@ ${previousPrompts.slice(0, 12).map((p, i) => `${i + 1}. ${String(p).slice(0, 150
 - Focus on HIGH-DEMAND content categories: business/corporate backgrounds, nature/landscape loops, food preparation processes, aerial/drone establishing shots, workspace activity, product showcases, abstract motion graphics, time-lapse sequences, wellness/meditation scenes, technology/innovation visuals.
 - Consider creating LOOPABLE clips where possible — seamless loops are premium content for website backgrounds and presentations.
 - Include both horizontal (16:9) and consider vertical (9:16) framing opportunities for social media buyers.
-- Each video prompt must feel like a scene a real production company would shoot for a commercial client — the kind of footage used in TV commercials, corporate presentations, and social media campaigns.`
+- Each video prompt must feel like a scene a real production company would shoot for a commercial client — the kind of footage used in TV commercials, corporate presentations, and social media campaigns.
+- AI QUALITY SAFEGUARDS: Do NOT describe any readable text, signs, or writing in the video scene — AI-generated text is always garbled. Focus on pure visual storytelling without text elements. Ensure consistent lighting and natural physics throughout the described motion.`
     : type === "vector"
     ? `- Follow this prompt structure: [Subject] + [Art Style] + [Colors/Palette] + [Composition] + [Rendering Rules] + [Use Case].
 - Every prompt MUST describe content suitable for VECTOR conversion — the image will be converted to vector format using automated tracing tools, so clean edges and solid colors are CRITICAL for successful conversion.
@@ -127,7 +128,8 @@ ${previousPrompts.slice(0, 12).map((p, i) => `${i + 1}. ${String(p).slice(0, 150
 - Specify composition: isolated on pure white background (#FFFFFF), centered, or seamless pattern tile.
 - Include the intended use case: app icon, web icon set, infographic element, logo concept, social media asset, presentation graphic, UI illustration, packaging design, badge, sticker, or seamless pattern.
 - TOP-SELLING VECTOR CATEGORIES: business/finance icons, technology/AI illustrations, isometric workplace scenes, health/wellness graphics, eco/sustainability symbols, education/e-learning elements, infographic components (charts, timelines, diagrams), social media templates, diverse character sets, holiday/seasonal decorations.
-- Each design must be commercially practical — something a designer, marketer, or developer would actively search for and license for their real project.`
+- Each design must be commercially practical — something a designer, marketer, or developer would actively search for and license for their real project.
+- AI QUALITY SAFEGUARDS: Do NOT include any readable text, letters, numbers, labels, or writing in the design — AI cannot render clean text and it ruins vector conversion. Keep designs simple enough that every shape has a clear boundary for clean tracing.`
     : `- Follow this prompt structure: [Shot Type] + [Subject + Details] + [Setting] + [Lighting] + [Camera/Lens] + [Style/Mood] + [Color Palette].
 - Every image MUST look like a REAL photograph — photorealistic, believable, and professionally shot. No illustrations, no paintings, no artistic interpretations. Pure realistic photography only.
 - Think like a professional photographer — specify the complete visual brief as if directing a real photo shoot with real equipment.
@@ -139,7 +141,8 @@ ${previousPrompts.slice(0, 12).map((p, i) => `${i + 1}. ${String(p).slice(0, 150
 - Focus on images that work as premium stock photos: versatile compositions, clean backgrounds, and universal commercial appeal.
 - When the composition naturally allows it, include areas of soft focus, open sky, blurred background, or clean surface that could serve as copy space for text overlay — but NEVER force empty space that ruins the image's beauty. The image must look stunning on its own first.
 - TOP-SELLING NICHES: authentic lifestyle scenes, nature/landscapes, business/workspace, food photography, wellness/health, technology concepts, abstract textures, seasonal themes, architectural details, artisan crafts.
-- Each prompt must describe a scene that a real buyer would pay premium price for — think magazine covers, advertising campaigns, website heroes, and editorial features.`;
+- Each prompt must describe a scene that a real buyer would pay premium price for — think magazine covers, advertising campaigns, website heroes, and editorial features.
+- AI QUALITY SAFEGUARDS: Do NOT describe any readable text, signs, labels, letters, numbers, or writing in the scene — AI-generated text always appears garbled and causes rejection. Avoid overly complex overlapping objects that create rendering confusion. Ensure lighting direction and shadows are consistent throughout the scene. Describe natural authentic textures (wood grain, fabric weave, stone surface) rather than smooth plastic-like surfaces.`;
 
   const typeSpecificGuidance = engineerMode ? engineerGuidance : simpleGuidance;
 
