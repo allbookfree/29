@@ -112,7 +112,7 @@ async function callOpenRouterScore(apiKey, systemPrompt, userPrompt, specificMod
 
 async function callHuggingFaceScore(apiKey, systemPrompt, userPrompt) {
   const res = await fetchWithTimeout(
-    `https://router.huggingface.co/novita/v3/openai/chat/completions`,
+    `https://router.huggingface.co/v1/chat/completions`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
