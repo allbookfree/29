@@ -84,6 +84,8 @@ body {
   overflow-x: hidden;
   background: transparent;
   min-width: 0;
+  position: relative;
+  z-index: 1;
 }
 
 @media (max-width: 768px) {

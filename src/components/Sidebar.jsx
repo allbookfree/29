@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Sparkles, Image, Palette, Video, KeyRound, PanelLeftClose, PanelLeftOpen, X, Moon, Sun, Languages, BarChart3, History } from "lucide-react";
@@ -25,6 +25,34 @@ export default function Sidebar({ isOpen, onToggle }) {
   const { theme, toggle: toggleTheme } = useTheme();
   const { lang, setLang, t } = useLanguage();
 
+  const apiKeyRef = useRef(null);
+  const themeRef = useRef(null);
+  const langRef = useRef(null);
+  const collapseRef = useRef(null);
+
+  const handleApiKey = useCallback(() => setModal(true), []);
+  const handleTheme = useCallback(() => toggleTheme(), [toggleTheme]);
+  const handleLang = useCallback(() => setLang(lang === "en" ? "bn" : "en"), [lang, setLang]);
+  const handleCollapse = useCallback(() => setCollapsed(c => !c), []);
+
+  useEffect(() => {
+    const refs = [
+      { ref: apiKeyRef, handler: handleApiKey },
+      { ref: themeRef, handler: handleTheme },
+      { ref: langRef, handler: handleLang },
+      { ref: collapseRef, handler: handleCollapse },
+    ];
+    const cleanups = [];
+    for (const { ref, handler } of refs) {
+      const el = ref.current;
+      if (el) {
+        el.addEventListener("click", handler);
+        cleanups.push(() => el.removeEventListener("click", handler));
+      }
+    }
+    return () => cleanups.forEach(fn => fn());
+  }, [handleApiKey, handleTheme, handleLang, handleCollapse]);
+
   return (
     <>
       {isOpen && <div className="sidebar-overlay active" onClick={onToggle} />}
@@ -32,7 +60,7 @@ export default function Sidebar({ isOpen, onToggle }) {
         <div className="sidebar-top">
           <div className="logo-icon"><Sparkles size={18} /></div>
           {!collapsed && <span className="logo-text">PromptStudio</span>}
-          <button className="sidebar-close" onClick={onToggle} aria-label={t("nav.closeSidebar")}><X size={18} /></button>
+          <button type="button" className="sidebar-close" onClick={onToggle} aria-label={t("nav.closeSidebar")}><X size={18} /></button>
         </div>
         <nav className="sidebar-nav">
           {!collapsed && <p className="section-label">{t("nav.navigation")}</p>}
@@ -50,22 +78,22 @@ export default function Sidebar({ isOpen, onToggle }) {
           })}
         </nav>
         <div className="sidebar-bottom">
-          <button className="nav-item" onClick={() => setModal(true)} title={collapsed ? t("nav.apiKeys") : undefined}>
+          <div ref={apiKeyRef} className="nav-item" role="button" tabIndex={0} title={collapsed ? t("nav.apiKeys") : undefined} style={{ cursor: "pointer" }}>
             <div className="nav-icon"><KeyRound size={16} /></div>
             {!collapsed && <span className="nav-text">{t("nav.apiKeys")}</span>}
-          </button>
-          <button className="nav-item" onClick={toggleTheme} title={collapsed ? (theme === "dark" ? t("nav.lightMode") : t("nav.darkMode")) : undefined} aria-label={theme === "dark" ? t("nav.lightMode") : t("nav.darkMode")}>
+          </div>
+          <div ref={themeRef} className="nav-item" role="button" tabIndex={0} title={collapsed ? (theme === "dark" ? t("nav.lightMode") : t("nav.darkMode")) : undefined} aria-label={theme === "dark" ? t("nav.lightMode") : t("nav.darkMode")} style={{ cursor: "pointer" }}>
             <div className="nav-icon">{theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}</div>
             {!collapsed && <span className="nav-text">{theme === "dark" ? t("nav.lightMode") : t("nav.darkMode")}</span>}
-          </button>
-          <button className="nav-item" onClick={() => setLang(lang === "en" ? "bn" : "en")} title={collapsed ? (lang === "en" ? "বাংলা" : "English") : undefined}>
+          </div>
+          <div ref={langRef} className="nav-item" role="button" tabIndex={0} title={collapsed ? (lang === "en" ? "বাংলা" : "English") : undefined} style={{ cursor: "pointer" }}>
             <div className="nav-icon"><Languages size={16} /></div>
             {!collapsed && <span className="nav-text">{lang === "en" ? "বাংলা" : "English"}</span>}
-          </button>
-          <button className="nav-item collapse-btn" onClick={() => setCollapsed(!collapsed)}>
+          </div>
+          <div ref={collapseRef} className="nav-item collapse-btn" role="button" tabIndex={0} style={{ cursor: "pointer" }}>
             <div className="nav-icon">{collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}</div>
             {!collapsed && <span className="nav-text" style={{ color: "var(--text3)" }}>{t("nav.collapse")}</span>}
-          </button>
+          </div>
         </div>
       </aside>
       <SettingsModal isOpen={modal} onClose={() => setModal(false)} />

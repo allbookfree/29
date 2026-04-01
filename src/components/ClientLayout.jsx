@@ -16,7 +16,7 @@ function LayoutInner({ children }) {
     <div className="app">
       <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
       <main className="main">
-        <button className="mobile-btn" onClick={() => setSidebarOpen(true)} aria-label={t("nav.openMenu")}>
+        <button type="button" className="mobile-btn" onClick={() => setSidebarOpen(true)} aria-label={t("nav.openMenu")}>
           <Menu size={20} />
         </button>
         <ErrorBoundary>
