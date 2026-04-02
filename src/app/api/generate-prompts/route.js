@@ -519,9 +519,8 @@ Begin with market research, then generate ${quantity} commercially optimized pro
   let lastErr = null;
   for (const apiKey of geminiKeys) {
     try {
-      const resolvedModel = geminiModel && MODEL_IDS[geminiModel] ? geminiModel : "gemini-3";
-      const modelId = MODEL_IDS[resolvedModel];
-      const isGemini3 = resolvedModel.startsWith("gemini-3");
+      const modelId = MODEL_IDS["gemini-3"];
+      const isGemini3 = true;
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
 
       const genConfig = {

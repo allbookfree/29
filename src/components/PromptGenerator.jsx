@@ -292,7 +292,7 @@ export default function PromptGenerator({
 
     try {
       const antiRepeat = getAntiRepeatSample(type);
-      const payload = { concept: concept.trim(), quantity, model: marketResearch ? (selectedModels?.gemini || "gemini-3") : actualModelKey, apiKeys, apiKeysByModel, type, previousPrompts: antiRepeat };
+      const payload = { concept: concept.trim(), quantity, model: marketResearch ? "gemini-3" : actualModelKey, apiKeys, apiKeysByModel, type, previousPrompts: antiRepeat };
       if (festivalMode && upcomingFestivals.length > 0) {
         payload.festivalContext = getFestivalContext(upcomingFestivals);
       }
@@ -322,7 +322,7 @@ export default function PromptGenerator({
       setDebugData({
         hasData: true,
         userInput: {
-          concept: concept.trim(), quantity, provider: marketResearch ? "google" : model, model: marketResearch ? (selectedModels?.gemini || "gemini-3") : actualModelKey, type,
+          concept: concept.trim(), quantity, provider: marketResearch ? "google" : model, model: marketResearch ? "gemini-3" : actualModelKey, type,
           ...(payload.style && { style: payload.style }),
           ...(payload.mood && { mood: payload.mood }),
           ...(payload.lighting && { lighting: payload.lighting }),
@@ -440,7 +440,7 @@ export default function PromptGenerator({
       const payload = {
         concept: autoSubject,
         quantity,
-        model: useMarketResearch ? (selectedModels?.gemini || "gemini-3") : actualModelKey,
+        model: useMarketResearch ? "gemini-3" : actualModelKey,
         apiKeys,
         apiKeysByModel,
         type,
@@ -477,7 +477,7 @@ export default function PromptGenerator({
       setDebugData({
         hasData: true,
         userInput: {
-          concept: `[${useEngineerMode ? "ENGINEER" : "AUTO"}] ${autoSubject}`, quantity, provider: useMarketResearch ? "google" : model, model: useMarketResearch ? (selectedModels?.gemini || "gemini-3") : actualModelKey, type,
+          concept: `[${useEngineerMode ? "ENGINEER" : "AUTO"}] ${autoSubject}`, quantity, provider: useMarketResearch ? "google" : model, model: useMarketResearch ? "gemini-3" : actualModelKey, type,
           autoMode: true, autoCategory, ...(useEngineerMode && { engineerMode: true }),
           ...(useMarketResearch && { marketResearch: true }),
           ...(payload.style && { style: payload.style }),
