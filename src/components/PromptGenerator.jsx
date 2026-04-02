@@ -439,7 +439,7 @@ export default function PromptGenerator({
       const payload = {
         concept: autoSubject,
         quantity,
-        model: useMarketResearch ? "gemini" : actualModelKey,
+        model: useMarketResearch ? "gemini-3" : actualModelKey,
         apiKeys,
         apiKeysByModel,
         type,
@@ -476,7 +476,7 @@ export default function PromptGenerator({
       setDebugData({
         hasData: true,
         userInput: {
-          concept: `[${useEngineerMode ? "ENGINEER" : "AUTO"}] ${autoSubject}`, quantity, provider: useMarketResearch ? "google" : model, model: useMarketResearch ? "gemini" : actualModelKey, type,
+          concept: `[${useEngineerMode ? "ENGINEER" : "AUTO"}] ${autoSubject}`, quantity, provider: useMarketResearch ? "google" : model, model: useMarketResearch ? "gemini-3" : actualModelKey, type,
           autoMode: true, autoCategory, ...(useEngineerMode && { engineerMode: true }),
           ...(useMarketResearch && { marketResearch: true }),
           ...(payload.style && { style: payload.style }),

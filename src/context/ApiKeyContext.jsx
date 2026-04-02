@@ -17,7 +17,7 @@ const DEFAULT_KEYS = {
 };
 const DEFAULT_MODE = "local";
 const DEFAULT_SELECTED_MODELS = {
-  gemini: "gemini",
+  gemini: "gemini-3",
   groq: "groq",
   mistral: "mistral",
   openrouter: "or-auto",

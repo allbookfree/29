@@ -38,7 +38,7 @@ function parseScores(text, count) {
 
 async function callGeminiScore(apiKey, systemPrompt, userPrompt) {
   const res = await fetchWithTimeout(
-    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_IDS.gemini}:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_IDS["gemini-3"]}:generateContent?key=${apiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

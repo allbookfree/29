@@ -172,7 +172,7 @@ export function buildRequestBodyPreview(usedModel, systemPrompt, userMessage) {
         parts: [{ text: "(Combined market-research + generation prompt — built server-side. Includes real-time Google Search grounding instructions.)" }]
       }],
       tools: [{ google_search: {} }],
-      generationConfig: { temperature: 0.9, topP: 0.95, maxOutputTokens: 8192, thinkingConfig: { thinkingBudget: 0 } }
+      generationConfig: { temperature: 0.9, topP: 0.95, maxOutputTokens: 16384 }
     }, null, 2);
   }
 

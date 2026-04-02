@@ -519,7 +519,7 @@ Begin with market research, then generate ${quantity} commercially optimized pro
   let lastErr = null;
   for (const apiKey of geminiKeys) {
     try {
-      const modelId = MODEL_IDS.gemini;
+      const modelId = MODEL_IDS["gemini-3"];
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
 
       const res = await fetchWithTimeout(url, {
@@ -531,8 +531,7 @@ Begin with market research, then generate ${quantity} commercially optimized pro
           generationConfig: {
             temperature: 0.9,
             topP: 0.95,
-            maxOutputTokens: 8192,
-            thinkingConfig: { thinkingBudget: 0 },
+            maxOutputTokens: 16384,
           },
         }),
       }, 90000);
