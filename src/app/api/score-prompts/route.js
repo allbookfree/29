@@ -36,16 +36,19 @@ function parseScores(text, count) {
   return null;
 }
 
-async function callGeminiScore(apiKey, systemPrompt, userPrompt) {
+async function callGeminiScore(apiKey, systemPrompt, userPrompt, modelKey) {
+  const resolvedKey = modelKey && MODEL_IDS[modelKey] ? modelKey : "gemini-3";
+  const modelId = MODEL_IDS[resolvedKey];
+  const isGemini3 = resolvedKey.startsWith("gemini-3");
   const res = await fetchWithTimeout(
-    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_IDS["gemini-3"]}:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         system_instruction: { parts: [{ text: systemPrompt }] },
         contents: [{ parts: [{ text: userPrompt }] }],
-        generationConfig: { temperature: 0.3, maxOutputTokens: 1024 },
+        generationConfig: { temperature: 0.3, maxOutputTokens: 1024, ...(!isGemini3 ? { thinkingConfig: { thinkingBudget: 0 } } : {}) },
       }),
     }
   );
@@ -132,7 +135,7 @@ async function callHuggingFaceScore(apiKey, systemPrompt, userPrompt) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { prompts, type = "image", model = "gemini", apiKeys = {}, selectedModel } = body;
+    const { prompts, type = "image", model = "gemini", apiKeys = {}, selectedModel, selectedGeminiModel } = body;
 
     if (!Array.isArray(prompts) || prompts.length === 0) {
       return Response.json({ error: "No prompts to score" }, { status: 400 });
@@ -155,7 +158,7 @@ export async function POST(request) {
       try {
         let result = "";
         if (providerKey === "gemini") {
-          result = await callGeminiScore(key, systemPrompt, userPrompt);
+          result = await callGeminiScore(key, systemPrompt, userPrompt, selectedGeminiModel || model);
         } else if (providerKey === "groq") {
           result = await callGroqScore(key, systemPrompt, userPrompt);
         } else if (providerKey === "mistral") {

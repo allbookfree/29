@@ -396,7 +396,7 @@ export async function POST(request) {
     if (marketResearch) {
       const geminiKeys = apiKeysByModel ? sanitizeKeys(apiKeysByModel.gemini) : validKeys;
       if (!geminiKeys.length) return jsonError("Market Research requires a Google Gemini API key.", 400, "VALIDATION_ERROR");
-      return await handleMarketResearch(geminiKeys, systemPrompt, userPrompt, type, quantity, { customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt });
+      return await handleMarketResearch(geminiKeys, systemPrompt, userPrompt, type, quantity, { customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, geminiModel: model });
     }
 
     if (model === "openrouter" || model === "or-auto" || model.startsWith("or-")) {
@@ -465,7 +465,7 @@ export async function POST(request) {
   }
 }
 
-async function handleMarketResearch(geminiKeys, baseSystemPrompt, userConcept, type, quantity, { customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt } = {}) {
+async function handleMarketResearch(geminiKeys, baseSystemPrompt, userConcept, type, quantity, { customInstructions, style, mood, lighting, camera, shot, speed, negativePrompt, geminiModel } = {}) {
   const typeLabel = type === "vector" ? "vector/illustration" : type === "video" ? "stock video" : "stock photo";
   const platforms = "Adobe Stock, Shutterstock, iStock, Getty Images, Freepik, Dreamstime, Depositphotos";
 
@@ -519,8 +519,17 @@ Begin with market research, then generate ${quantity} commercially optimized pro
   let lastErr = null;
   for (const apiKey of geminiKeys) {
     try {
-      const modelId = MODEL_IDS["gemini-3"];
+      const resolvedModel = geminiModel && MODEL_IDS[geminiModel] ? geminiModel : "gemini-3";
+      const modelId = MODEL_IDS[resolvedModel];
+      const isGemini3 = resolvedModel.startsWith("gemini-3");
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+
+      const genConfig = {
+        temperature: 0.9,
+        topP: 0.95,
+        maxOutputTokens: isGemini3 ? 16384 : 8192,
+        ...(!isGemini3 ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+      };
 
       const res = await fetchWithTimeout(url, {
         method: "POST",
@@ -528,11 +537,7 @@ Begin with market research, then generate ${quantity} commercially optimized pro
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: researchPrompt }] }],
           tools: [{ google_search: {} }],
-          generationConfig: {
-            temperature: 0.9,
-            topP: 0.95,
-            maxOutputTokens: 16384,
-          },
+          generationConfig: genConfig,
         }),
       }, 90000);
 
@@ -697,7 +702,7 @@ async function callGemini(apiKey, systemPrompt, userPrompt, modelId) {
         temperature: 1.0,
         topP: 0.95,
         maxOutputTokens: modelId.startsWith("gemini-3") ? 16384 : 8192,
-        ...(modelId === MODEL_IDS.gemini ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+        ...(!modelId.startsWith("gemini-3") ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
       },
     }),
   });
